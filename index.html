@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Chess Arena : Le Royaume des Échecs</title>
+<title>Chess Arena 1988</title>
 <style>
-/* ── THÈME ET STYLE MÉDIÉVAL ET RETRO ── */
+/* ── THÈME VISUEL MÉDIÉVAL ET RETRO ── */
 @font-face {
     font-family: 'Medieval';
     src: local('Georgia'), local('Times New Roman');
@@ -42,7 +42,7 @@ body {
     align-items: center;
 }
 
-/* Boîte style parchemin usé */
+/* Boîte style parchemin ancien */
 .parchment {
     background: linear-gradient(145deg, #f4e4c1, #e8d5a3, #f0deb8);
     border: 4px solid var(--wood);
@@ -204,7 +204,7 @@ body {
     text-align: center;
 }
 
-/* Switch d'adversaire IA vs PvP */
+/* Choix de l'affrontement VS et AI */
 .opponent-switch-container {
     margin: 10px 0 15px;
 }
@@ -216,7 +216,7 @@ body {
 }
 .switch-btn {
     flex: 1;
-    padding: 10px;
+    padding: 12px 10px;
     border-radius: 8px;
     font-family: inherit;
     font-weight: bold;
@@ -225,6 +225,7 @@ body {
     background: var(--parchment-dark);
     color: var(--wood);
     transition: all 0.2s;
+    font-size: 14px;
 }
 .switch-btn.active {
     background: var(--gold);
@@ -289,7 +290,7 @@ body {
     color: white;
 }
 
-/* ── PLATEAU DE JEU ── */
+/* ── PLATEAU DE JEU ET COLORATION DES PIÈCES ── */
 #game-screen {
     padding-top: 65px;
     justify-content: flex-start;
@@ -337,14 +338,13 @@ body {
     transition: transform 0.8s ease-in-out;
 }
 
-/* Mode Combat 3D isométrique (Style Battle Chess) */
+/* Mode Battle Chess 1988 - Projection Isométrique 3D */
 .board.battle-3d {
     transform: perspective(800px) rotateX(28deg) rotateY(0deg) rotateZ(-3deg);
     box-shadow: -15px 25px 45px rgba(0,0,0,0.85);
 }
 .board.battle-3d .piece {
     transform: translateY(-8px) scale(1.15);
-    filter: drop-shadow(4px 8px 3px rgba(0,0,0,0.6));
 }
 
 .square {
@@ -380,9 +380,24 @@ body {
     color: transparent !important;
 }
 
+/* Coloration distinctive des pièces */
 .piece {
     z-index: 10;
     transition: transform 0.2s;
+    user-select: none;
+    line-height: 1;
+}
+
+/* Pièces Blanches */
+.piece-white {
+    color: #ffffff;
+    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.75));
+}
+
+/* Pièces Marron (Remplacent les Noires) */
+.piece-brown {
+    color: #5c3a1e;
+    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.85)) drop-shadow(0px 0px 1px #ffebd0);
 }
 
 /* Reserves pour le parachutage Crazyhouse */
@@ -410,7 +425,7 @@ body {
     transform: scale(1.15);
 }
 
-/* ── ARÈNE DE COMBAT 3D TEMPORAIRE ── */
+/* ── ARÈNE DE COMBAT DUELS ── */
 #battle-arena {
     display: none;
     position: fixed;
@@ -436,21 +451,6 @@ body {
     font-size: 6rem;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
-/* ── BULLE DU NARRATEUR EN PARCHEMIN ── */
-#narrator-bubble {
-    position: fixed;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 480px;
-    display: none;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 20px;
-    z-index: 10000;
-}
 </style>
 </head>
 <body>
@@ -459,22 +459,13 @@ body {
 <div class="top-bar" id="global-top-bar" style="display:none">
     <button class="hud-btn" onclick="exitToDashboard()">🏠 Menu</button>
     <span id="game-status-label" style="color:var(--gold); font-weight:bold; font-size:14px">Normal</span>
-    <div style="display:flex; gap:10px">
-        <button id="mute-toggle" onclick="toggleMute()">🔊 NARRATEUR</button>
-        <button id="view-toggle" onclick="toggleView3D()">Vue 2D</button>
-    </div>
-</div>
-
-<!-- Bulle Père Fouras -->
-<div id="narrator-bubble" class="parchment">
-    <span style="font-size:2.5rem">🧙‍♂️</span>
-    <p id="narrator-text" style="font-style:italic; font-size:0.95rem"></p>
+    <button class="hud-btn" id="view-toggle" onclick="toggleView3D()">Vue 2D</button>
 </div>
 
 <!-- ═══ DASHBOARD PRINCIPAL ═══ -->
 <div class="screen active" id="menu-screen">
     <div class="menu-container parchment">
-        <h1 class="menu-title">Chess Arena</h1>
+        <h1 class="menu-title">Chess Arena 1988</h1>
         
         <div class="category-title">⏱️ CADENCES DE TEMPS</div>
         <div class="grid-modes">
@@ -512,7 +503,7 @@ body {
             </div>
             <div class="mode-btn" onclick="openConfig('horde')">
                 <h4>👹 La Horde</h4>
-                <p>Une armée blanche de 36 pions déferle contre l'armée noire.</p>
+                <p>Une armée blanche de 36 pions déferle contre l'armée marron.</p>
             </div>
             <div class="mode-btn" onclick="openConfig('fog')">
                 <h4>🌫️ Brouillard</h4>
@@ -520,7 +511,7 @@ body {
             </div>
             <div class="mode-btn" onclick="openConfig('duck')">
                 <h4>🦆 Canard</h4>
-                <p>Bloque l'autre joueur en posant un canard jaune.</p>
+                <p>Bloque l'adversaire en posant un canard jaune.</p>
             </div>
         </div>
     </div>
@@ -531,16 +522,16 @@ body {
     <div class="popup-content parchment">
         <h3 id="config-mode-title">Configuration</h3>
         
-        <!-- Sélection du type d'affrontement (IA vs PvP) -->
+        <!-- Sélection de l'affrontement (VS ou AI) -->
         <div class="opponent-switch-container">
-            <label style="font-weight:bold; color:var(--blood)">Type d'affrontement :</label>
+            <label style="font-weight:bold; color:var(--blood)">Affrontement :</label>
             <div class="switch-buttons">
-                <button class="switch-btn active" id="btn-switch-ai" onclick="setOpponentType('ai')">🤖 VS IA</button>
-                <button class="switch-btn" id="btn-switch-pvp" onclick="setOpponentType('pvp')">👥 PVP LOCAL</button>
+                <button class="switch-btn active" id="btn-switch-ai" onclick="setOpponentType('ai')">🤖 VS BOT (AI)</button>
+                <button class="switch-btn" id="btn-switch-pvp" onclick="setOpponentType('pvp')">👥 VS JOUEUR (VS)</button>
             </div>
         </div>
 
-        <!-- Section de difficulté IA (affichée uniquement si type === 'ai') -->
+        <!-- Réglages de l'IA (dissimulés si PvP) -->
         <div class="slider-container" id="ai-difficulty-settings">
             <div class="diff-avatar" id="diff-avatar">♟️</div>
             <div class="diff-title" id="diff-title">Facile</div>
@@ -570,7 +561,7 @@ body {
 <div class="screen" id="game-screen">
     <div class="game-info">
         <div>
-            <div id="ai-avatar-tag" style="font-size:12px; color:var(--parchment-dark)">⬛ Pion Maladroit</div>
+            <div id="ai-avatar-tag" style="font-size:12px; color:var(--parchment-dark)">⬛ Marron (Bot)</div>
             <div class="clock" id="black-clock">60:00</div>
         </div>
         <div id="captured-by-white" style="font-size:24px"></div>
@@ -586,14 +577,14 @@ body {
 
     <div class="game-info">
         <div>
-            <div style="font-size:12px; color:var(--parchment-dark)">⬜ Toi</div>
+            <div style="font-size:12px; color:var(--parchment-dark)">⬜ Blanc (Toi)</div>
             <div class="clock active-clock" id="white-clock">60:00</div>
         </div>
         <div id="captured-by-black" style="font-size:24px"></div>
     </div>
 </div>
 
-<!-- VISUEL ANIMÉ CHOC COMBAT -->
+<!-- SCÈNE DE DUEL ANIMÉE RETRO -->
 <div id="battle-arena">
     <div class="battle-stage">
         <div class="fighter" id="attacker-fig">♟️</div>
@@ -647,43 +638,6 @@ function playSynthSound(type) {
             osc.start(now); osc.stop(now + 0.5);
         }
     } catch(e){}
-}
-
-// ── NARRATEUR VOCAL (Voix de vieux sage) ──
-let isMuted = false;
-
-function speakNarrator(text) {
-    if (isMuted) return;
-    const bubble = document.getElementById('narrator-bubble');
-    const bText = document.getElementById('narrator-text');
-    bText.innerText = text;
-    bubble.style.display = 'flex';
-    
-    if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
-        const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = 'fr-FR';
-        speech.pitch = 0.55;
-        speech.rate = 0.85;
-        speechSynthesis.speak(speech);
-    }
-    
-    setTimeout(() => { bubble.style.display = 'none'; }, 6000);
-}
-
-function toggleMute() {
-    isMuted = !isMuted;
-    const btn = document.getElementById('mute-toggle');
-    if (isMuted) {
-        btn.innerText = "🔇 SOURDINE";
-        btn.style.borderColor = "var(--blood)";
-        btn.style.color = "var(--blood)";
-        if ('speechSynthesis' in window) speechSynthesis.cancel();
-    } else {
-        btn.innerText = "🔊 NARRATEUR";
-        btn.style.borderColor = "var(--gold)";
-        btn.style.color = "var(--wood)";
-    }
 }
 
 // ── CONFIGURATION POPUP DIFFICULTÉ / ADVERSAIRE ──
@@ -745,16 +699,14 @@ function toggleView3D() {
     if (viewMode3D) {
         boardEl.classList.add('battle-3d');
         btn.innerText = "Vue 3D Combat";
-        speakNarrator("Mode Battle Chess 3D activé ! L'arène t'attend.");
     } else {
         boardEl.classList.remove('battle-3d');
         btn.innerText = "Vue 2D";
-        speakNarrator("Retour à la table d'analyse classique.");
     }
     renderBoard();
 }
 
-// ── MOTEUR DE JEU D'ÉCHECS MULTI-MODES ──
+// ── MOTEUR DE JEU D'ÉCHECS ET VARIANTES COMPLET ──
 const W = 0, B = 1;
 const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
 
@@ -852,7 +804,8 @@ function renderBoard() {
             const piece = board[r][c];
             if (piece) {
                 const span = document.createElement('span');
-                span.className = 'piece';
+                // Application de la couleur : Blanc ou Marron
+                span.className = `piece ${piece.c === W ? 'piece-white' : 'piece-brown'}`;
                 span.innerText = PIECE_SYMBOLS[piece.c] ? PIECE_SYMBOLS[piece.c][piece.t] : '🦆';
                 sq.appendChild(span);
             }
@@ -883,7 +836,7 @@ function renderReserves() {
         barW.innerHTML = '';
         reserves[W].forEach((t, i) => {
             const sp = document.createElement('span');
-            sp.className = `reserve-piece ${selectedReservePieceIndex === i && selectedReserveColor === W ? 'selected-drop' : ''}`;
+            sp.className = `reserve-piece piece-white ${selectedReservePieceIndex === i && selectedReserveColor === W ? 'selected-drop' : ''}`;
             sp.innerText = PIECE_SYMBOLS[W][t];
             sp.onclick = (e) => {
                 e.stopPropagation();
@@ -897,11 +850,11 @@ function renderReserves() {
             barW.appendChild(sp);
         });
         
-        // Réserve Noire (PvP uniquement interactive)
+        // Réserve Marron
         barB.innerHTML = '';
         reserves[B].forEach((t, i) => {
             const sp = document.createElement('span');
-            sp.className = `reserve-piece ${selectedReservePieceIndex === i && selectedReserveColor === B ? 'selected-drop' : ''}`;
+            sp.className = `reserve-piece piece-brown ${selectedReservePieceIndex === i && selectedReserveColor === B ? 'selected-drop' : ''}`;
             sp.innerText = PIECE_SYMBOLS[B][t];
             sp.onclick = (e) => {
                 e.stopPropagation();
@@ -922,7 +875,7 @@ function renderReserves() {
 
 function handleSquareClick(r, c) {
     if (gameFinished) return;
-    if (opponentType === 'ai' && activeTurn === B) return; // Verrouille le tour de l'IA
+    if (opponentType === 'ai' && activeTurn === B) return; // Bloque pendant le tour de l'IA
 
     // Placement obligatoire du Canard
     if (selectedMode === 'duck' && duckPlacementPhase) {
@@ -933,7 +886,7 @@ function handleSquareClick(r, c) {
             duckPlacementPhase = false;
             playSynthSound('capture');
             
-            // Fin de tour du joueur actif
+            // Passage au tour suivant
             activeTurn = 1 - activeTurn;
             renderBoard();
             if (opponentType === 'ai' && activeTurn === B) {
@@ -984,7 +937,6 @@ function handleSquareClick(r, c) {
         executeMove(fr, fc, r, c);
         selected = null;
     } else {
-        // En PvP, on permet la sélection des Blancs sur tour W, et Noirs sur tour B
         if (piece && piece.c === activeTurn && piece.t !== DUCK) {
             selected = [r, c];
             renderBoard();
@@ -999,6 +951,11 @@ function triggerBattleAnimation(att, vic, callback) {
     
     attF.innerText = PIECE_SYMBOLS[activeTurn][att] || '♟️';
     vicF.innerText = PIECE_SYMBOLS[1-activeTurn][vic] || '♟️';
+    
+    // Application correcte des styles de couleur blancs/marrons pour les combattants de l'arène
+    attF.className = `fighter ${activeTurn === W ? 'piece-white' : 'piece-brown'}`;
+    vicF.className = `fighter ${activeTurn === W ? 'piece-brown' : 'piece-white'}`;
+    
     arena.style.display = 'flex';
     
     setTimeout(() => {
@@ -1052,7 +1009,7 @@ function executeMove(fr, fc, r, c) {
         }
     }
 
-    // Victoires instantanées
+    // Victoires de variantes
     if (victim && victim.t === K && selectedMode !== 'duck') {
         handleEndGame(piece.c, "Le Roi adverse s'est fait capturer !");
         return;
@@ -1077,7 +1034,6 @@ function executeMove(fr, fc, r, c) {
         if (opponentType === 'ai' && piece.c === B) {
             placeDuckAI();
         } else {
-            speakNarrator("Déplace le canard jaune pour obstruer le passage.");
             renderBoard();
         }
         return;
@@ -1091,7 +1047,6 @@ function executeMove(fr, fc, r, c) {
     }
 }
 
-// placement automatique du canard pour l'IA
 function placeDuckAI() {
     board[duckPos[0]][duckPos[1]] = null;
     let emptySquares = [];
@@ -1107,7 +1062,7 @@ function placeDuckAI() {
     renderBoard();
 }
 
-// ── INTELLIGENCE ARTIFICIELLE IA CONTROLLER ──
+// ── COMPORTEMENT INTELLIGENCE ARTIFICIELLE ──
 function executeAIMove() {
     if (gameFinished) return;
     
@@ -1169,19 +1124,17 @@ function executeAIMove() {
     }
 }
 
-// ── FIN DES PARTIES ET CHRONOMETRE ──
+// ── FIN DES PARTIES ET CHRONOMETRES ──
 function handleEndGame(winner, reason) {
     gameFinished = true;
     clearInterval(timerInterval);
     
     if (winner === W) {
         playSynthSound('victory');
-        speakNarrator("Le camp Blanc triomphe ! Belle démonstration de force !");
         alert(`🏆 Victoire des Blancs ! \n${reason}`);
     } else {
         playSynthSound('victory');
-        speakNarrator("Le camp Noir l'emporte ! Fin du combat.");
-        alert(`🏆 Victoire des Noirs ! \n${reason}`);
+        alert(`🏆 Victoire des Marrons ! \n${reason}`);
     }
     
     exitToDashboard();
@@ -1196,15 +1149,15 @@ function launchGame() {
     document.getElementById('game-status-label').innerText = `${selectedMode.toUpperCase()} (${opponentType.toUpperCase()})`;
     
     if (opponentType === 'ai') {
-        document.getElementById('ai-avatar-tag').innerText = `⬛ IA : ${AI_DIFFICULTIES[currentDifficulty].name}`;
+        document.getElementById('ai-avatar-tag').innerText = `⬛ Marron (Bot : ${AI_DIFFICULTIES[currentDifficulty].name})`;
     } else {
-        document.getElementById('ai-avatar-tag').innerText = `⬛ Joueur Noir`;
+        document.getElementById('ai-avatar-tag').innerText = `⬛ Marron (Joueur 2)`;
     }
     
     setupBoardState();
     renderBoard();
     
-    // Configuration des timers
+    // Config chronos
     if (selectedMode === 'normal') {
         whiteTime = 3600; blackTime = 3600;
     } else if (selectedMode === 'blitz') {
@@ -1217,7 +1170,6 @@ function launchGame() {
     }
     
     startTimer();
-    speakNarrator("La confrontation débute ! Restez concentrés.");
 }
 
 function startTimer() {
@@ -1227,11 +1179,11 @@ function startTimer() {
         if (activeTurn === W) {
             whiteTime--;
             document.getElementById('white-clock').innerText = formatTime(whiteTime);
-            if (whiteTime <= 0) handleEndGame(B, "Temps écoulé pour le joueur Blanc !");
+            if (whiteTime <= 0) handleEndGame(B, "Temps écoulé pour les Blancs !");
         } else {
             blackTime--;
             document.getElementById('black-clock').innerText = formatTime(blackTime);
-            if (blackTime <= 0) handleEndGame(W, "Temps écoulé pour le joueur Noir !");
+            if (blackTime <= 0) handleEndGame(W, "Temps écoulé pour les Marrons !");
         }
     }, 1000);
 }
@@ -1249,9 +1201,6 @@ function exitToDashboard() {
     document.getElementById('global-top-bar').style.display = 'none';
     document.getElementById('menu-screen').style.display = 'flex';
 }
-
-// Message de bienvenue du narrateur
-speakNarrator("Salutations ! Sélectionne une variante de jeu et choisis si tu veux t'exercer face à mon IA ou défier un ami localement.");
 </script>
 </body>
 </html>
