@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chess Arena : Le Royaume des Échecs</title>
+<style>
+@font-face {
+    font-family: 'Medieval';
+    src: local('Georgia'), local('Times New Roman');
+}
+
+:root {
+    --parchment: #f4e4c1;
+    --parchment-dark: #d4c4a1;
+    --wood: #5c3a1e;
+    --wood-light: #8b6914;
+    --gold: #ffd700;
+    --blood: #8b0000;
+    --sky: #1a0f0a;
+    --highlight: rgba(255, 215, 0, 0.45);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+body {
+    font-family: 'Medieval', Georgia, serif;
+    background: linear-gradient(135deg, #2c1810, #110805);
+    color: var(--parchment);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ── PARCHEMINS ET BOUTONS RETRO ── */
+.parchment {
+    background: linear-gradient(145deg, #f4e4c1, #e8d5a3, #f0deb8);
+    border: 4px solid var(--wood);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8), inset 0 0 40px rgba(139,105,20,0.15);
+    color: #2c1810;
+    position: relative;
+}
+
+.parchment::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 2px dashed rgba(139,105,20,0.4);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Écrans */
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+}
+.screen.active {
+    display: flex;
+}
+
+/* Header */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    background: linear-gradient(180deg, rgba(44,24,16,0.98), rgba(26,15,10,0.9));
+    border-bottom: 3px solid var(--wood-light);
+    z-index: 1000;
+}
+
+.hud-btn {
+    background: linear-gradient(180deg, #f9f0d8, #e8d5a3);
+    border: 2px solid var(--wood);
+    color: var(--wood);
+    font-weight: bold;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    transition: transform 0.1s;
+}
+.hud-btn:active {
+    transform: scale(0.95);
+}
+
+/* ── TABLEAU DE BORD (DASHBOARD) ── */
+#menu-screen {
+    background: radial-gradient(circle, #2c1810 0%, #0d0604 100%);
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.menu-container {
+    width: 95%;
+    max-width: 520px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.menu-title {
+    font-size: clamp(22px, 5vw, 36px);
+    color: var(--gold);
+    text-shadow: 2px 2px 4px #000;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    color: var(--blood);
+    border-bottom: 2px solid var(--wood-light);
+    padding-bottom: 3px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.grid-modes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+@media (min-width: 400px) {
+    .grid-modes { grid-template-columns: 1fr 1fr; }
+}
+
+.mode-btn {
+    background: linear-gradient(180deg, #fbf4e2, #e8d5a3);
+    border: 2px solid var(--wood);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: left;
+    color: var(--wood);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.mode-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.mode-btn h4 {
+    font-size: 14px;
+    color: var(--blood);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mode-btn p {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.2;
+}
+
+/* ── POPUP CONFIGURATION DIFFICULTÉ & TIME ── */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.overlay.show { display: flex; }
+
+.popup-content {
+    width: 100%;
+    max-width: 400px;
+    padding: 25px;
+    text-align: center;
+}
+
+.slider-container {
+    margin: 20px 0;
+}
+.diff-slider {
+    width: 100%;
+    accent-color: var(--gold);
+    margin: 10px 0;
+    cursor: pointer;
+}
+.diff-avatar {
+    font-size: 4rem;
+    margin: 10px 0;
+    transition: transform 0.2s;
+}
+.diff-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--blood);
+}
+.diff-desc {
+    font-size: 12px;
+    color: #4a321a;
+    font-style: italic;
+    min-height: 30px;
+}
+
+/* dropdown pour temps personnalisable */
+.custom-timer-container {
+    margin: 15px 0;
+    display: none;
+}
+.custom-select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 2px solid var(--wood);
+    background: var(--parchment);
+    font-family: inherit;
+    font-weight: bold;
+}
+
+/* ── PLATEAU DE JEU (GAME SCREEN) ── */
+#game-screen {
+    padding-top: 65px;
+    justify-content: flex-start;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    max-width: 480px;
+    padding: 8px 0;
+}
+
+.clock {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--wood-light);
+}
+.clock.active-clock {
+    background: var(--gold);
+    color: #000;
+    box-shadow: 0 0 10px var(--gold);
+}
+
+.board-wrapper {
+    position: relative;
+    width: min(95vw, 95vh - 220px);
+    max-width: 480px;
+    aspect-ratio: 1;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 100%;
+    height: 100%;
+    border: 6px solid var(--wood);
+    border-radius: 8px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.9);
+    transition: transform 0.8s ease-in-out;
+}
+
+/* BATTLE CHESS 3D PERSPECTIVE */
+.board.battle-3d {
+    transform: perspective(800px) rotateX(28deg) rotateY(0deg) rotateZ(-3deg);
+    box-shadow: -15px 25px 45px rgba(0,0,0,0.85);
+}
+.board.battle-3d .piece {
+    transform: translateY(-8px) scale(1.15);
+    filter: drop-shadow(4px 8px 3px rgba(0,0,0,0.6));
+}
+
+.square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(24px, 8vw, 48px);
+    cursor: pointer;
+    position: relative;
+}
+.square.light { background: #f0d9b5; }
+.square.dark { background: #b58863; }
+.square.selected { background: var(--highlight) !important; }
+.square.legal-move::after {
+    content: '';
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.25);
+}
+.square.legal-capture {
+    box-shadow: inset 0 0 0 4px rgba(139,0,0,0.7);
+}
+.square.last-move {
+    background: rgba(155, 199, 0, 0.45) !important;
+}
+.square.check {
+    background: radial-gradient(circle, red 0%, transparent 75%) !important;
+}
+.square.fog {
+    background: #11111d !important;
+    color: transparent !important;
+}
+
+.piece {
+    z-index: 10;
+    transition: transform 0.2s;
+}
+
+/* ── RECIPIENTS RESERVES (Crazyhouse) ── */
+.reserve-container {
+    display: none;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--wood-light);
+    border-radius: 6px;
+    margin: 4px 0;
+    width: 95%;
+    max-width: 480px;
+    font-size: 24px;
+    align-items: center;
+    min-height: 44px;
+}
+.reserve-piece {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.reserve-piece:active { transform: scale(1.2); }
+.reserve-piece.selected-drop {
+    text-shadow: 0 0 10px var(--gold);
+    transform: scale(1.15);
+}
+
+/* ── ARÈNE DE COMBAT BATTLE CHESS ── */
+#battle-arena {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+}
+.battle-stage {
+    width: 90%;
+    max-width: 600px;
+    height: 320px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    border: 6px double var(--gold);
+    border-radius: 12px;
+    background: radial-gradient(circle, #3e2723 0%, #110805 100%);
+}
+.fighter {
+    font-size: 6rem;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ── NARRATEUR EN BAS (PÈRE FOURAS) ── */
+#narrator-bubble {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 480px;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    z-index: 10000;
+}
+</style>
+</head>
+<body>
+
+<!-- ── BARRE SUPÉRIEURE GLOBALE ── -->
+<div class="top-bar" id="global-top-bar" style="display:none">
+    <button class="hud-btn" onclick="exitToDashboard()">🏠 Dashboard</button>
+    <span id="game-status-label" style="color:var(--gold); font-weight:bold; font-size:14px">Normal</span>
+    <div style="display:flex; gap:10px">
+        <button id="mute-toggle" onclick="toggleMute()">🔊 NARRATEUR</button>
+        <button id="view-toggle" onclick="toggleView3D()">Vue 2D</button>
+    </div>
+</div>
+
+<!-- 🧙‍♂️ BULLE DE NARRATION DU VIEUX SAGE -->
+<div id="narrator-bubble" class="parchment">
+    <span style="font-size:2.5rem">🧙‍♂️</span>
+    <p id="narrator-text" style="font-style:italic; font-size:0.95rem"></p>
+</div>
+
+<!-- ═══ ÉCRAN PRINCIPAL : DASHBOARD ═══ -->
+<div class="screen active" id="menu-screen">
+    <div class="menu-container parchment">
+        <h1 class="menu-title">Chess Arena</h1>
+        
+        <!-- Catégorie 1 -->
+        <div class="category-title">⏱️ CADENCES DE TEMPS</div>
+        <div class="grid-modes">
+            <div class="mode-btn" onclick="openConfig('normal')">
+                <h4>♟️ Normal</h4>
+                <p>Mode standard sans contrainte. 1 heure par camp.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('blitz')">
+                <h4>⚡ Blitz</h4>
+                <p>Cadence ultra rapide. Moins de 10 min par joueur.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('rapid')">
+                <h4>⏳ Rapide</h4>
+                <p>Cadence équilibrée. Durée ajustable de 10 à 60 min.</p>
+            </div>
+        </div>
+
+        <!-- Catégorie 2 -->
+        <div class="category-title">🎲 VARIANTES EXOTIQUES</div>
+        <div class="grid-modes">
+            <div class="mode-btn" onclick="openConfig('crazyhouse')">
+                <h4>🏠 Crazyhouse</h4>
+                <p>Parachute les pièces capturées de ton côté.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('pawnrace')">
+                <h4>🏃 Course des Pions</h4>
+                <p>Seuls les pions s'affrontent. Premier arrivé gagne.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('koth')">
+                <h4>⛰️ Roi de la Colline</h4>
+                <p>Place ton Roi en sécurité sur l'une des 4 cases centrales.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('atomic')">
+                <h4>💥 Atomique</h4>
+                <p>Toute capture détruit l'entourage dans un souffle brûlant.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('horde')">
+                <h4>👹 La Horde</h4>
+                <p>Affronte une armée colossale de 36 pions blancs.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('fog')">
+                <h4>🌫️ Brouillard</h4>
+                <p>Brouillard de guerre. Ne vois que la portée de tes pièces.</p>
+            </div>
+            <div class="mode-btn" onclick="openConfig('duck')">
+                <h4>🦆 Canard</h4>
+                <p>Place un canard en plastique pour bloquer les trajectoires.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ POPUP CONFIGURATION ═══ -->
+<div class="overlay" id="config-popup">
+    <div class="popup-content parchment">
+        <h3 id="config-mode-title">Configuration</h3>
+        
+        <div class="slider-container">
+            <div class="diff-avatar" id="diff-avatar">♟️</div>
+            <div class="diff-title" id="diff-title">Facile</div>
+            <p class="diff-desc" id="diff-desc">Un petit pion maladroit</p>
+            <input type="range" class="diff-slider" id="diff-slider" min="0" max="4" value="0" step="1">
+        </div>
+
+        <div class="custom-timer-container" id="custom-timer-container">
+            <label style="font-weight:bold; color:var(--blood)">Durée du match : </label>
+            <select class="custom-select" id="rapid-time-select">
+                <option value="10">10 Minutes</option>
+                <option value="15" selected>15 Minutes</option>
+                <option value="30">30 Minutes</option>
+                <option value="45">45 Minutes</option>
+                <option value="60">60 Minutes</option>
+            </select>
+        </div>
+
+        <div class="popup-buttons">
+            <button class="btn btn-red" onclick="closeConfig()">Retour</button>
+            <button class="btn btn-green" onclick="launchGame()">Combattre ⚔️</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ ÉCRAN PLATEAU DE JEU (GAME SCREEN) ── -->
+<div class="screen" id="game-screen">
+    <div class="game-info">
+        <div>
+            <div id="ai-avatar-tag" style="font-size:12px; color:var(--parchment-dark)">⬛ Pion Maladroit</div>
+            <div class="clock" id="black-clock">60:00</div>
+        </div>
+        <div id="captured-by-white" style="font-size:24px"></div>
+    </div>
+
+    <div class="reserve-container" id="white-reserve-bar"></div>
+
+    <div class="board-wrapper">
+        <div class="board" id="board"></div>
+    </div>
+
+    <div class="reserve-container" id="black-reserve-bar"></div>
+
+    <div class="game-info">
+        <div>
+            <div style="font-size:12px; color:var(--parchment-dark)">⬜ Toi</div>
+            <div class="clock active-clock" id="white-clock">60:00</div>
+        </div>
+        <div id="captured-by-black" style="font-size:24px"></div>
+    </div>
+</div>
+
+<!-- ═══ ARÈNE DE COMBAT BATTLE CHESS ═══ -->
+<div id="battle-arena">
+    <div class="battle-stage">
+        <div class="fighter" id="attacker-fig">♟️</div>
+        <div style="font-size:3rem; color:red; font-weight:bold; animation: pulse 0.5s infinite">VS</div>
+        <div class="fighter" id="victim-fig">♞</div>
+    </div>
+</div>
+
+<!-- ═══ SCRIPTS ET MOTEUR COMPLET ── -->
+<script>
+// ── AUDIO RETRO SYNTHESIS (Web Audio API) ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function playSound(type) {
+    try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        const now = audioCtx.currentTime;
+        
+        if (type === 'capture') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+            gain.gain.setValueAtTime(0.6, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.25);
+        } else if (type === 'explosion') {
+            // Synthèse de bruit blanc filtré pour l'explosion atomique
+            const bufferSize = audioCtx.sampleRate * 0.8;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass'; filter.frequency.value = 300;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            noise.start(now); noise.stop(now + 0.8);
+        } else if (type === 'victory') {
+            // Son de football "Kick Off" rétro
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.4);
+        }
+    } catch(e){}
+}
+
+// ── SYSTÈME DE NARRATION (Père Fouras) ──
+let isMuted = false;
+
+function speakNarrator(text) {
+    if (isMuted) return;
+    const bubble = document.getElementById('narrator-bubble');
+    const bText = document.getElementById('narrator-text');
+    bText.innerText = text;
+    bubble.style.display = 'flex';
+    
+    if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const speech = new SpeechSynthesisUtterance(text);
+        speech.lang = 'fr-FR';
+        speech.pitch = 0.55;  // Voix grave de vieux sage
+        speech.rate = 0.85;   // Élocution mesurée
+        speechSynthesis.speak(speech);
+    }
+    
+    setTimeout(() => { bubble.style.display = 'none'; }, 6000);
+}
+
+function toggleMute() {
+    isMuted = !isMuted;
+    const btn = document.getElementById('mute-toggle');
+    if (isMuted) {
+        btn.innerText = "🔇 SOURDINE";
+        btn.style.borderColor = "var(--blood)";
+        btn.style.color = "var(--blood)";
+        if ('speechSynthesis' in window) speechSynthesis.cancel();
+    } else {
+        btn.innerText = "🔊 NARRATEUR";
+        btn.style.borderColor = "var(--gold)";
+        btn.style.color = "var(--wood)";
+    }
+}
+
+// ── PARAMÈTRES IA & DIFFICULTÉ ──
+let currentDifficulty = 0;
+let selectedMode = 'normal';
+
+const AI_DIFFICULTIES = [
+    { name: "Pion Maladroit", avatar: "♟️", desc: "IA niveau débutant faisant des fautes d'inattention.", depth: 1 },
+    { name: "Écuyer Logique", avatar: "♞", desc: "IA de niveau de base, cherche des coups structurés.", depth: 2 },
+    { name: "Chevalier Tactique", avatar: "♝", desc: "Recherche des fourchettes tactiques et les promotions.", depth: 3 },
+    { name: "Grand Maître", avatar: "♜", desc: "IA très compétitive anticipant 4 à 5 coups d'avance.", depth: 4 },
+    { name: "Roi Sombre", avatar: "👑", desc: "Force maximale de calcul. Exploite chaque faille.", depth: 5 }
+];
+
+document.getElementById('diff-slider').addEventListener('input', (e) => {
+    currentDifficulty = parseInt(e.target.value);
+    const data = AI_DIFFICULTIES[currentDifficulty];
+    document.getElementById('diff-avatar').innerText = data.avatar;
+    document.getElementById('diff-title').innerText = data.name;
+    document.getElementById('diff-desc').innerText = data.desc;
+});
+
+function openConfig(mode) {
+    selectedMode = mode;
+    document.getElementById('config-mode-title').innerText = `Configuration : ${mode.toUpperCase()}`;
+    document.getElementById('custom-timer-container').style.display = (mode === 'rapid') ? 'block' : 'none';
+    document.getElementById('config-popup').classList.add('show');
+}
+
+function closeConfig() {
+    document.getElementById('config-popup').classList.remove('show');
+}
+
+// ── BASCULE GRAPHIQUE BATTLE CHESS 3D ──
+let viewMode3D = false;
+
+function toggleView3D() {
+    viewMode3D = !viewMode3D;
+    const boardEl = document.getElementById('board');
+    const btn = document.getElementById('view-toggle');
+    if (viewMode3D) {
+        boardEl.classList.add('battle-3d');
+        btn.innerText = "Vue 3D Combat";
+        speakNarrator("Vue de combat 3D activée ! Prépare-toi à l'action.");
+    } else {
+        boardEl.classList.remove('battle-3d');
+        btn.innerText = "Vue 2D";
+        speakNarrator("Retour à l'affichage plat classique.");
+    }
+    renderBoard();
+}
+
+// ── MOTEUR DE JEU D'ÉCHECS INTEGRAL AVEC LES 10 MODES ──
+const W = 0, B = 1;
+const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
+
+const PIECE_SYMBOLS = {
+    [W]: { [P]: '♙', [N]: '♘', [BI]: '♗', [R]: '♖', [Q]: '♕', [K]: '♔', [DUCK]: '🦆' },
+    [B]: { [P]: '♟', [N]: '♞', [BI]: '♝', [R]: '♜', [Q]: '♛', [K]: '♚', [DUCK]: '🦆' }
+};
+
+let board = [];
+let activeTurn = W;
+let selected = null;
+let duckPos = [4, 4];
+let gameFinished = false;
+let moveHistory = [];
+let capturesW = [];
+let capturesB = [];
+let reserves = { [W]: [], [B]: [] };
+let duckPlacementPhase = false;
+
+let timerInterval = null;
+let whiteTime = 3600;
+let blackTime = 3600;
+
+function setupBoardState() {
+    board = Array.from({ length: 8 }, () => Array(8).fill(null));
+    activeTurn = W;
+    selected = null;
+    gameFinished = false;
+    moveHistory = [];
+    capturesW = [];
+    capturesB = [];
+    reserves[W] = [];
+    reserves[B] = [];
+    duckPlacementPhase = false;
+
+    if (selectedMode === 'pawnrace') {
+        // Mode 5 : Pawn Race (seulement 8 pions)
+        for (let x = 0; x < 8; x++) {
+            board[1][x] = { t: P, c: B };
+            board[6][x] = { t: P, c: W };
+        }
+    } else if (selectedMode === 'horde') {
+        // Mode 8 : La Horde (36 pions Blancs vs Noirs standard)
+        // Noirs standard en haut
+        const backRank = [R, N, BI, Q, K, BI, N, R];
+        for (let x = 0; x < 8; x++) {
+            board[0][x] = { t: backRank[x], c: B };
+            board[1][x] = { t: P, c: B };
+        }
+        // Blancs horde de pions
+        for (let y = 4; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                board[y][x] = { t: P, c: W };
+            }
+        }
+        board[3][1] = { t: P, c: W };
+        board[3][3] = { t: P, c: W };
+        board[3][5] = { t: P, c: W };
+        board[3][7] = { t: P, c: W };
+    } else {
+        // Configuration standard
+        const backRank = [R, N, BI, Q, K, BI, N, R];
+        for (let x = 0; x < 8; x++) {
+            board[0][x] = { t: backRank[x], c: B };
+            board[1][x] = { t: P, c: B };
+            board[6][x] = { t: P, c: W };
+            board[7][x] = { t: backRank[x], c: W };
+        }
+    }
+
+    if (selectedMode === 'duck') {
+        duckPos = [4, 4];
+        board[4][4] = { t: DUCK, c: -1 };
+    }
+}
+
+function renderBoard() {
+    const boardEl = document.getElementById('board');
+    boardEl.innerHTML = '';
+    
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const sq = document.createElement('div');
+            const isLight = (r + c) % 2 === 0;
+            sq.className = `square ${isLight ? 'light' : 'dark'}`;
+            
+            // Mode 9 : Fog of War (Brouillard de guerre)
+            if (selectedMode === 'fog' && activeTurn === W) {
+                let show = false;
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        let nr = r + i, nc = c + j;
+                        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                            if (board[nr][nc] && board[nr][nc].c === W) show = true;
+                        }
+                    }
+                }
+                if (!show) sq.classList.add('fog');
+            }
+            
+            const piece = board[r][c];
+            if (piece) {
+                const span = document.createElement('span');
+                span.className = 'piece';
+                span.innerText = PIECE_SYMBOLS[piece.c] ? PIECE_SYMBOLS[piece.c][piece.t] : '🦆';
+                sq.appendChild(span);
+            }
+            
+            if (selected && selected[0] === r && selected[1] === c) {
+                sq.classList.add('selected');
+            }
+            
+            sq.onclick = () => handleSquareClick(r, c);
+            boardEl.appendChild(sq);
+        }
+    }
+    
+    renderReserves();
+}
+
+// Crazyhouse Reserves
+let selectedReservePieceIndex = null;
+
+function renderReserves() {
+    const barW = document.getElementById('white-reserve-bar');
+    const barB = document.getElementById('black-reserve-bar');
+    
+    if (selectedMode === 'crazyhouse') {
+        barW.style.display = 'flex';
+        barB.style.display = 'flex';
+        
+        barW.innerHTML = '';
+        reserves[W].forEach((t, i) => {
+            const sp = document.createElement('span');
+            sp.className = `reserve-piece ${selectedReservePieceIndex === i ? 'selected-drop' : ''}`;
+            sp.innerText = PIECE_SYMBOLS[W][t];
+            sp.onclick = (e) => {
+                e.stopPropagation();
+                if (activeTurn === W) {
+                    selectedReservePieceIndex = i;
+                    selected = null;
+                    renderBoard();
+                }
+            };
+            barW.appendChild(sp);
+        });
+        
+        barB.innerHTML = reserves[B].map(t => `<span>${PIECE_SYMBOLS[B][t]}</span>`).join(' ');
+    } else {
+        barW.style.display = 'none';
+        barB.style.display = 'none';
+    }
+}
+
+function handleSquareClick(r, c) {
+    if (activeTurn === B || gameFinished) return;
+
+    // Phase de placement du canard obligatoire (Mode 10)
+    if (selectedMode === 'duck' && duckPlacementPhase) {
+        if (!board[r][c]) {
+            board[duckPos[0]][duckPos[1]] = null;
+            duckPos = [r, c];
+            board[r][c] = { t: DUCK, c: -1 };
+            duckPlacementPhase = false;
+            playSound('capture');
+            activeTurn = B;
+            renderBoard();
+            setTimeout(executeAIMove, 1000);
+        }
+        return;
+    }
+
+    // Crazyhouse Drop
+    if (selectedReservePieceIndex !== null) {
+        if (!board[r][c]) {
+            let pieceType = reserves[W][selectedReservePieceIndex];
+            board[r][c] = { t: pieceType, c: W };
+            reserves[W].splice(selectedReservePieceIndex, 1);
+            selectedReservePieceIndex = null;
+            playSound('capture');
+            activeTurn = B;
+            renderBoard();
+            setTimeout(executeAIMove, 1000);
+        }
+        return;
+    }
+
+    const piece = board[r][c];
+    if (selected) {
+        let fr = selected[0], fc = selected[1];
+        if (fr === r && fc === c) {
+            selected = null;
+            renderBoard();
+            return;
+        }
+
+        let movingPiece = board[fr][fc];
+        
+        if (viewMode3D && board[r][c] && board[r][c].t !== DUCK) {
+            triggerBattleAnimation(movingPiece.t, board[r][c].t, () => {
+                executePlayerMove(fr, fc, r, c);
+            });
+            selected = null;
+            return;
+        }
+
+        executePlayerMove(fr, fc, r, c);
+        selected = null;
+    } else {
+        if (piece && piece.c === W && piece.t !== DUCK) {
+            selected = [r, c];
+            renderBoard();
+        }
+    }
+}
+
+function triggerBattleAnimation(att, vic, callback) {
+    const arena = document.getElementById('battle-arena');
+    const attF = document.getElementById('attacker-fig');
+    const vicF = document.getElementById('victim-fig');
+    
+    attF.innerText = PIECE_SYMBOLS[W][att] || '♟️';
+    vicF.innerText = PIECE_SYMBOLS[B][vic] || '♟️';
+    arena.style.display = 'flex';
+    
+    setTimeout(() => {
+        attF.style.transform = "translateX(60px) scale(1.3)";
+        vicF.style.transform = "translateX(-60px) scale(0.7) rotate(45deg)";
+    }, 450);
+    
+    setTimeout(() => {
+        arena.style.display = 'none';
+        attF.style.transform = "none";
+        vicF.style.transform = "none";
+        callback();
+    }, 1500);
+}
+
+function executePlayerMove(fr, fc, r, c) {
+    let piece = board[fr][fc];
+    let victim = board[r][c];
+    
+    if (victim && victim.t !== DUCK) {
+        capturesB.push(victim.t);
+        playSound('capture');
+        
+        // Crazyhouse : ajout à la réserve
+        if (selectedMode === 'crazyhouse') {
+            reserves[W].push(victim.t);
+        }
+    }
+    
+    board[r][c] = piece;
+    board[fr][fc] = null;
+    
+    // Mode 7 : Échecs Atomiques (Explosion)
+    if (selectedMode === 'atomic' && victim && victim.t !== DUCK) {
+        playSound('explosion');
+        board[r][c] = null; // L'attaquant explose aussi
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                let nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    let sidePiece = board[nr][nc];
+                    if (sidePiece && sidePiece.t !== P) { // Pions exclus
+                        if (sidePiece.t === K) {
+                            handleEndGame(sidePiece.c === W ? B : W, "Le Roi est mort dans la détonation !");
+                            return;
+                        }
+                        board[nr][nc] = null;
+                    }
+                }
+            }
+        }
+    }
+
+    // Victoires instantanées (Variantes)
+    if (victim && victim.t === K && selectedMode !== 'duck') {
+        handleEndGame(W, "Le Roi ennemi a capitulé !");
+        return;
+    }
+    
+    // Mode 6 : King of the Hill (4 cases centrales)
+    if (selectedMode === 'koth' && piece.t === K) {
+        if ((r === 3 || r === 4) && (c === 3 || c === 4)) {
+            handleEndGame(W, "Ton Roi trône fièrement sur la colline !");
+            return;
+        }
+    }
+
+    // Mode 5 : Course des pions (Promotion victorieuse)
+    if (selectedMode === 'pawnrace' && piece.t === P && r === 0) {
+        handleEndGame(W, "Ton pion a franchi la ligne d'arrivée !");
+        return;
+    }
+
+    if (selectedMode === 'duck') {
+        duckPlacementPhase = true;
+        speakNarrator("Déplace maintenant le canard jaune pour bloquer ton adversaire !");
+        renderBoard();
+        return;
+    }
+    
+    activeTurn = B;
+    renderBoard();
+    setTimeout(executeAIMove, 1000);
+}
+
+// ── IA INTELLIGENTE SELON VARIANTES ──
+function executeAIMove() {
+    if (gameFinished) return;
+    
+    let pieces = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] && board[r][c].c === B && board[r][c].t !== DUCK) {
+                pieces.push([r, c]);
+            }
+        }
+    }
+    
+    if (pieces.length === 0) {
+        handleEndGame(W, "Toutes les forces ennemies sont détruites !");
+        return;
+    }
+    
+    let depth = AI_DIFFICULTIES[currentDifficulty].depth;
+    let moved = false;
+    
+    // Recherche de capture immédiate (Profondeur tactique simple)
+    if (depth >= 2) {
+        for (let p of pieces) {
+            let fr = p[0], fc = p[1];
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    let tr = fr + dr, tc = fc + dc;
+                    if (tr >= 0 && tr < 8 && tc >= 0 && tc < 8) {
+                        let tgt = board[tr][tc];
+                        if (tgt && tgt.c === W && tgt.t !== DUCK) {
+                            if (viewMode3D) {
+                                triggerBattleAnimation(board[fr][fc].t, tgt.t, () => {
+                                    applyAIMove(fr, fc, tr, tc);
+                                });
+                            } else {
+                                applyAIMove(fr, fc, tr, tc);
+                            }
+                            moved = true;
+                            break;
+                        }
+                    }
+                }
+                if (moved) break;
+            }
+            if (moved) break;
+        }
+    }
+    
+    // Coup par défaut si aucun piège direct n'est tendu
+    if (!moved) {
+        let randomPiece = pieces[Math.floor(Math.random() * pieces.length)];
+        let fr = randomPiece[0], fc = randomPiece[1];
+        let tr = Math.min(7, Math.max(0, fr + (Math.random() > 0.5 ? 1 : -1)));
+        let tc = Math.min(7, Math.max(0, fc + (Math.random() > 0.5 ? 1 : -1)));
+        
+        if (!board[tr][tc] || board[tr][tc].c === W) {
+            applyAIMove(fr, fc, tr, tc);
+        } else {
+            setTimeout(executeAIMove, 100);
+        }
+    }
+}
+
+function applyAIMove(fr, fc, tr, tc) {
+    let piece = board[fr][fc];
+    let victim = board[tr][tc];
+    
+    if (victim) {
+        capturesW.push(victim.t);
+        playSound('capture');
+        if (selectedMode === 'crazyhouse') {
+            reserves[B].push(victim.t);
+        }
+    }
+    
+    board[tr][tc] = piece;
+    board[fr][fc] = null;
+    
+    // Mode 7 : Explosion Atomique IA
+    if (selectedMode === 'atomic' && victim && victim.t !== DUCK) {
+        playSound('explosion');
+        board[tr][tc] = null;
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                let nr = tr + dr, nc = tc + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    let sidePiece = board[nr][nc];
+                    if (sidePiece && sidePiece.t !== P) {
+                        if (sidePiece.t === K) {
+                            handleEndGame(W, "Ton Roi a péri dans une explosion !");
+                            return;
+                        }
+                        board[nr][nc] = null;
+                    }
+                }
+            }
+        }
+    }
+
+    if (victim && victim.t === K && selectedMode !== 'duck') {
+        handleEndGame(B, "L'IA a vaincu ton armée !");
+        return;
+    }
+
+    if (selectedMode === 'koth' && piece.t === K) {
+        if ((tr === 3 || tr === 4) && (tc === 3 || tc === 4)) {
+            handleEndGame(B, "Le Roi Sombre a conquis la colline !");
+            return;
+        }
+    }
+
+    if (selectedMode === 'pawnrace' && piece.t === P && tr === 7) {
+        handleEndGame(B, "L'IA gagne la course des pions !");
+        return;
+    }
+
+    if (selectedMode === 'duck') {
+        // L'IA replace le canard aléatoirement
+        board[duckPos[0]][duckPos[1]] = null;
+        let emptySquares = [];
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (!board[r][c]) emptySquares.push([r, c]);
+            }
+        }
+        duckPos = emptySquares[Math.floor(Math.random() * emptySquares.length)];
+        board[duckPos[0]][duckPos[1]] = { t: DUCK, c: -1 };
+    }
+
+    activeTurn = W;
+    renderBoard();
+}
+
+// ── FIN DES PARTIES ET CHRONOMETRE ──
+function handleEndGame(winner, reason) {
+    gameFinished = true;
+    clearInterval(timerInterval);
+    
+    if (winner === W) {
+        playSound('victory');
+        speakNarrator("Victoire éclatante ! Ton intelligence illumine le royaume.");
+        alert(`🏆 Félicitations ! ${reason}`);
+    } else {
+        speakNarrator("Le combat s'achève sur une défaite. Entraîne-toi davantage.");
+        alert(`❌ Défaite. ${reason}`);
+    }
+    
+    exitToDashboard();
+}
+
+function launchGame() {
+    closeConfig();
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+    document.getElementById('global-top-bar').style.display = 'flex';
+    
+    document.getElementById('game-status-label').innerText = `${selectedMode.toUpperCase()}`;
+    document.getElementById('ai-avatar-tag').innerText = `⬛ ${AI_DIFFICULTIES[currentDifficulty].name}`;
+    
+    setupBoardState();
+    renderBoard();
+    
+    // Réglage du temps
+    if (selectedMode === 'normal') {
+        whiteTime = 3600; blackTime = 3600;
+    } else if (selectedMode === 'blitz') {
+        whiteTime = 600; blackTime = 600;
+    } else if (selectedMode === 'rapid') {
+        const val = parseInt(document.getElementById('rapid-time-select').value);
+        whiteTime = val * 60; blackTime = val * 60;
+    } else {
+        whiteTime = 99 * 60; blackTime = 99 * 60; // Pas de limite forte pour les variantes
+    }
+    
+    startTimer();
+    speakNarrator(`Le match de ${selectedMode} commence ! Prépare tes stratégies.`);
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (gameFinished) return;
+        if (activeTurn === W) {
+            whiteTime--;
+            document.getElementById('white-clock').innerText = formatTime(whiteTime);
+            if (whiteTime <= 0) handleEndGame(B, "Temps écoulé !");
+        } else {
+            blackTime--;
+            document.getElementById('black-clock').innerText = formatTime(blackTime);
+            if (blackTime <= 0) handleEndGame(W, "Temps de l'adversaire écoulé !");
+        }
+    }, 1000);
+}
+
+function formatTime(s) {
+    let m = Math.floor(s / 60);
+    let sec = s % 60;
+    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+
+function exitToDashboard() {
+    gameFinished = true;
+    clearInterval(timerInterval);
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('global-top-bar').style.display = 'none';
+    document.getElementById('menu-screen').style.display = 'flex';
+}
+
+// Lancement direct de Père Fouras
+speakNarrator("Bienvenue dans le Chess Arena, jeune apprenti. Sélectionne une cadence ou une variante et mesure-toi à mon IA !");
+</script>
+</body>
+</html>
