@@ -2,768 +2,983 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Chess Quest : Le Royaume des Rois</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chess Quest - Royaume des Rois</title>
+
 <style>
-/* =====================================================================
-   THÈME MÉDIÉVAL / RÉTRO
-   ===================================================================== */
 :root{
-  --wood:#5a3416; --wood2:#7a4a22; --parch:#e9d7a8; --parch2:#d9c087;
-  --ink:#3a2408; --gold:#e6b422; --red:#a3261c; --green:#2e7d32;
-  --light:#f0d9b5; --dark:#b58863;
+  --wood:#3b2113;--wood2:#714225;--gold:#ffd45b;
+  --paper:#f2ddb0;--paper2:#cfad72;--red:#8b1111;
+  --green:#196d31;--dark:#15100d;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html,body{margin:0;height:100%;font-family:Georgia,"Times New Roman",serif;color:var(--ink);
-  background:radial-gradient(circle at 50% 30%,#3b2a17 0%,#1b1208 100%);overflow:hidden}
-.screen{display:none;position:absolute;inset:0;overflow:auto;padding:12px}
-.screen.active{display:block}
-h1,h2,h3{font-family:"Palatino Linotype",Georgia,serif;text-align:center;margin:8px 0;
-  color:var(--gold);text-shadow:2px 2px 0 #000}
-h1{font-size:1.7em;letter-spacing:2px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;min-height:100vh;overflow-x:hidden;
+  font-family:Georgia,serif;color:#2b170b;
+  background:radial-gradient(circle at top,#704321,#1b100b 70%);
+}
+button,select{font-family:Georgia,serif;cursor:pointer}
+.hidden{display:none!important}
 
-/* Parchemin */
-.parch{background:linear-gradient(135deg,var(--parch),var(--parch2));border:6px solid var(--wood);
-  border-radius:8px;box-shadow:inset 0 0 40px rgba(90,52,22,.35),0 8px 20px #000;padding:14px;margin:10px auto;max-width:560px;position:relative}
-.parch:before,.parch:after{content:"";position:absolute;width:26px;height:26px;background:var(--wood2);
-  border-radius:50%;top:-14px;box-shadow:0 2px 4px #000}
-.parch:before{left:12px}.parch:after{right:12px}
-.cat{margin-top:16px;border-top:2px dashed var(--wood);padding-top:6px}
-.cat h3{color:var(--ink);text-shadow:none;font-size:1.05em}
+/* MENU */
+#menu{min-height:100vh;padding:25px 12px;display:flex;flex-direction:column;align-items:center}
+h1{color:var(--gold);text-shadow:3px 3px 0 #000,0 0 18px #e8a90a;text-align:center;margin:5px 0;font-size:clamp(30px,7vw,52px)}
+.subtitle{color:#ffe8aa;text-align:center;margin-bottom:15px;font-style:italic}
+.panel{
+  width:min(96vw,560px);padding:18px;
+  border:5px solid var(--wood);border-radius:14px;
+  background:linear-gradient(135deg,var(--paper),var(--paper2),var(--paper));
+  box-shadow:0 10px 30px #0009,inset 0 0 35px #8d5e243b;
+}
+.category{color:var(--red);border-bottom:2px solid #8d5e24;margin:13px 0 8px;padding-bottom:5px;font-weight:bold}
+.mode{
+  width:100%;text-align:left;margin:5px 0;padding:11px;
+  color:#31190a;font-size:16px;font-weight:bold;
+  border:2px solid var(--wood2);border-radius:8px;
+  background:linear-gradient(#fff0c7,#d9b879);
+}
+.mode:active{transform:scale(.98);background:var(--gold)}
+.mode small{display:block;color:#654529;font-style:italic;margin-top:3px}
 
-/* Boutons bois */
-button,.btn{font-family:inherit;font-size:1em;background:linear-gradient(#8a5a2b,#5a3416);color:#ffe9b0;
-  border:2px solid #2d1a08;border-radius:6px;padding:10px 14px;margin:4px;cursor:pointer;
-  box-shadow:0 3px 0 #2d1a08,inset 0 1px 0 #b98651;text-shadow:1px 1px 0 #000;transition:transform .08s}
-button:active{transform:translateY(3px);box-shadow:none}
-button.wide{display:block;width:100%;text-align:left}
-button.red{background:linear-gradient(#c0392b,#7b1d14)}
-button.green{background:linear-gradient(#43a047,#1b5e20)}
-button.small{padding:5px 8px;font-size:.85em}
-button:disabled{opacity:.45}
-.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
-.topbar{display:flex;justify-content:space-between;align-items:center;max-width:600px;margin:0 auto}
-.icon{font-size:1.4em;padding:6px 10px}
+/* CHOIX VS / AI */
+#opponentBox{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:15px;background:rgba(0,0,0,.78)}
+#opponentBox.show{display:flex}
+.opponent-panel{text-align:center}
+.opponent-panel h2{color:#7b1b12;margin-top:0}
+.opponent-btn{
+  width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;
+  margin:12px 0;padding:15px;border:3px solid #3b2113;border-radius:12px;
+  font-family:Georgia,serif;color:#2b170b;transition:transform .15s,filter .15s;
+}
+.opponent-btn:active{transform:scale(.97);filter:brightness(1.12)}
+.opponent-btn strong{font-size:27px}
+.opponent-btn small{font-size:14px;font-style:italic}
+.big-icon{font-size:38px}
+.vs-btn{background:linear-gradient(135deg,#f7e2a8,#c89b58)}
+.ai-btn{background:linear-gradient(135deg,#ded4d1,#927567)}
 
-/* Slider difficulté */
-input[type=range]{width:100%;accent-color:var(--red)}
-.avatar{font-size:3em;text-align:center;filter:drop-shadow(0 0 4px #000);transition:all .3s}
-.avatar.dark{filter:drop-shadow(0 0 12px #f00) hue-rotate(300deg);animation:glow 1.2s infinite alternate}
-@keyframes glow{from{transform:scale(1)}to{transform:scale(1.15)}}
-select{font-family:inherit;padding:6px;border-radius:4px;background:var(--parch);border:2px solid var(--wood)}
+/* DIFFICULTÉ */
+#difficultyBox{position:fixed;inset:0;z-index:20;display:none;background:#000b;align-items:center;justify-content:center;padding:15px}
+#difficultyBox.show{display:flex}
+#difficultyBox .panel{text-align:center}
+#diffAvatar{font-size:58px;margin:5px}
+#diffName{font-size:22px;color:var(--red);font-weight:bold}
+input[type=range]{width:100%;accent-color:#c68b00}
+.action{border:2px solid var(--wood);border-radius:8px;padding:10px 14px;font-size:16px;font-weight:bold;margin:4px}
+.gold{background:var(--gold);color:#251400}
+.red{background:var(--red);color:white}
+.green{background:var(--green);color:white}
 
-/* =====================================================================
-   PLATEAU 2D
-   ===================================================================== */
-#boardWrap{perspective:1100px;margin:6px auto;width:min(96vw,520px);height:min(96vw,520px);position:relative}
-#board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;height:100%;border:8px solid var(--wood);
-  box-shadow:0 10px 30px #000;transition:transform .8s;transform-style:preserve-3d;position:relative}
-.sq{position:relative;display:flex;align-items:center;justify-content:center;font-size:min(8vw,44px);
-  transform-style:preserve-3d;cursor:pointer}
-.sq.l{background:var(--light)}.sq.d{background:var(--dark)}
-.sq.sel{outline:4px solid var(--gold);outline-offset:-4px;z-index:2}
-.sq.hint:after{content:"";width:28%;height:28%;border-radius:50%;background:rgba(0,120,0,.45);position:absolute}
-.sq.cap:after{content:"";position:absolute;inset:0;border:5px solid rgba(180,0,0,.55);border-radius:50%}
-.sq.last{box-shadow:inset 0 0 0 100px rgba(255,220,0,.28)}
-.sq.chk{background:radial-gradient(#ff5252,#b71c1c)!important}
-.sq.fog{background:#111!important;color:transparent!important}
-.sq.fog .pc{visibility:hidden}
-.sq.vip:before{content:"★";position:absolute;top:0;right:3px;color:var(--gold);font-size:.45em;text-shadow:0 0 3px #000}
-.sq.duck{background:#ffe066!important}
-.pc{position:relative;line-height:1;animation:pop .25s;transition:transform .2s}
-.pc.w{color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,1px 1px 0 #000}
-.pc.b{color:#111;text-shadow:0 0 2px #fff}
-.pc.idle{animation:idle 2.6s ease-in-out infinite}
-@keyframes idle{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-3deg)}}
-@keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
-.coord{position:absolute;font-size:.28em;opacity:.6;left:2px;top:1px;color:#000}
+/* GAME */
+#game{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:5px 8px 18px;color:#fff2c9}
+.top{width:min(96vw,620px);display:flex;justify-content:space-between;align-items:center;gap:5px;padding:5px}
+.top button{border:2px solid var(--gold);background:#24140c;color:var(--gold);padding:7px;border-radius:7px}
+#modeTitle{font-size:14px;text-align:center;color:var(--gold)}
+.playerbar{width:min(96vw,620px);display:flex;justify-content:space-between;align-items:center;padding:5px 8px;color:#fff3c9}
+.clock{font-size:20px;padding:4px 10px;min-width:70px;text-align:center;border:2px solid #a77a34;border-radius:6px;background:#2b190d}
+.active{background:var(--gold);color:#211000;box-shadow:0 0 12px var(--gold)}
+.reserve{width:min(96vw,620px);min-height:34px;padding:4px 8px;background:#180f0a99;border:1px solid #a77a34;border-radius:7px;color:var(--gold);display:none}
+.reserve button{font-size:25px;border:0;background:transparent;cursor:pointer}
 
-/* =====================================================================
-   MODE 3D BATTLE CHESS (isométrique CSS)
-   ===================================================================== */
-#boardWrap.iso{height:min(80vw,440px);margin-top:34px}
-#boardWrap.iso #board{transform:rotateX(56deg) rotateZ(45deg) scale(.78);border-color:#2f3b2a;
-  background:#1d2a17;box-shadow:0 40px 60px #000}
-#boardWrap.iso .sq.l{background:#8fa36b;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.06) 6px 8px)}
-#boardWrap.iso .sq.d{background:#5e6d46;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.08) 6px 8px)}
-#boardWrap.iso .pc{transform:rotateZ(-45deg) rotateX(-56deg) translateZ(20px) scale(1.25);
-  text-shadow:none!important;filter:drop-shadow(0 6px 3px rgba(0,0,0,.6))}
-#boardWrap.iso .pc.b{filter:drop-shadow(0 6px 3px rgba(0,0,0,.6)) brightness(.55) sepia(.6) hue-rotate(230deg)}
-#boardWrap.iso .pc.idle{animation:idle3d 2.2s ease-in-out infinite}
-@keyframes idle3d{0%,100%{transform:rotateZ(-45deg) rotateX(-56deg) translateZ(20px) scale(1.25)}
-  50%{transform:rotateZ(-45deg) rotateX(-56deg) translateZ(26px) scale(1.3)}}
-#boardWrap.iso .coord{display:none}
+/* ==========================================
+   GRILLE PARFAITE — 64 CASES IDENTIQUES
+========================================== */
+#boardWrap{
+  position:relative;
+  width:min(96vw, 620px);
+  aspect-ratio:1;
+  margin:8px auto;
+}
+#boardWrap::before{
+  content:"";position:absolute;inset:-14px;border-radius:12px;z-index:-1;
+  background:linear-gradient(135deg,#5a3418,#3a2010,#5a3418);
+  box-shadow:0 8px 20px rgba(0,0,0,.6),inset 0 0 15px rgba(0,0,0,.5);
+}
+#board{
+  position:relative;width:100%;height:100%;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  grid-template-rows:repeat(8,1fr);
+  gap:0;
+  border:8px solid #2a1608;border-radius:6px;overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.7),inset 0 0 22px rgba(0,0,0,.55);
+  background:#2a1608;
+}
+.square{
+  position:relative;width:100%;height:100%;
+  min-width:0;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(26px,8.2vw,56px);line-height:1;
+  user-select:none;overflow:hidden;
+}
 
-/* Séquence de combat */
-#battle{position:fixed;inset:0;background:radial-gradient(#3a4a2a,#0b0f08);display:none;z-index:50;
-  align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
-#battle.on{display:flex}
-#arena{position:relative;width:90vw;max-width:520px;height:240px;border-bottom:8px solid #3d2a12;
-  background:linear-gradient(transparent 60%,#4c5f33 60%)}
-.fighter{position:absolute;bottom:0;font-size:96px;filter:drop-shadow(0 8px 4px #000)}
-#atk{left:6%}#def{right:6%;transform:scaleX(-1)}
-#atk.charge{animation:charge 1.1s forwards}
-@keyframes charge{0%{left:6%}45%{left:6%;transform:rotate(-12deg)}70%{left:52%;transform:rotate(15deg) scale(1.1)}100%{left:52%}}
-#def.hit{animation:hit .9s .8s forwards}
-@keyframes hit{0%{transform:scaleX(-1)}30%{transform:scaleX(-1) rotate(30deg) translateY(-30px)}
-  100%{transform:scaleX(-1) rotate(120deg) translateY(160px);opacity:0}}
-#bam{position:absolute;top:20px;left:50%;transform:translateX(-50%) scale(0);font:bold 54px Impact,sans-serif;
-  color:#ffdd00;-webkit-text-stroke:3px #a00;animation:bam .5s .95s forwards}
-@keyframes bam{to{transform:translateX(-50%) scale(1) rotate(-8deg)}}
-#battleTxt{color:var(--parch);font-size:1.1em;margin-top:12px;text-align:center;text-shadow:1px 1px 0 #000}
+/* CASES CEL-SHADING */
+.light{
+  background:linear-gradient(135deg,#ffe9b8 0%,#f5d488 45%,#e8c374 100%);
+  box-shadow:inset 3px 3px 0 rgba(255,255,255,.45),inset -3px -3px 0 rgba(160,110,40,.35);
+}
+.dark{
+  background:linear-gradient(135deg,#b5793f 0%,#9c5f2d 45%,#814a1f 100%);
+  box-shadow:inset 3px 3px 0 rgba(210,150,90,.4),inset -3px -3px 0 rgba(60,30,10,.45);
+}
+.selected{
+  background:linear-gradient(135deg,#ffe95c,#f5c518)!important;
+  box-shadow:inset 0 0 0 4px #a8760a,inset 3px 3px 0 rgba(255,255,255,.55)!important;
+}
+.last{background:linear-gradient(135deg,#d7e37a,#aec24a)!important;box-shadow:inset 0 0 0 3px #7d8f2a!important}
+.check{background:radial-gradient(circle,#ff5a4d 0%,#c81e1e 75%)!important;box-shadow:inset 0 0 18px #7d0000!important}
+.fog{background:linear-gradient(135deg,#1c1c28,#0c0c14)!important;color:transparent!important;box-shadow:inset 0 0 20px #000!important}
+.dot:after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,#2e2e2eaa,#00000066);box-shadow:0 0 0 3px rgba(0,0,0,.15)}
+.capture{box-shadow:inset 0 0 0 6px rgba(200,20,20,.75),inset 0 0 14px rgba(120,0,0,.5)!important}
+.coord{position:absolute;font-size:clamp(8px,1.6vw,11px);font-weight:bold;opacity:.7;pointer-events:none;text-shadow:1px 1px 0 rgba(0,0,0,.35)}
+.rank{top:2px;left:3px}.file{bottom:2px;right:3px}
+.light .coord{color:#8a5620}.dark .coord{color:#ffe6bd}
 
-/* Horloges / infos match */
-.clock{font:bold 1.3em monospace;background:#111;color:#0f0;padding:4px 10px;border-radius:4px;border:2px solid #444}
-.clock.act{color:#ff0;box-shadow:0 0 8px #ff0}
-.clock.low{color:#f33}
-#status{text-align:center;color:var(--parch);min-height:1.4em;font-style:italic}
-.reserve{display:flex;gap:4px;justify-content:center;min-height:30px;font-size:1.5em}
-.reserve span{background:var(--parch);border-radius:4px;padding:0 5px;cursor:pointer;border:2px solid var(--wood)}
-.reserve span.sel{border-color:var(--gold);background:#fff2b0}
-.hearts{font-size:1.3em;letter-spacing:2px}
+/* PIÈCES CEL-SHADING */
+.piece{
+  position:relative;font-size:1em;line-height:1;
+  -webkit-text-stroke:2.2px #12100c;
+  paint-order:stroke fill;
+  filter:drop-shadow(2px 3px 0 rgba(0,0,0,.55)) drop-shadow(0 5px 4px rgba(0,0,0,.35));
+  transition:transform .12s ease;
+}
+.square:active .piece{transform:scale(1.14) translateY(-3px)}
+.piece.white-piece{
+  color:#fff7e0;
+  text-shadow:0 1px 0 #fffdf5,0 2px 0 #f0dcae,0 3px 0 #d9be86,0 4px 2px rgba(90,60,20,.45);
+}
+.piece.brown-piece{
+  color:#7a4322;-webkit-text-stroke:2.2px #1a0d05;
+  text-shadow:0 1px 0 #8f5127,0 2px 0 #6d3819,0 3px 0 #4f2711,0 4px 2px rgba(0,0,0,.55);
+}
 
-/* Popups */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
-.modal.on{display:flex}
-.modal .parch{max-width:420px;text-align:center}
-.dialogue{font-size:1.05em;line-height:1.5}
-.dialogue b{color:var(--red)}
+#duckNotice{display:none;position:absolute;top:-35px;left:50%;transform:translateX(-50%);padding:5px 12px;background:var(--gold);color:#241400;border-radius:12px;font-weight:bold;z-index:3}
+#status{min-height:30px;padding:8px;text-align:center;color:var(--gold)}
 
-/* Sauvegardes */
-.save{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.35);
-  border:2px solid var(--wood);border-radius:6px;padding:8px;margin:8px 0}
+/* MODE BATTLE */
+#board.battle-mode{
+  transform:perspective(900px) rotateX(28deg);
+  transform-origin:center bottom;margin-top:48px;
+  border-width:9px;border-color:#1e0f05;
+  box-shadow:0 38px 50px rgba(0,0,0,.85),inset 0 0 22px #000;
+}
+#board.battle-mode .square{box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+#board.battle-mode .piece{
+  transform:translateY(-8px) scale(1.12);
+  -webkit-text-stroke:2.6px #12100c;
+  filter:drop-shadow(3px 6px 0 rgba(0,0,0,.6)) drop-shadow(0 9px 6px rgba(0,0,0,.5));
+}
+.battle-attacker{z-index:20;animation:battleAttack .65s ease-in-out}
+.battle-victim{z-index:19;animation:battleVictim .65s ease-in forwards}
+@keyframes battleAttack{
+  0%{transform:translateY(-8px) scale(1.12)}
+  40%{transform:translateY(-38px) scale(1.5) rotate(-12deg)}
+  65%{transform:translateY(-15px) scale(1.3) rotate(9deg)}
+  100%{transform:translateY(-8px) scale(1.12)}
+}
+@keyframes battleVictim{
+  0%{transform:translateY(-8px) scale(1.12);opacity:1}
+  50%{transform:translateY(4px) scale(.78) rotate(35deg)}
+  100%{transform:translateY(25px) scale(.2) rotate(120deg);opacity:0}
+}
+.battle-cloud{position:absolute;z-index:50;display:flex;align-items:center;justify-content:center;width:68px;height:68px;margin-left:-34px;margin-top:-34px;border-radius:50%;font-size:30px;pointer-events:none;background:radial-gradient(circle,#fff4c8 0%,#ba7a32 38%,#4f250f 70%,transparent 72%);animation:battleCloud .7s ease-out forwards}
+@keyframes battleCloud{
+  0%{transform:scale(.2) rotate(0deg);opacity:0}
+  25%{transform:scale(1.35) rotate(20deg);opacity:1}
+  100%{transform:scale(2) rotate(100deg);opacity:0}
+}
 
-/* =====================================================================
-   CARTE DU MONDE (îles célestes)
-   ===================================================================== */
-#mapScreen{background:linear-gradient(#0d1b3d,#3d5a80 60%,#6b7f9e);padding:0}
-#mapScroll{overflow-x:auto;overflow-y:hidden;height:calc(100% - 60px);position:relative}
-#mapInner{position:relative;height:100%;width:4200px;background:
-  radial-gradient(circle at 10% 20%,rgba(255,255,255,.15) 0 2px,transparent 3px),
-  radial-gradient(circle at 60% 70%,rgba(255,255,255,.12) 0 2px,transparent 3px),
-  radial-gradient(circle at 80% 30%,rgba(255,255,255,.12) 0 2px,transparent 3px)}
-#rail{position:absolute;top:56%;left:40px;right:40px;height:8px;background:repeating-linear-gradient(90deg,#8a8a8a 0 14px,#555 14px 20px);border-radius:4px;box-shadow:0 3px 6px #000}
-.island{position:absolute;top:44%;width:96px;height:96px;transform:translate(-50%,-50%);text-align:center;cursor:pointer;
-  animation:float 4s ease-in-out infinite}
-.island .rock{width:86px;height:56px;margin:auto;border-radius:50% 50% 60% 60%/40% 40% 100% 100%;
-  background:linear-gradient(#6fbf4a 0 30%,#7a5230 30%);box-shadow:0 12px 14px rgba(0,0,0,.6);border:3px solid #3f2a10;
-  display:flex;align-items:center;justify-content:center;font-size:30px}
-.island.locked .rock{filter:grayscale(1) brightness(.5)}
-.island.boss .rock{background:linear-gradient(#b33 0 30%,#4a2a1a 30%);width:100px;height:66px}
-.island .lbl{font-size:.7em;color:#fff;text-shadow:1px 1px 0 #000;margin-top:4px}
-.island .stars{color:var(--gold);font-size:.8em;text-shadow:0 0 3px #000}
-@keyframes float{0%,100%{margin-top:0}50%{margin-top:-10px}}
-#robin{position:absolute;top:calc(56% - 78px);font-size:58px;transform:translateX(-50%);transition:left 2.4s ease-in-out;
-  filter:drop-shadow(0 8px 6px #000);z-index:5}
-#robin.fast{transition-duration:1.2s}
-#robin.bolt{animation:bolt .6s 3}
-@keyframes bolt{0%,100%{filter:drop-shadow(0 0 0 #fff)}50%{filter:drop-shadow(0 0 30px #fff) brightness(3)}}
-.wtitle{position:absolute;top:8%;color:var(--gold);font:bold 1.1em Georgia;text-shadow:2px 2px 0 #000;transform:translateX(-50%);white-space:nowrap}
+/* OVERLAY */
+#overlay{position:fixed;inset:0;z-index:30;background:#000c;display:none;align-items:center;justify-content:center;padding:15px}
+#overlay.show{display:flex}
+#overlay .panel{text-align:center}
+#overlay h2{color:var(--red)}
 
-/* Cinématique finale */
-#cine{position:fixed;inset:0;display:none;z-index:70;align-items:center;justify-content:center;transition:background 4s;
-  background:linear-gradient(#3a3a3a,#777)}
-#cine.on{display:flex}
-#cine.blue{background:linear-gradient(#2196f3,#bbdefb)}
-.book{width:90vw;max-width:520px;background:var(--parch);border:10px solid var(--wood);border-radius:6px 20px 20px 6px;padding:20px;text-align:center;
-  box-shadow:0 20px 40px #000;position:relative}
-.crown{font-size:60px;height:80px;position:relative}
-.frag{position:absolute;left:50%;top:0;opacity:0;font-size:28px;transition:all 1.2s}
-.frag.in{opacity:1;transform:translate(-50%,0) rotate(0)!important}
+/* PROMOTION */
+#promotionBox{position:fixed;z-index:80;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75)}
+#promotionBox.hidden{display:none}
 </style>
 </head>
+
 <body>
 
-<!-- =================== TABLEAU DE BORD =================== -->
-<div id="dash" class="screen active">
-  <div class="topbar"><h1>♜ Chess Quest ♞</h1><button class="icon" id="narrBtn" onclick="Narr.toggle()">🔊</button></div>
-  <div class="parch">
-    <div class="cat"><h3>⏳ Contrôles de temps classiques</h3>
-      <button class="wide" onclick="Config.open('normal')">♔ Normal — 1 h par joueur</button>
-      <button class="wide" onclick="Config.open('blitz')">⚡ Blitz — moins de 10 min</button>
-      <button class="wide" onclick="Config.open('rapid')">🕰️ Rapide — 10 à 60 min</button></div>
-    <div class="cat"><h3>🎲 Variantes & modes fun</h3>
-      <button class="wide" onclick="Config.open('crazyhouse')">🏰 Crazyhouse — les pièces capturées changent de camp</button>
-      <button class="wide" onclick="Config.open('pawnrace')">🏃 La Course des Pions</button>
-      <button class="wide" onclick="Config.open('koth')">⛰️ King of the Hill</button>
-      <button class="wide" onclick="Config.open('atomic')">💥 Échecs Atomiques</button>
-      <button class="wide" onclick="Config.open('horde')">🐗 La Horde — 36 pions !</button>
-      <button class="wide" onclick="Config.open('fog')">🌫️ Échecs Incognito (brouillard)</button>
-      <button class="wide" onclick="Config.open('duck')">🦆 Les Échecs Canard</button></div>
-    <div class="cat"><h3>🗺️ Aventure</h3>
-      <button class="wide green" onclick="Story.openSaves()">📜 Chess Quest : Le Royaume des Rois</button></div>
+<section id="menu">
+  <h1>♚ Chess Quest ♔</h1>
+  <div class="subtitle">Le Royaume des Rois</div>
+
+  <div class="panel">
+    <div class="category">⏱️ ÉCHECS CLASSIQUES</div>
+    <button class="mode" onclick="openDifficulty('normal')">♟ Normal<small>Partie classique : 1 heure par joueur.</small></button>
+    <button class="mode" onclick="openDifficulty('blitz')">⚡ Blitz<small>10 minutes par joueur.</small></button>
+    <button class="mode" onclick="openDifficulty('rapid')">⏳ Rapide<small>15 minutes par joueur.</small></button>
+
+    <div class="category">🎲 VARIANTES & FUN</div>
+    <button class="mode" onclick="openDifficulty('crazyhouse')">🏠 Crazyhouse<small>Les pièces capturées deviennent des renforts.</small></button>
+    <button class="mode" onclick="openDifficulty('pawnrace')">🏃 Course des Pions<small>Promouvoir un pion ou bloquer l'adversaire.</small></button>
+    <button class="mode" onclick="openDifficulty('koth')">⛰️ Roi de la Colline<small>Amène ton Roi au centre de l'échiquier.</small></button>
+    <button class="mode" onclick="openDifficulty('atomic')">💥 Échecs Atomiques<small>Chaque capture provoque une explosion.</small></button>
+    <button class="mode" onclick="openDifficulty('horde')">👹 La Horde<small>36 pions blancs contre l'armée noire.</small></button>
+    <button class="mode" onclick="openDifficulty('fog')">🌫️ Brouillard de Guerre<small>Les ennemis cachés restent dans le brouillard.</small></button>
+    <button class="mode" onclick="openDifficulty('duck')">🦆 Échecs Canard<small>Déplace le canard après chaque coup.</small></button>
+  </div>
+</section>
+
+<section id="opponentBox">
+  <div class="panel opponent-panel">
+    <h2>Choisis ton affrontement</h2>
+    <p>Veux-tu affronter un autre joueur ou le Bot du Royaume ?</p>
+    <button class="opponent-btn vs-btn" onclick="chooseOpponent('pvp')">
+      <span class="big-icon">⚔️</span><strong>VS</strong>
+      <small>Joueur Blanc contre Joueur Marron</small>
+    </button>
+    <button class="opponent-btn ai-btn" onclick="chooseOpponent('ai')">
+      <span class="big-icon">🤖</span><strong>AI</strong>
+      <small>Joueur Blanc contre Bot Marron</small>
+    </button>
+    <button class="action red" onclick="closeOpponentBox()">← Retour</button>
+  </div>
+</section>
+
+<section id="difficultyBox">
+  <div class="panel">
+    <h2>Choisis ton adversaire</h2>
+    <div id="diffAvatar">♟️</div>
+    <div id="diffName">Facile</div>
+    <p id="diffDesc">Un pion maladroit qui fait des erreurs.</p>
+    <input id="diffSlider" type="range" min="0" max="4" value="0" oninput="updateDifficulty(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:12px"><span>Facile</span><span>Dark</span></div>
+    <br>
+    <button class="action gold" onclick="startGame()">⚔️ Jouer</button>
+    <button class="action red" onclick="closeDifficulty()">Retour</button>
+  </div>
+</section>
+
+<section id="game">
+  <div class="top">
+    <button onclick="goMenu()">🏠</button>
+    <strong id="modeTitle"></strong>
+    <div><button id="viewBtn" onclick="toggleView()">♟ 2D</button></div>
+  </div>
+
+  <div class="playerbar"><div id="blackLabel">🟤 Marron</div><div id="blackClock" class="clock">10:00</div></div>
+  <div id="blackReserve" class="reserve"></div>
+
+  <div id="boardWrap">
+    <div id="duckNotice">🦆 Déplace le canard !</div>
+    <div id="board"></div>
+  </div>
+
+  <div id="whiteReserve" class="reserve"></div>
+  <div class="playerbar"><div id="whiteLabel">⬜ Blanc</div><div id="whiteClock" class="clock active">10:00</div></div>
+  <div id="status">À toi de jouer.</div>
+</section>
+
+<section id="overlay">
+  <div class="panel">
+    <h2 id="endTitle">Partie terminée</h2>
+    <p id="endText"></p>
+    <button class="action gold" onclick="restart()">🔄 Rejouer</button>
+    <button class="action red" onclick="goMenu()">🏠 Menu</button>
+  </div>
+</section>
+
+<div id="promotionBox" class="hidden">
+  <div class="panel" style="text-align:center">
+    <h2>Promotion du pion !</h2>
+    <p>Choisis la nouvelle pièce :</p>
+    <button class="action gold" onclick="choosePromotion(5)">♕ Dame</button>
+    <button class="action gold" onclick="choosePromotion(4)">♖ Tour</button>
+    <button class="action gold" onclick="choosePromotion(3)">♗ Fou</button>
+    <button class="action gold" onclick="choosePromotion(2)">♘ Cavalier</button>
   </div>
 </div>
-
-<!-- =================== CONFIGURATION PARTIE =================== -->
-<div id="config" class="screen">
-  <div class="parch">
-    <h2 id="cfgTitle"></h2><p id="cfgDesc" style="text-align:center"></p>
-    <div class="row"><label><input type="radio" name="opp" value="ai" checked onchange="Config.refresh()"> Contre l'ordinateur</label>
-      <label><input type="radio" name="opp" value="human" onchange="Config.refresh()"> À deux sur l'écran</label></div>
-    <div id="aiBox"><div class="avatar" id="cfgAvatar">♙</div>
-      <div style="text-align:center;font-weight:bold" id="cfgDiffName"></div>
-      <input type="range" id="cfgDiff" min="0" max="4" value="1" oninput="Config.refresh()">
-      <div style="display:flex;justify-content:space-between;font-size:.7em"><span>Facile</span><span>Moyen 1</span><span>Moyen +</span><span>Difficile</span><span>Dark</span></div>
-      <div class="row"><label><input type="radio" name="col" value="w" checked> Je joue ♙ Blancs</label><label><input type="radio" name="col" value="b"> Je joue ♟ Noirs</label></div></div>
-    <div id="rapidBox" class="row" style="display:none">Temps par joueur : <select id="rapidMin"></select></div>
-    <div class="row"><button onclick="UI.show('dash')">↩ Retour</button><button class="green" onclick="Config.start()">⚔️ Lancer la partie</button></div>
-  </div>
-</div>
-
-<!-- =================== ÉCRAN DE MATCH =================== -->
-<div id="match" class="screen">
-  <div class="topbar">
-    <button class="small" onclick="Match.quit()">↩ Quitter</button>
-    <span id="matchTitle" style="color:var(--gold);font-weight:bold"></span>
-    <span><button class="small" id="viewBtn" onclick="Render.toggle3D()">Vue 3D Combat</button>
-      <button class="icon small" onclick="Narr.toggle()">🔊</button></span>
-  </div>
-  <div class="topbar" style="max-width:520px"><span class="clock" id="clkB">--:--</span><span id="storyHUD" class="hearts"></span><span class="clock" id="clkW">--:--</span></div>
-  <div class="reserve" id="resB"></div>
-  <div id="boardWrap"><div id="board"></div></div>
-  <div class="reserve" id="resW"></div>
-  <div id="status"></div>
-  <div class="row"><button class="small" id="undoBtn" onclick="Match.undo()">↶ Joker annuler</button>
-    <button class="small" onclick="Match.hint()">💡 Indice</button><button class="small" onclick="Match.restart()">🔁 Recommencer</button></div>
-</div>
-
-<!-- =================== SAUVEGARDES =================== -->
-<div id="saves" class="screen"><div class="parch"><h2>📜 Chess Quest : Le Royaume des Rois</h2><div id="saveList"></div>
-  <button onclick="UI.show('dash')">↩ Retour</button></div></div>
-
-<!-- =================== CARTE =================== -->
-<div id="mapScreen" class="screen">
-  <div class="topbar" style="padding:8px;background:rgba(0,0,0,.4)"><button class="small" onclick="Story.save();UI.show('saves')">↩ Sauvegardes</button>
-    <span id="mapInfo" style="color:#fff"></span><button class="icon small" onclick="Narr.toggle()">🔊</button></div>
-  <div id="mapScroll"><div id="mapInner"><div id="rail"></div><div id="robin">🏹🗿</div></div></div>
-</div>
-
-<!-- Combat 3D -->
-<div id="battle"><div id="arena"><div class="fighter" id="atk"></div><div class="fighter" id="def"></div><div id="bam">PAF !</div></div><div id="battleTxt"></div></div>
-
-<!-- Popups génériques -->
-<div class="modal" id="modal"><div class="parch"><div id="modalBody" class="dialogue"></div><div class="row" id="modalBtns"></div></div></div>
-
-<!-- Cinématique -->
-<div id="cine"><div class="book"><h2 style="color:var(--ink);text-shadow:none">La Couronne d'Or</h2>
-  <div class="crown" id="crown">👑<span class="frag" style="transform:translate(-300px,-200px) rotate(90deg)">💛</span><span class="frag" style="transform:translate(300px,-200px) rotate(-90deg)">💛</span>
-  <span class="frag" style="transform:translate(-300px,200px) rotate(45deg)">💛</span><span class="frag" style="transform:translate(300px,200px) rotate(-45deg)">💛</span>
-  <span class="frag" style="transform:translate(0,-300px) rotate(180deg)">💛</span><span class="frag" style="transform:translate(0,300px)">💛</span></div>
-  <p id="cineTxt" class="dialogue"></p><button onclick="document.getElementById('cine').classList.remove('on');UI.show('mapScreen')">FIN ✨</button></div></div>
 
 <script>
-/* =====================================================================
-   0. UTILITAIRES / UI
-   ===================================================================== */
-const $=id=>document.getElementById(id);
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
-const UI={
-  show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')},
-  /** Popup générique. btns = [{t:'texte',cls:'green',f:()=>{},focus:true}] */
-  modal(html,btns){return new Promise(res=>{$('modalBody').innerHTML=html;const b=$('modalBtns');b.innerHTML='';
-    btns.forEach(x=>{const el=document.createElement('button');el.textContent=x.t;el.className=x.cls||'';
-      el.onclick=()=>{$('modal').classList.remove('on');x.f&&x.f();res(x.t)};b.appendChild(el);if(x.focus)setTimeout(()=>el.focus(),50)});
-    $('modal').classList.add('on')})},
-  ok(html,t='Continuer'){return UI.modal(html,[{t,cls:'green',focus:true}])}
+"use strict";
+
+/* ===== CONSTANTES ===== */
+const W=0, B=1;
+const P=1, N=2, BI=3, R=4, Q=5, K=6, DUCK=7;
+const F="abcdefgh";
+const ICON={
+  0:{1:"♙",2:"♘",3:"♗",4:"♖",5:"♕",6:"♔",7:"🦆"},
+  1:{1:"♟",2:"♞",3:"♝",4:"♜",5:"♛",6:"♚",7:"🦆"}
 };
-
-/* =====================================================================
-   1. AUDIO : Narrateur "Père Fouras" + effets rétro (WebAudio)
-   ===================================================================== */
-const Narr={
-  on:true,
-  toggle(){this.on=!this.on;document.querySelectorAll('.icon').forEach(b=>b.textContent=this.on?'🔊':'🔇');if(!this.on)speechSynthesis.cancel();else this.say("La voix du sage est de retour, jeune aventurier.")},
-  say(txt,{pitch=0.55,rate=0.82}={}){if(!this.on||!window.speechSynthesis)return;speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';u.pitch=pitch;u.rate=rate;
-    const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('fr'));if(v)u.voice=v;speechSynthesis.speak(u)},
-  /** Voix pixelisée énergique pour "GOAL !!!" */
-  shout(txt){this.say(txt,{pitch:1.6,rate:1.3})}
+const VALUE={1:1,2:3,3:3,4:5,5:9,6:100};
+const MODE_NAME={
+  normal:"♟ Normal",blitz:"⚡ Blitz",rapid:"⏳ Rapide",
+  crazyhouse:"🏠 Crazyhouse",pawnrace:"🏃 Course des Pions",
+  koth:"⛰️ Roi de la Colline",atomic:"💥 Atomiques",
+  horde:"👹 La Horde",fog:"🌫️ Brouillard",duck:"🦆 Canard"
 };
-const SFX={
-  ctx:null,get c(){return this.ctx||(this.ctx=new (window.AudioContext||window.webkitAudioContext)())},
-  tone(f,d=.12,type='square',g=.15){if(!Narr.on)return;try{const c=this.c,o=c.createOscillator(),v=c.createGain();o.type=type;o.frequency.value=f;
-    v.gain.setValueAtTime(g,c.currentTime);v.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(v).connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(e){}},
-  noise(d=1,g=.2){if(!Narr.on)return;try{const c=this.c,b=c.createBuffer(1,c.sampleRate*d,c.sampleRate),x=b.getChannelData(0);
-    for(let i=0;i<x.length;i++)x[i]=(Math.random()*2-1)*(1-i/x.length);const s=c.createBufferSource();s.buffer=b;const v=c.createGain();v.gain.value=g;
-    const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=900;s.connect(f).connect(v).connect(c.destination);s.start()}catch(e){}},
-  move(){this.tone(440,.06,'triangle')}, capture(){this.tone(200,.15,'sawtooth');this.tone(120,.2,'square')},
-  win(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>this.tone(f,.25,'square'),i*140))},
-  lose(){[400,300,200].forEach((f,i)=>setTimeout(()=>this.tone(f,.3,'sawtooth'),i*200))},
-  /** Séquence football 16-bit "Kick Off" : ballon dans le filet + GOAL + foule */
-  goal(){this.tone(90,.25,'sine',.5);this.noise(.25,.3);setTimeout(()=>Narr.shout("GOOOOAL !!!"),300);setTimeout(()=>this.noise(2.5,.35),900)}
-};
-
-/* =====================================================================
-   2. MOTEUR D'ÉCHECS (règles complètes + crochets de variantes)
-   ---------------------------------------------------------------------
-   Plateau : tableau de 64 cases, index 0 = a8 (haut-gauche), 63 = h1.
-   Pièce : {t:'p'|'n'|'b'|'r'|'q'|'k', c:'w'|'b'}
-   État  : {board, turn, castle:{K,Q,k,q}, ep, duck, reserve, variant, rules}
-   ===================================================================== */
-const FILES='abcdefgh', VAL={p:1,n:3,b:3,r:5,q:9,k:100};
-const fileOf=i=>i%8, rankOf=i=>Math.floor(i/8), name=i=>FILES[fileOf(i)]+(8-rankOf(i));
-const CENTER=[27,28,35,36]; // d5 e5 d4 e4
-const isDark=i=>(fileOf(i)+rankOf(i))%2===1;
-
-function fromFEN(fen){const b=Array(64).fill(null);const [pos,turn='w',cast='KQkq']=fen.split(' ');let i=0;
-  for(const ch of pos){if(ch==='/')continue;if(/\d/.test(ch))i+=+ch;else{b[i++]={t:ch.toLowerCase(),c:ch===ch.toUpperCase()?'w':'b'}}}
-  return {board:b,turn,castle:{K:cast.includes('K'),Q:cast.includes('Q'),k:cast.includes('k'),q:cast.includes('q')},ep:-1,duck:-1,
-    reserve:{w:[],b:[]},needDuck:false,ply:0}}
-function clone(s){return {board:s.board.map(p=>p&&{...p}),turn:s.turn,castle:{...s.castle},ep:s.ep,duck:s.duck,
-  reserve:{w:[...s.reserve.w],b:[...s.reserve.b]},needDuck:s.needDuck,ply:s.ply,variant:s.variant,rules:s.rules}}
-const opp=c=>c==='w'?'b':'w';
-function kingSq(s,c){return s.board.findIndex(p=>p&&p.t==='k'&&p.c===c)}
-
-/** La case `to` est-elle attaquée par la couleur `by` ? (le canard bloque les lignes) */
-function attacked(s,to,by){const b=s.board,f=fileOf(to),r=rankOf(to);
-  const at=(ff,rr)=>ff<0||ff>7||rr<0||rr>7?undefined:b[rr*8+ff];
-  const pd=by==='w'?1:-1; // pion blanc attaque vers le haut (rang -1) : depuis la case cible on regarde rr+1
-  for(const df of[-1,1]){const p=at(f+df,r+pd);if(p&&p.t==='p'&&p.c===by)return true}
-  for(const[df,dr]of[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]]){const p=at(f+df,r+dr);if(p&&p.t==='n'&&p.c===by)return true}
-  for(const[df,dr]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const p=at(f+df,r+dr);if(p&&p.t==='k'&&p.c===by)return true}
-  const slide=(dirs,types)=>{for(const[df,dr]of dirs){let ff=f+df,rr=r+dr;while(ff>=0&&ff<8&&rr>=0&&rr<8){const i=rr*8+ff;if(i===s.duck)break;const p=b[i];
-    if(p){if(p.c===by&&types.includes(p.t))return true;break}ff+=df;rr+=dr}}return false};
-  return slide([[1,0],[-1,0],[0,1],[0,-1]],['r','q'])||slide([[1,1],[1,-1],[-1,1],[-1,-1]],['b','q'])}
-function inCheck(s,c){const k=kingSq(s,c);return k>=0&&attacked(s,k,opp(c))}
-
-/** Génération des coups pseudo-légaux */
-function pseudo(s,c){const mv=[],b=s.board,R=s.rules||{};
-  const add=(from,to,x={})=>{if(to===s.duck)return;const cap=b[to];if(cap&&cap.c===c)return;
-    if(cap&&R.uncapturable&&R.uncapturable(cap,to))return;mv.push({from,to,capt:cap?cap.t:null,...x})};
-  for(let i=0;i<64;i++){const p=b[i];if(!p||p.c!==c)continue;if(R.frozen&&R.frozen(p,i))continue;const f=fileOf(i),r=rankOf(i);
-    const inb=(ff,rr)=>ff>=0&&ff<8&&rr>=0&&rr<8;
-    if(p.t==='p'){const d=c==='w'?-1:1,start=c==='w'?6:1,last=c==='w'?0:7;
-      if(inb(f,r+d)&&!b[i+8*d]&&s.duck!==i+8*d){const to=i+8*d;
-        if(rankOf(to)===last)for(const pr of['q','r','b','n'])mv.push({from:i,to,promo:pr});else mv.push({from:i,to});
-        const dbl=(r===start||(s.variant==='horde'&&c==='w'&&r===7));
-        if(dbl&&!b[i+16*d]&&s.duck!==i+16*d)mv.push({from:i,to:i+16*d,dbl:true})}
-      for(const df of[-1,1]){if(!inb(f+df,r+d))continue;const to=i+8*d+df;const cap=b[to];
-        if(cap&&cap.c!==c&&!(R.uncapturable&&R.uncapturable(cap,to))){if(rankOf(to)===last)for(const pr of['q','r','b','n'])mv.push({from:i,to,capt:cap.t,promo:pr});else mv.push({from:i,to,capt:cap.t})}
-        else if(to===s.ep&&!cap)mv.push({from:i,to,capt:'p',ep:true})}
-    } else if(p.t==='n'){for(const[df,dr]of[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]])if(inb(f+df,r+dr))add(i,(r+dr)*8+f+df)}
-    else if(p.t==='k'){for(const[df,dr]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])if(inb(f+df,r+dr))add(i,(r+dr)*8+f+df);
-      // Roque : roi/tour jamais bougés, cases vides, roi pas en échec ni traversant une case attaquée
-      const home=c==='w'?60:4;if(i===home&&!inCheck(s,c)){const ks=c==='w'?'K':'k',qs=c==='w'?'Q':'q';
-        if(s.castle[ks]&&!b[i+1]&&!b[i+2]&&s.duck!==i+1&&s.duck!==i+2&&b[i+3]&&b[i+3].t==='r'&&!attacked(s,i+1,opp(c))&&!attacked(s,i+2,opp(c)))mv.push({from:i,to:i+2,castle:'K'});
-        if(s.castle[qs]&&!b[i-1]&&!b[i-2]&&!b[i-3]&&s.duck!==i-1&&s.duck!==i-2&&b[i-4]&&b[i-4].t==='r'&&!attacked(s,i-1,opp(c))&&!attacked(s,i-2,opp(c)))mv.push({from:i,to:i-2,castle:'Q'})}}
-    else{const dirs=p.t==='r'?[[1,0],[-1,0],[0,1],[0,-1]]:p.t==='b'?[[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-      for(const[df,dr]of dirs){let ff=f+df,rr=r+dr;while(inb(ff,rr)){const to=rr*8+ff;if(to===s.duck)break;add(i,to);if(b[to])break;ff+=df;rr+=dr}}}}
-  // Crazyhouse : parachutages (pas de pion sur 1re/8e rangée)
-  if(s.variant==='crazyhouse')for(const t of new Set(s.reserve[c]))for(let i=0;i<64;i++)if(!b[i]&&i!==s.duck&&!(t==='p'&&(rankOf(i)===0||rankOf(i)===7)))mv.push({drop:t,to:i});
-  return mv}
-
-/** Coups légaux (filtre échec selon la variante) */
-function legal(s,c=s.turn){const noCheck=s.variant==='duck'||(s.rules&&s.rules.noCheck)||kingSq(s,c)<0;
-  return pseudo(s,c).filter(m=>{if(noCheck)return true;const n=apply(s,m).state;
-    if(s.variant==='atomic')return kingSq(n,c)>=0&&(kingSq(n,opp(c))<0||!inCheck(n,c));return !inCheck(n,c)})}
-
-/** Applique un coup et renvoie {state, captured:[{t,c,sq}], explosion:[]} */
-function apply(s,m){const n=clone(s),b=n.board,c=s.turn,captured=[];n.ep=-1;
-  if(m.duckTo!==undefined){n.duck=m.duckTo;n.needDuck=false;n.turn=opp(c);n.ply++;return {state:n,captured}}
-  if(m.drop){b[m.to]={t:m.drop,c};n.reserve[c].splice(n.reserve[c].indexOf(m.drop),1)}
-  else{const p=b[m.from];b[m.from]=null;
-    if(m.ep){const cs=m.to+(c==='w'?8:-8);captured.push({...b[cs],sq:cs});b[cs]=null}
-    if(b[m.to])captured.push({...b[m.to],sq:m.to});
-    b[m.to]=m.promo?{t:m.promo,c,promoted:true}:p;
-    if(m.dbl)n.ep=(m.from+m.to)/2;
-    if(m.castle){const r=m.castle==='K'?m.from+3:m.from-4,rt=m.castle==='K'?m.from+1:m.from-1;b[rt]=b[r];b[r]=null}
-    if(p.t==='k'){if(c==='w')n.castle.K=n.castle.Q=false;else n.castle.k=n.castle.q=false}
-    for(const sq of[m.from,m.to]){if(sq===63)n.castle.K=false;if(sq===56)n.castle.Q=false;if(sq===7)n.castle.k=false;if(sq===0)n.castle.q=false}
-    // Atomic : explosion (le pion résiste sauf s'il est capturé directement)
-    if(captured.length&&s.variant==='atomic'){const f=fileOf(m.to),r=rankOf(m.to);b[m.to]=null;captured.push({...p,sq:m.to});
-      for(let df=-1;df<=1;df++)for(let dr=-1;dr<=1;dr++){if(!df&&!dr)continue;const ff=f+df,rr=r+dr;if(ff<0||ff>7||rr<0||rr>7)continue;const i=rr*8+ff;
-        if(b[i]&&b[i].t!=='p'){captured.push({...b[i],sq:i});b[i]=null}}}
-    // Crazyhouse : la pièce capturée change de couleur -> réserve
-    if(s.variant==='crazyhouse')captured.forEach(x=>n.reserve[c].push(x.promoted?'p':x.t))}
-  if(s.variant==='duck')n.needDuck=true;else{n.turn=opp(c);n.ply++}
-  return {state:n,captured}}
-
-/** Verdict générique : null | {winner:'w'|'b'|null(draw), reason} */
-function verdict(s,lastMover){const v=s.variant,other=opp(lastMover);
-  if(v==='koth'){const k=kingSq(s,lastMover);if(CENTER.includes(k))return {winner:lastMover,reason:'Le Roi a conquis la colline !'}}
-  if(v==='duck'||(s.rules&&s.rules.noCheck)){if(kingSq(s,other)<0&&kingSq(s,lastMover)>=0)return {winner:lastMover,reason:'Le Roi ennemi est capturé !'}}
-  if(v==='atomic'){if(kingSq(s,other)<0)return {winner:lastMover,reason:'BOUM ! Le Roi a explosé !'};if(kingSq(s,lastMover)<0)return {winner:other,reason:'Explosion fatale…'}}
-  if(v==='pawnrace'){for(let i=0;i<8;i++)if(s.board[i]&&s.board[i].c==='w'&&s.board[i].t!=='p')return {winner:'w',reason:'Un pion blanc est couronné !'};
-    for(let i=56;i<64;i++)if(s.board[i]&&s.board[i].c==='b'&&s.board[i].t!=='p')return {winner:'b',reason:'Un pion noir est couronné !'}}
-  if(v==='horde'&&!s.board.some(p=>p&&p.c==='w'))return {winner:'b',reason:'La Horde est anéantie !'};
-  if(s.needDuck)return null;
-  const moves=legal(s,other);
-  if(!moves.length){if(v==='pawnrace')return {winner:lastMover,reason:'Adversaire complètement bloqué !'};
-    if(v==='duck')return {winner:null,reason:'Pat'};
-    return inCheck(s,other)?{winner:lastMover,reason:'Échec et mat !'}:{winner:null,reason:'Pat — partie nulle'}}
-  return null}
-
-/* =====================================================================
-   3. INTELLIGENCE ARTIFICIELLE (négamax alpha-bêta + évaluation par variante)
-   ---------------------------------------------------------------------
-   0 Facile : 60 % de coups aléatoires, profondeur 1.
-   1 Moyen 1 : profondeur 2.        2 Moyen + : prof. 2 + captures (quiescence).
-   3 Difficile : prof. 3 + quiescence.   4 Dark : prof. 4 + quiescence + bonus variantes.
-   (Pour brancher Stockfish : remplacer AI.best par un appel au worker stockfish.js.)
-   ===================================================================== */
-const AI={
-  DIFF:[{n:'Facile',av:'♙',d:1,rnd:.6},{n:'Moyen 1',av:'♘',d:2,rnd:.1},{n:'Moyen +',av:'♗',d:2,rnd:0,q:true},{n:'Difficile',av:'♖',d:3,rnd:0,q:true},{n:'Dark',av:'♚',d:4,rnd:0,q:true,dark:true}],
-  PST:i=>{const f=fileOf(i),r=rankOf(i);return .1*(3.5-Math.abs(3.5-f))*(3.5-Math.abs(3.5-r))/3.5},
-  evaluate(s,c,cfg){let e=0;const b=s.board;
-    for(let i=0;i<64;i++){const p=b[i];if(!p)continue;let v=VAL[p.t]+(p.t!=='k'?this.PST(i):0);
-      if(p.t==='p'){const adv=p.c==='w'?6-rankOf(i):rankOf(i)-1;v+=adv*(s.variant==='pawnrace'||s.variant==='horde'?.35:.08)}
-      if(s.variant==='koth'&&p.t==='k'){const d=Math.min(...CENTER.map(x=>Math.abs(fileOf(x)-fileOf(i))+Math.abs(rankOf(x)-rankOf(i))));v+=(6-d)*(cfg.dark?1.2:.5)}
-      e+=p.c===c?v:-v}
-    if(s.variant==='crazyhouse'){e+=s.reserve[c].reduce((a,t)=>a+VAL[t]*.8,0)-s.reserve[opp(c)].reduce((a,t)=>a+VAL[t]*.8,0)}
-    if(s.variant==='atomic'&&cfg.dark){const k=kingSq(s,opp(c));if(k>=0)for(let i=0;i<64;i++)if(b[i]&&b[i].c===c&&Math.abs(fileOf(i)-fileOf(k))<=2&&Math.abs(rankOf(i)-rankOf(k))<=2)e+=.4}
-    return e},
-  order(ms){return ms.sort((a,b)=>(b.capt?VAL[b.capt]*10-(b.from>=0&&this.cur.board[b.from]?VAL[this.cur.board[b.from].t]:0):0)-(a.capt?VAL[a.capt]*10-(a.from>=0&&this.cur.board[a.from]?VAL[this.cur.board[a.from].t]:0):0))},
-  search(s,depth,alpha,beta,c,cfg,q=false){const v=verdict(s,opp(s.turn));
-    if(v)return v.winner===null?0:(v.winner===c?1000+depth:-1000-depth);
-    if(depth<=0){const st=this.evaluate(s,c,cfg);if(!cfg.q||q>3)return st;if(st>=beta)return beta;alpha=Math.max(alpha,st);
-      const caps=legal(s).filter(m=>m.capt);if(!caps.length)return st;this.cur=s;
-      for(const m of this.order(caps)){const sc=this.next(s,m,0,alpha,beta,c,cfg,(q||1)+1);if(sc>=beta)return beta;alpha=Math.max(alpha,sc)}return alpha}
-    let moves=legal(s);if(!moves.length)return 0;this.cur=s;moves=this.order(moves);let best=-Infinity;
-    for(const m of moves){const sc=this.next(s,m,depth-1,alpha,beta,c,cfg,q);best=Math.max(best,sc);alpha=Math.max(alpha,sc);if(alpha>=beta)break}
-    return best},
-  /** Gère le tour double (pièce + canard) en jouant un canard simple pour l'IA */
-  next(s,m,depth,alpha,beta,c,cfg,q){let n=apply(s,m).state;if(n.needDuck)n=apply(n,{duckTo:this.quickDuck(n)}).state;
-    const sameSide=n.turn===s.turn;return sameSide?this.search(n,depth,alpha,beta,c,cfg,q):-this.search(n,depth,-beta,-alpha,opp(c),cfg,q)},
-  quickDuck(s){for(let i=0;i<64;i++)if(!s.board[i]&&i!==s.duck)return i;return -1},
-  /** Choix du meilleur coup (asynchrone pour ne pas geler l'écran) */
-  async best(s,level,filter){await wait(60);const cfg=this.DIFF[level];let moves=legal(s);if(filter)moves=filter(moves)||moves;if(!moves.length)return null;
-    if(Math.random()<cfg.rnd)return moves[Math.floor(Math.random()*moves.length)];
-    this.cur=s;moves=this.order(moves);let best=null,bs=-Infinity;const me=s.turn;
-    for(const m of moves){const sc=this.next(s,m,cfg.d-1,-Infinity,Infinity,me,cfg,0)+Math.random()*.05;if(sc>bs){bs=sc;best=m}}
-    return best},
-  /** Placement du canard : Dark/Difficile bloque le meilleur coup adverse, sinon aléatoire */
-  duckSquare(s,level){const empties=[];for(let i=0;i<64;i++)if(!s.board[i]&&i!==s.duck)empties.push(i);
-    if(level<2)return empties[Math.floor(Math.random()*empties.length)];
-    const enemy=s.turn;const ms=legal(s,enemy);this.cur=s;const top=this.order(ms.filter(m=>!m.drop))[0];
-    if(top&&top.capt){const p=s.board[top.from];if(p&&p.t!=='n'&&p.t!=='p'&&p.t!=='k'){ // bloquer la ligne
-      const df=Math.sign(fileOf(top.to)-fileOf(top.from)),dr=Math.sign(rankOf(top.to)-rankOf(top.from));let ff=fileOf(top.from)+df,rr=rankOf(top.from)+dr;
-      while(rr*8+ff!==top.to){const i=rr*8+ff;if(!s.board[i])return i;ff+=df;rr+=dr}}}
-    return empties[Math.floor(Math.random()*empties.length)]}
-};
-
-/* =====================================================================
-   4. RENDU : plateau 2D / 3D Battle Chess, brouillard, animations de combat
-   ===================================================================== */
-const Render={
-  is3D:false,
-  GLYPH:{w:{k:'♔',q:'♕',r:'♖',b:'♗',n:'♘',p:'♙'},b:{k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'}},
-  TOON:{k:'🤴',q:'👸',r:'🗿',b:'🧙',n:'🐴',p:'🧑‍🌾'},
-  NAMES:{k:'le Roi',q:'la Reine',r:'le Golem-Tour',b:'le Fou-Mage',n:'le Chevalier',p:'le petit Pion'},
-  toggle3D(){this.is3D=!this.is3D;$('boardWrap').classList.toggle('iso',this.is3D);$('viewBtn').textContent=this.is3D?'Vue 2D':'Vue 3D Combat';
-    Narr.say(this.is3D?"Voici le champ de bataille en trois dimensions !":"Retour à la vue classique.");this.draw()},
-  glyph(p){return this.is3D?this.TOON[p.t]:this.GLYPH[p.c][p.t]},
-  /** Cases visibles en brouillard : pièces à soi + cases atteignables/attaquées */
-  visible(s,c){const v=new Set();const b=s.board;for(let i=0;i<64;i++)if(b[i]&&b[i].c===c)v.add(i);
-    pseudo({...s,rules:{}},c).forEach(m=>v.add(m.to));
-    for(let i=0;i<64;i++){const p=b[i];if(p&&p.c===c&&p.t==='p'){const d=c==='w'?-1:1,f=fileOf(i),r=rankOf(i)+d;if(r>=0&&r<8){if(f>0)v.add(r*8+f-1);if(f<7)v.add(r*8+f+1)}}}
-    return v},
-  draw(){const M=Match,s=M.state;if(!s)return;const el=$('board');el.innerHTML='';const flip=M.humanColor==='b'&&!M.twoPlayers;
-    const fog=(s.variant==='fog'||(M.rules&&M.rules.fog))&&!M.twoPlayers?this.visible(s,M.humanColor):null;
-    const chk=s.variant!=='duck'&&inCheck(s,s.turn)?kingSq(s,s.turn):-1;
-    for(let k=0;k<64;k++){const i=flip?63-k:k;const d=document.createElement('div');d.className='sq '+(isDark(i)?'d':'l');d.dataset.i=i;
-      if(M.sel===i)d.classList.add('sel');if(M.hints.some(m=>m.to===i))d.classList.add(s.board[i]?'cap':'hint');
-      if(M.last&&(M.last.from===i||M.last.to===i))d.classList.add('last');if(chk===i)d.classList.add('chk');
-      if(M.rules&&M.rules.vip===i&&s.board[i])d.classList.add('vip');
-      if(fileOf(i)===0||rankOf(i)===7)d.innerHTML=`<span class="coord">${name(i)}</span>`;
-      if(s.duck===i){d.classList.add('duck');d.innerHTML+='<span class="pc idle">🦆</span>'}
-      const p=s.board[i];if(p){const sp=document.createElement('span');sp.className='pc idle '+p.c;sp.textContent=this.glyph(p);sp.style.animationDelay=(i%7)*.2+'s';d.appendChild(sp)}
-      if(fog&&!fog.has(i))d.classList.add('fog');
-      d.onclick=()=>M.click(i);el.appendChild(d)}
-    // Réserves crazyhouse
-    for(const c of['w','b']){const r=$(c==='w'?'resW':'resB');r.innerHTML='';s.reserve[c].forEach((t,idx)=>{const sp=document.createElement('span');sp.textContent=this.GLYPH[c][t];
-      if(M.dropSel===t&&s.turn===c)sp.classList.add('sel');sp.onclick=()=>M.pickDrop(t);r.appendChild(sp)})}},
-  /** Séquence de combat 3D humoristique */
-  async battle(att,vic){if(!this.is3D)return;const B=$('battle');$('atk').textContent=this.TOON[att.t];$('def').textContent=this.TOON[vic.t];
-    const lines={p:'✨ TRIQUE du Pion !',n:'⚔️ Duel d\'épées comique !',r:'🪨 Le Golem ÉCRASE tout !',b:'🎩 Abracadabra… disparu !',q:'👑 La Reine ne plaisante pas !',k:'🪄 Coup de sceptre royal !'};
-    $('bam').textContent=['PAF !','BONK !','SPLATCH !','TCHAC !'][Math.floor(Math.random()*4)];
-    $('battleTxt').textContent=`${this.NAMES[att.t]} attaque ${this.NAMES[vic.t]} — ${lines[att.t]}`;
-    $('atk').className='fighter';$('def').className='fighter';void $('atk').offsetWidth;B.classList.add('on');
-    $('atk').classList.add('charge');$('def').classList.add('hit');SFX.tone(150,.3,'sawtooth');setTimeout(()=>SFX.capture(),900);
-    await wait(2000);B.classList.remove('on')}
-};
-
-/* =====================================================================
-   5. CONTRÔLEUR DE PARTIE (tous les modes)
-   ===================================================================== */
-const MODES={
-  normal:{t:'Mode Normal',d:'Échecs classiques, 1 heure par joueur.',time:3600},
-  blitz:{t:'Mode Blitz',d:'Vite vite ! 5 minutes par joueur.',time:300},
-  rapid:{t:'Mode Rapide',d:'Choisis ton temps entre 10 et 60 minutes.',time:600},
-  crazyhouse:{t:'Crazyhouse',d:'Les pièces capturées rejoignent ta réserve : clique dessus pour les parachuter !'},
-  pawnrace:{t:'La Course des Pions',d:'8 pions chacun. Le premier à couronner une Dame (ou à bloquer l\'adversaire) gagne !',fen:'8/pppppppp/8/8/8/8/PPPPPPPP/8 w -'},
-  koth:{t:'King of the Hill',d:'Amène ton Roi sur d4, e4, d5 ou e5 pour gagner instantanément.'},
-  atomic:{t:'Échecs Atomiques',d:'Chaque capture explose les cases voisines (les pions résistent). Roi touché = fin !'},
-  horde:{t:'La Horde',d:'36 pions blancs contre l\'armée noire. Blancs : mater. Noirs : tout capturer.',fen:'rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq'},
-  fog:{t:'Échecs Incognito',d:'Le brouillard cache l\'ennemi. Tu ne vois que ce que tes pièces voient.'},
-  duck:{t:'Les Échecs Canard',d:'Après ton coup, place le canard 🦆 sur une case vide. Il bloque tout (sauf les cavaliers). Capture le Roi pour gagner !'}
-};
-const Config={
-  mode:null,
-  open(m){this.mode=m;const M=MODES[m];$('cfgTitle').textContent=M.t;$('cfgDesc').textContent=M.d;$('rapidBox').style.display=m==='rapid'?'flex':'none';
-    if(!$('rapidMin').children.length)[10,15,20,25,30,45,60].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v+' min';$('rapidMin').appendChild(o)});
-    this.refresh();UI.show('config');Narr.say(M.t+'. '+M.d)},
-  refresh(){const ai=document.querySelector('input[name=opp]:checked').value==='ai';$('aiBox').style.display=ai?'block':'none';
-    const lv=+$('cfgDiff').value,D=AI.DIFF[lv];$('cfgAvatar').textContent=D.av;$('cfgAvatar').className='avatar'+(D.dark?' dark':'');$('cfgDiffName').textContent=D.n},
-  start(){const m=this.mode,M=MODES[m];const ai=document.querySelector('input[name=opp]:checked').value==='ai';
-    const time=m==='rapid'?+$('rapidMin').value*60:M.time;
-    Match.start({variant:['normal','blitz','rapid'].includes(m)?'standard':m,fen:M.fen,title:M.t,time,ai,level:+$('cfgDiff').value,
-      human:document.querySelector('input[name=col]:checked').value})}
-};
-
-const Match={
-  state:null,sel:-1,hints:[],dropSel:null,last:null,history:[],clock:{w:0,b:0},timer:null,busy:false,over:false,
-  /** opts: {variant,fen,title,time,ai,level,human,rules,story} */
-  start(o){this.opts=o;this.twoPlayers=!o.ai;this.humanColor=o.human||'w';this.level=o.level||0;this.rules=o.rules||{};this.story=o.story||null;
-    this.state=fromFEN(o.fen||'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq');this.state.variant=o.variant;this.state.rules=this.rules;
-    this.sel=-1;this.hints=[];this.dropSel=null;this.last=null;this.history=[];this.over=false;this.busy=false;this.moveCount=0;this.lostPieces=0;this.castled=false;this.forked=false;
-    this.queenCaptured=false;this.eventCounter=0;this.moveDeadline=0;
-    $('matchTitle').textContent=o.title;$('undoBtn').style.display=this.story?(this.story.diff==='easy'?'':'none'):'';
-    this.clock={w:(o.time||0)*1000,b:(o.time||0)*1000};clearInterval(this.timer);
-    if(o.time||(this.story&&this.story.moveTime))this.timer=setInterval(()=>this.tick(),100);
-    this.updateClocks();this.hud();UI.show('match');Render.draw();this.status(this.turnText());
-    Narr.say(o.intro||`Que la partie commence ! ${o.title}.`);this.maybeAI()},
-  quit(){clearInterval(this.timer);speechSynthesis.cancel();if(this.story){Story.save();UI.show('mapScreen')}else UI.show('dash')},
-  restart(){clearInterval(this.timer);this.start(this.opts)},
-  hud(){if(!this.story)return $('storyHUD').textContent='';$('storyHUD').textContent='❤️'.repeat(Story.cur.hearts)+' · coups '+this.moveCount},
-  status(t){$('status').textContent=t},
-  turnText(){const s=this.state;if(s.needDuck)return'🦆 Place le canard sur une case vide !';return(s.turn==='w'?'Aux Blancs':'Aux Noirs')+(inCheck(s,s.turn)&&s.variant!=='duck'?' — ÉCHEC !':'')},
-  isHuman(c){return this.twoPlayers||c===this.humanColor},
-  // ---------- Horloges ----------
-  tick(){if(this.over||this.busy)return;const c=this.state.turn;
-    if(this.opts.time){this.clock[c]-=100;if(this.clock[c]<=0){this.clock[c]=0;this.end({winner:opp(c),reason:'Temps écoulé !'})}}
-    if(this.story&&this.story.moveTime&&this.isHuman(c)){this.moveDeadline-=100;if(this.moveDeadline<=0){this.moveDeadline=this.story.moveTime*1000;Story.loseHeart('Trop lent ! Le sablier est vide.')}
-      $('clkW').textContent='⏱ '+Math.ceil(this.moveDeadline/1000)+'s'}
-    this.updateClocks()},
-  updateClocks(){if(this.story&&this.story.moveTime)return $('clkB').textContent='';for(const c of['w','b']){const el=$(c==='w'?'clkW':'clkB');if(!this.opts.time){el.textContent='';continue}
-    const t=Math.max(0,this.clock[c]),m=Math.floor(t/60000),s=Math.floor(t%60000/1000);el.textContent=`${m}:${s<10?'0':''}${s}`;
-    el.classList.toggle('act',this.state.turn===c&&!this.over);el.classList.toggle('low',t<30000)}},
-  // ---------- Interaction ----------
-  click(i){if(this.over||this.busy)return;const s=this.state;if(!this.isHuman(s.turn))return;
-    if(s.needDuck){if(!s.board[i]&&i!==s.duck)this.play({duckTo:i});return}
-    const p=s.board[i];
-    if(this.dropSel){if(!p){const m=legal(s).find(m=>m.drop===this.dropSel&&m.to===i);if(m)return this.play(m)}this.dropSel=null}
-    const mv=this.hints.find(m=>m.to===i);
-    if(mv){if(mv.promo)return this.askPromo(mv);return this.play(mv)}
-    if(p&&p.c===s.turn){this.sel=i;this.hints=legal(s).filter(m=>m.from===i&&!m.drop);
-      // dédoublonner les promotions pour l'affichage
-      const seen=new Set();this.hints=this.hints.filter(m=>{const k=m.to;if(seen.has(k))return false;seen.add(k);return true})}
-    else{this.sel=-1;this.hints=[]}Render.draw()},
-  pickDrop(t){if(this.over||this.busy||!this.isHuman(this.state.turn))return;this.dropSel=this.dropSel===t?null:t;this.sel=-1;this.hints=[];Render.draw()},
-  async askPromo(mv){const t=await UI.modal('Ton pion est couronné ! Choisis :',[{t:'♕ Dame',cls:'green',focus:true},{t:'♖ Tour'},{t:'♗ Fou'},{t:'♘ Cavalier'}]);
-    this.play({...mv,promo:{'♕ Dame':'q','♖ Tour':'r','♗ Fou':'b','♘ Cavalier':'n'}[t]})},
-  hint(){if(!this.isHuman(this.state.turn)||this.busy)return;this.busy=true;AI.best(this.state,2).then(m=>{this.busy=false;if(!m)return;
-    this.sel=m.from;this.hints=[m];Render.draw();Narr.say(m.drop?'Parachute une pièce en '+name(m.to):'Regarde la pièce en '+name(m.from)+', jeune apprenti.')})},
-  undo(){if(this.story&&this.story.diff!=='easy')return;if(this.history.length<2||this.busy)return;
-    // On revient avant le dernier coup humain (et la réponse IA)
-    let back=this.twoPlayers?1:2;while(back-->0&&this.history.length){const h=this.history.pop();this.state=h.state;this.last=h.last;this.moveCount=h.moveCount;this.lostPieces=h.lost}
-    this.over=false;this.sel=-1;this.hints=[];Render.draw();this.status('Joker utilisé ! '+this.turnText());Narr.say('Le temps remonte son cours…');this.maybeAI()},
-  // ---------- Jouer un coup ----------
-  async play(m,byAI=false){const s=this.state,mover=s.turn;this.busy=true;this.sel=-1;this.hints=[];this.dropSel=null;
-    this.history.push({state:clone(s),last:this.last,moveCount:this.moveCount,lost:this.lostPieces});
-    const matBefore=this.material(this.humanColor);
-    const {state:n,captured}=apply(s,m);
-    // Animation de combat 3D pour chaque capture
-    if(captured.length&&m.duckTo===undefined){const att=m.drop?{t:m.drop,c:mover}:s.board[m.from];SFX.capture();Render.draw();await Render.battle(att,captured[0]);
-      captured.forEach(x=>{if(x.c===this.humanColor&&!this.twoPlayers)this.lostPieces++;if(x.t==='q'&&x.c!==this.humanColor)this.queenCaptured=true});
-      if(this.story)Story.onCapture(captured,mover)}else if(m.duckTo===undefined)SFX.move();
-    this.state=n;n.rules=this.rules;if(m.duckTo===undefined){this.last=m;if(m.castle)this.castled=true;if(this.isHuman(mover)&&!this.twoPlayers)this.moveCount++}
-    if(m.castle)Narr.say(m.castle==='K'?'Petit roque ! Le Roi se met à l\'abri.':'Grand roque ! Quelle manœuvre élégante.');
-    if(m.promo&&!byAI)Narr.say('Un pion devient une Dame ! Magnifique.');
-    // Détection de fourchette de cavalier (quête)
-    if(m.from!==undefined&&!m.drop&&n.board[m.to]&&n.board[m.to].t==='n'&&this.isHuman(mover)){const targets=pseudo(n,mover).filter(x=>x.from===m.to&&x.capt&&['k','q','r'].includes(x.capt));if(targets.length>=2){this.forked=true;Narr.say('Une fourchette de Cavalier ! Bien joué !')}}
-    Render.draw();this.hud();
-    // Verdict
-    let v=verdict(n,m.duckTo!==undefined?opp(n.turn):mover);
-    if(this.story)v=Story.checkObjective(v,m,mover)||v;
-    if(v){this.busy=false;return this.end(v)}
-    // Gaffe (mode histoire) : perte de matériel >=3 après la réponse de l'IA
-    if(this.story&&byAI&&n.turn===this.humanColor){const d=this.lastHumanMat-this.material(this.humanColor);if(d>=3)Story.loseHeart('Aïe, une gaffe ! Tu as perdu '+d+' points de matériel.')}
-    if(!byAI)this.lastHumanMat=matBefore;
-    if(this.story&&this.story.moveTime)this.moveDeadline=this.story.moveTime*1000;
-    if(this.story&&this.story.events&&n.turn===this.humanColor&&!n.needDuck)Story.worldEvent();
-    this.busy=false;this.status(this.turnText());this.updateClocks();
-    if(this.rules.static&&n.turn!==this.humanColor&&!n.needDuck){ // adversaire immobile : il passe son tour
-      const st=clone(n);st.turn=this.humanColor;st.ply++;this.state=st;this.status(this.turnText());return}
-    this.maybeAI()},
-  material(c){return this.state.board.reduce((a,p)=>a+(p&&p.c===c&&p.t!=='k'?VAL[p.t]:0),0)},
-  async maybeAI(){const s=this.state;if(this.over||this.isHuman(s.turn)&&!s.needDuck)return;
-    if(s.needDuck&&this.isHuman(s.turn))return; // l'humain place lui-même son canard
-    this.busy=true;this.status('L\'adversaire réfléchit…');
-    if(s.needDuck){await wait(400);this.busy=false;return this.play({duckTo:AI.duckSquare(s,this.level)},true)}
-    let filter=null;if(this.rules.aiFilter)filter=ms=>this.rules.aiFilter(ms,s,this.last);
-    const m=await AI.best(s,this.level,filter);this.busy=false;if(!m)return this.end(verdict(s,opp(s.turn))||{winner:null,reason:'Blocage'});this.play(m,true)},
-  end(v){this.over=true;clearInterval(this.timer);this.updateClocks();const txt=v.winner===null?'Partie nulle : '+v.reason:(v.winner==='w'?'Victoire des Blancs ! ':'Victoire des Noirs ! ')+v.reason;
-    this.status(txt);if(this.story)return Story.onEnd(v);
-    const won=this.twoPlayers||v.winner===this.humanColor;won&&v.winner!==null?SFX.win():SFX.lose();
-    Narr.say(won&&v.winner!==null?'Victoire ! Les bardes chanteront tes exploits.':v.winner===null?'Match nul. Un équilibre digne des anciens.':'Défaite… mais chaque chute forge un futur roi.');
-    UI.modal('<h3>'+txt+'</h3>',[{t:'🔁 Revanche',cls:'green',f:()=>this.restart()},{t:'↩ Menu',f:()=>this.quit()}])}
-};
-
-/* =====================================================================
-   6. MODE HISTOIRE : sauvegardes, carte, niveaux, objectifs, boss, cinématique
-   ===================================================================== */
-const DIFFS={easy:{n:'Facile',hearts:5},medium:{n:'Moyen',hearts:3},hard:{n:'Difficile',hearts:3,moveTime:60},dark:{n:'Dark',hearts:1,moveTime:30,fog:true}};
-const WORLDS=['Le Pré des Pions','La Forêt des Fous','Les Plaines des Cavaliers','Le Marais du Canard','Les Falaises des Tours','Le Palais de la Reine'];
-const BOSS_TALK={
-  0:["<b>Roi des Pions :</b> Ho ho ! Robin des Bois ? Avec ta petite plume au chapeau ? Mes 12 pions vont te chatouiller !","<b>Robin :</b> Douze pions contre ma ruse ? J'ai vu des moutons mieux organisés, Majesté."],
-  1:["<b>Archiduc des Couleurs :</b> Ici, on ne marche QUE sur les cases noires ! Pose un pied sur du blanc et tu perdras un cœur !","<b>Robin :</b> Le noir vous va si bien… surtout pour votre défaite."],
-  2:["<b>Baron Galopant :</b> Mes quatre destriers galopent plus vite que ta flèche, archer de pacotille !","<b>Robin :</b> Quatre chevaux… et pas un seul cerveau. Ça va être rapide."],
-  3:["<b>Roi Canard :</b> COIN COIN ! Mon canard en caoutchouc bloquera toutes tes attaques !","<b>Robin :</b> Un roi qui règne avec un jouet de bain. J'ai tout vu."],
-  4:["<b>Golem de Roche :</b> GRRR. Mes deux tours sont INCASSABLES. Tu ne peux pas les capturer !","<b>Robin :</b> Alors je vais leur mettre des bâtons dans les roues. Enfin… des pièces dans les couloirs."],
-  5:["<b>Impératrice de l'Ombre :</b> Tous les 5 coups, le monde changera à ma volonté : brouillard, canard, explosions ! Capture d'abord ma Reine si tu l'oses !","<b>Robin :</b> Le dernier fragment de la Couronne d'Or est ici. Le peuple attend. Finissons-en, Impératrice."]
-};
-/** Définition des 36 niveaux : fen, objectif, options. AI joue les Noirs sauf mention. */
-const LEVELS=[
- // ----- Monde 1 : Pions -----
- {n:'Trois pions au sommet',fen:'4k3/2p2p2/8/8/8/8/PPPPPPPP/4K3 w -',obj:'promote',count:3,intro:'Amène trois pions jusqu\'à la dernière rangée !'},
- {n:'Le Petit Roque',fen:'4k3/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQ',obj:'castle',intro:'Apprends le roque : clique sur le Roi puis sur la case deux cases à droite ou à gauche. Rien entre le Roi et la Tour, et pas d\'échec sur le chemin !'},
- {n:'Le Pion Étoile',fen:'3k4/1pp3p1/8/8/8/8/PPPPPPPP/4K3 w -',obj:'vip',vip:52,intro:'Protège le pion étoilé ★ et amène-le au bout !'},
- {n:'Le Grand Roque',fen:'4k3/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQ',obj:'castleQ',intro:'Cette fois, effectue le GRAND roque (côté Dame) !'},
- {n:'La percée',fen:'6k1/5ppp/8/8/8/8/8/R3K2R w -',obj:'mate',intro:'Mat en un coup ! La Tour connaît le chemin.'},
- {n:'BOSS : Le Roi des Pions',fen:'4k3/pppppppp/pppp4/8/8/8/PPPPPPPP/RNBQKBNR w -',obj:'captureKing',rules:{noCheck:true},boss:0},
- // ----- Monde 2 : Fous -----
- {n:'Le Fou glouton',fen:'7k/8/1p3p2/8/3p4/8/2B5/4K3 w -',obj:'captureAll',rules:{static:true}},
- {n:'Les vagues de pions',fen:'7k/pp4pp/8/8/8/8/2B2B2/4K3 w -',obj:'captureAll',limit:13,intro:'Élimine tous les pions en moins de 13 coups !'},
- {n:'La diagonale d\'or',fen:'k7/8/8/8/8/8/8/B3K3 w -',obj:'reach',target:7,rules:{static:true},intro:'Amène le Fou en h8.'},
- {n:'Le labyrinthe des arbres',fen:'k7/1p1p1p1p/p1p1p1p1/1p1p1p1p/p1pp2p1/1p1p1p1p/8/B3K3 w -',obj:'reach',target:7,limit:8,rules:{static:true},intro:'Ces pions sont des arbres immobiles. Trouve le chemin du Fou jusqu\'en h8 !'},
- {n:'Deux Fous en chasse',fen:'6k1/pp2p1pp/8/8/8/8/8/2B1KB2 w -',obj:'captureAll'},
- {n:'BOSS : L\'Archiduc des Couleurs',fen:'r1b1kb1r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq',obj:'mate',boss:1,darkOnly:true,rules:{aiFilter:ms=>{const d=ms.filter(m=>isDark(m.to));return d.length?d:ms}}},
- // ----- Monde 3 : Cavaliers -----
- {n:'Les cinq trésors',fen:'7k/8/2p5/5p2/1p6/4p3/6p1/N3K3 w -',obj:'captureAll',limit:12,rules:{static:true},intro:'Ramasse les 5 trésors en un minimum de sauts !'},
- {n:'Le grand saut',fen:'k7/8/8/8/8/8/8/N3K3 w -',obj:'reach',target:7,limit:8,rules:{static:true}},
- {n:'Deux destriers',fen:'7k/pp1p1p2/8/8/8/8/8/N1N1K3 w -',obj:'captureAll'},
- {n:'Cavalier et Dame',fen:'6k1/6pp/8/8/8/5N2/8/4K1Q1 w -',obj:'mate'},
- {n:'La Fourchette',fen:'2r1k3/8/8/8/2N5/8/8/4K3 w -',obj:'fork',intro:'Trouve le coup de Cavalier qui attaque le Roi ET la Tour en même temps !'},
- {n:'BOSS : Le Baron Galopant',fen:'1n2k1n1/pppppppp/2n2n2/8/8/8/PPPPPPPP/RNBQKBNR w KQ',obj:'mate',boss:2},
- // ----- Monde 4 : Canard -----
- {n:'Coin coin !',fen:'4k3/8/8/8/8/8/8/3QK3 w -',obj:'captureKing',variant:'duck',intro:'Après chaque coup, place le canard. Capture le Roi noir !'},
- {n:'La Tour et le canard',fen:'7k/pp4pp/8/8/8/8/8/R3K3 w -',obj:'captureAll',variant:'duck'},
- {n:'Infiltration',fen:'k7/8/8/8/8/8/8/R3K3 w -',obj:'reachRank8',variant:'duck',rules:{static:true},intro:'Fais passer ta Tour jusqu\'à la 8e rangée malgré le canard qui apparaît !'},
- {n:'Double Tour',fen:'6k1/5ppp/8/8/8/8/8/R3K2R w -',obj:'captureKing',variant:'duck'},
- {n:'Escarmouche',fen:'4k3/pppp4/8/8/8/8/PPPP4/4K3 w -',obj:'captureKing',variant:'duck'},
- {n:'BOSS : Le Roi Canard',fen:'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq',obj:'captureKing',variant:'duck',boss:3},
- // ----- Monde 5 : Tours -----
- {n:'Le balayage',fen:'7k/8/8/8/8/8/pppppp2/R3K3 w -',obj:'captureAll',limit:6,mustCapture:true,rules:{static:true},intro:'Capture toutes les pièces alignées en un seul combo de Tour, sans coup inutile !'},
- {n:'Les deux Tours',fen:'6k1/8/8/8/8/8/8/RR2K3 w -',obj:'mate'},
- {n:'Traversée sous les lasers',fen:'1r1r1rkr/8/8/8/8/K7/1P1P1P1P/8 w -',obj:'kingFile',target:7,intro:'Ton Roi doit traverser jusqu\'à la colonne h. Les Tours ennemies tirent des lasers verticaux : abrite-toi derrière tes pions !'},
- {n:'Mat du couloir',fen:'6k1/5ppp/8/8/8/8/8/R3K3 w -',obj:'mate'},
- {n:'Tempête de Tours',fen:'7k/pp4pp/8/8/8/8/8/RR2K3 w -',obj:'captureAll'},
- {n:'BOSS : Le Golem de Roche',fen:'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq',obj:'mate',boss:4,rules:{uncapturable:p=>p.c==='b'&&p.t==='r'}},
- // ----- Monde 6 : Palais de la Reine -----
- {n:'La Dame frappe',fen:'6k1/5ppp/8/8/8/8/8/3QK3 w -',obj:'mate'},
- {n:'Survivre à la chasseresse',fen:'4q3/8/8/8/8/8/PPPPPPPP/RNB1KBNR w KQ',obj:'survive',count:15,intro:'Une Reine solitaire te traque. Survis 15 coups en utilisant tes pièces comme boucliers !'},
- {n:'La moisson',fen:'7k/pppppppp/8/8/8/8/8/3QK3 w -',obj:'captureAll'},
- {n:'Le Miroir',fen:'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq',obj:'mate',intro:'L\'ennemi copie chacun de tes coups en miroir… Trouve la faille !',
-   rules:{aiFilter:(ms,s,last)=>{if(!last||last.from===undefined)return ms;const mir=i=>(7-rankOf(i))*8+fileOf(i);const m=ms.filter(x=>x.from===mir(last.from)&&x.to===mir(last.to));return m.length?m:ms}}},
- {n:'Le couloir royal',fen:'6k1/5ppp/8/8/8/8/8/Q3K3 w -',obj:'mate'},
- {n:'BOSS : L\'Impératrice de l\'Ombre',fen:'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq',obj:'mate',boss:5,events:true,queenFirst:true}
+const DIFF=[
+  ["Facile","♟️","Un pion maladroit qui fait des erreurs."],
+  ["Moyen 1","♞","Un écuyer qui connaît les bases."],
+  ["Moyen +","♝","Il cherche les captures et tactiques."],
+  ["Difficile","♛","Un adversaire très compétitif."],
+  ["Dark","👁️","Le Roi Sombre cherche les meilleurs coups."]
 ];
 
-const Story={
-  slot:0,cur:null,
-  load(){return JSON.parse(localStorage.getItem('cq_saves')||'[null,null,null]')},
-  save(){if(!this.cur)return;this.cur.time+=Math.floor((Date.now()-this.sessionStart)/1000);this.sessionStart=Date.now();const all=this.load();all[this.slot]=this.cur;localStorage.setItem('cq_saves',JSON.stringify(all))},
-  openSaves(){const all=this.load();const L=$('saveList');L.innerHTML='';all.forEach((s,i)=>{const d=document.createElement('div');d.className='save';
-    if(!s){d.innerHTML=`<span>📜 Fichier ${i+1} — vide</span>`;const b=document.createElement('button');b.className='green small';b.textContent='Nouvelle partie';b.onclick=()=>this.create(i);d.appendChild(b)}
-    else{const stars=s.stars.reduce((a,x)=>a+x,0),h=Math.floor(s.time/3600),m=Math.floor(s.time%3600/60);
-      d.innerHTML=`<span><b>${s.name}</b> (${DIFFS[s.diff].n})<br>${Math.round(s.unlocked/36*100)} % · ⭐ ${stars}/108 · ⏱ ${h}h${m<10?'0':''}${m}</span>`;
-      const b=document.createElement('button');b.className='green small';b.textContent='Jouer';b.onclick=()=>this.play(i);
-      const del=document.createElement('button');del.className='red small';del.textContent='🗑️';del.onclick=()=>this.confirmDelete(i);d.append(b,del)}
-    L.appendChild(d)});UI.show('saves');Narr.say('Choisis ton parchemin de sauvegarde, jeune héros.')},
-  async confirmDelete(i){await UI.modal('<h3>Êtes-vous certain de vouloir supprimer cette sauvegarde ?</h3>',[
-    {t:'NON, RETOUR',cls:'green',focus:true},{t:'OUI, SUPPRIMER',cls:'red',f:()=>{const all=this.load();all[i]=null;localStorage.setItem('cq_saves',JSON.stringify(all));this.openSaves()}}])},
-  async create(i){const html=`<h3>Nouvelle aventure</h3><input id="nm" placeholder="Ton prénom" style="font-size:1em;padding:6px;width:80%"><br><br>
-    <select id="df"><option value="easy">Facile — 5 ❤️ + joker annuler</option><option value="medium">Moyen — 3 ❤️</option><option value="hard">Difficile — 3 ❤️, 1 min par coup</option><option value="dark">Dark — 1 ❤️, 30 s, brouillard partout</option></select><p style="font-size:.8em">La difficulté sera verrouillée.</p>`;
-    await UI.modal(html,[{t:'Annuler'},{t:'Créer',cls:'green',f:()=>{const name=$('nm').value.trim()||'Robin',diff=$('df').value;
-      const all=this.load();all[i]={name,diff,hearts:DIFFS[diff].hearts,maxHearts:DIFFS[diff].hearts,unlocked:0,stars:Array(36).fill(0),time:0,bonus:{w1:false,w2:false,w3:[]}};
-      localStorage.setItem('cq_saves',JSON.stringify(all));this.play(i)}}])},
-  play(i){this.slot=i;this.cur=this.load()[i];this.sessionStart=Date.now();this.drawMap();UI.show('mapScreen');
-    Narr.say(`Bienvenue, ${this.cur.name}. Le Royaume des Rois attend son sauveur. La Couronne d'Or est brisée en six fragments…`)},
-  // ---------- Carte ----------
-  drawMap(){const inner=$('mapInner');inner.querySelectorAll('.island,.wtitle').forEach(e=>e.remove());const s=this.cur;
-    LEVELS.forEach((L,i)=>{const x=110+i*112+Math.floor(i/6)*40;if(i%6===0){const t=document.createElement('div');t.className='wtitle';t.style.left=(x+280)+'px';t.textContent=`Monde ${Math.floor(i/6)+1} : ${WORLDS[Math.floor(i/6)]}`;inner.appendChild(t)}
-      const d=document.createElement('div');d.className='island'+(L.boss!==undefined?' boss':'')+(i>s.unlocked?' locked':'');d.style.left=x+'px';d.style.animationDelay=(i%4)*.7+'s';
-      const ico=L.boss!==undefined?['👑','🎩','🐎','🦆','🗿','🌑'][L.boss]:['♙','♗','♘','🦆','♖','♕'][Math.floor(i/6)];
-      d.innerHTML=`<div class="rock">${ico}</div><div class="lbl">${i%6===5?'BOSS':'Quête '+(i%6+1)}</div><div class="stars">${'★'.repeat(s.stars[i])}${'☆'.repeat(3-s.stars[i])}</div>`;
-      d.title=L.n;d.onclick=()=>{if(i<=s.unlocked)this.launch(i);else Narr.say('Cette île est encore hors de portée.')};inner.appendChild(d)});
-    this.moveRobin(Math.min(s.unlocked,35),false);$('mapInfo').textContent=`${s.name} · ❤️ ${s.hearts}/${s.maxHearts} · ⭐ ${s.stars.reduce((a,b)=>a+b,0)}`;
-    setTimeout(()=>{$('mapScroll').scrollLeft=Math.max(0,this.pos(Math.min(s.unlocked,35))-window.innerWidth/2)},100)},
-  pos(i){return 110+i*112+Math.floor(i/6)*40},
-  moveRobin(i,anim=true){const r=$('robin');if(!anim)r.style.transition='none';r.style.left=this.pos(i)+'px';if(!anim)setTimeout(()=>r.style.transition='',50)},
-  // ---------- Lancement d'un niveau ----------
-  async launch(i){const L=LEVELS[i],s=this.cur;this.levelIdx=i;
-    if(L.boss!==undefined){await UI.modal('<div class="dialogue">'+BOSS_TALK[L.boss][0]+'<br><br>'+BOSS_TALK[L.boss][1]+'</div>',[{t:'⚔️ Au combat !',cls:'green',focus:true}]);Narr.say(BOSS_TALK[L.boss][0].replace(/<[^>]+>/g,''))}
-    const rules={...(L.rules||{})};if(L.vip!==undefined)rules.vip=L.vip;if(DIFFS[s.diff].fog)rules.fog=true;
-    const level=L.boss!==undefined?(s.diff==='dark'?4:s.diff==='hard'?3:2):(s.diff==='easy'?0:s.diff==='dark'?3:1);
-    Match.start({variant:L.variant||'standard',fen:L.fen,title:L.n,ai:true,human:'w',level,rules,intro:L.intro||L.n,
-      story:{idx:i,diff:s.diff,moveTime:DIFFS[s.diff].moveTime,events:!!L.events,def:L}})},
-  /** Objectifs spécifiques : renvoie un verdict ou null */
-  checkObjective(v,m,mover){const M=Match,L=M.story.def,s=M.state,b=s.board;const win=r=>({winner:'w',reason:r}),lose=r=>({winner:'b',reason:r});
-    const blackPieces=b.filter(p=>p&&p.c==='b'&&p.t!=='k').length;
-    if(L.limit&&M.moveCount>=L.limit&&!(v&&v.winner==='w')){const done=this.objDone(L,m,mover);if(!done)return lose('Limite de '+L.limit+' coups dépassée !')}
-    if(L.mustCapture&&mover==='w'&&m.from!==undefined&&!m.capt)return lose('Le combo est rompu ! Chaque coup devait capturer.');
-    if(L.vip!==undefined&&mover==='b'&&m.to===M.rules.vip)return lose('Le pion étoilé a été capturé !');
-    if(L.vip!==undefined&&mover==='w'&&m.from===M.rules.vip){M.rules.vip=m.to;if(rankOf(m.to)===0)return win('Le pion étoilé est arrivé !')}
-    if(L.darkOnly&&mover==='w'&&m.from!==undefined&&!isDark(m.to))this.loseHeart('Case blanche ! L\'Archiduc te punit.');
-    if(L.queenFirst&&v&&v.winner==='w'&&!M.queenCaptured)return lose('Sa Majesté est protégée par l\'ombre : capture d\'abord la Reine !');
-    switch(L.obj){
-      case 'promote':{let n=0;for(let i=0;i<8;i++)if(b[i]&&b[i].c==='w'&&b[i].t!=='k')n++;if(n>=L.count)return win('Trois pions couronnés !');if(v&&v.winner!=='w'&&v.winner!==null)return v;if(v)return null;break}
-      case 'castle':if(m.castle==='K')return win('Petit roque réussi !');break;
-      case 'castleQ':if(m.castle==='Q')return win('Grand roque réussi !');break;
-      case 'captureAll':if(!blackPieces)return win('Tout est capturé !');break;
-      case 'reach':if(mover==='w'&&m.to===L.target)return win('Case atteinte !');break;
-      case 'reachRank8':if(mover==='w'&&m.from!==undefined&&rankOf(m.to)===0&&b[m.to].t==='r')return win('La Tour a percé les lignes !');break;
-      case 'kingFile':if(mover==='w'&&m.from!==undefined&&b[m.to]&&b[m.to].t==='k'&&fileOf(m.to)===L.target)return win('Le Roi a traversé !');break;
-      case 'fork':if(M.forked)return win('Fourchette validée !');break;
-      case 'survive':if(M.moveCount>=L.count&&!(v&&v.winner==='b'))return win('Tu as survécu à la chasseresse !');break;
-      case 'captureKing':if(v&&v.winner==='w')return v;break;
-      case 'mate':break}
-    if(v&&v.winner===null&&['captureAll','reach','reachRank8','kingFile','fork','castle','castleQ','survive'].includes(L.obj)&&M.rules.static)return null;
-    return v},
-  objDone(L,m,mover){return false},
-  onCapture(captured,mover){},
-  /** Événements du monde (boss final) : tous les 5 coups */
-  worldEvent(){const M=Match;M.eventCounter++;if(M.eventCounter%5)return;const s=M.state;const ev=['fog','duck','boom'][Math.floor(Math.random()*3)];
-    if(ev==='fog'){M.rules.fog=!M.rules.fog;Narr.say(M.rules.fog?'Le brouillard de l\'Ombre envahit le palais !':'Le brouillard se dissipe.')}
-    else if(ev==='duck'){const e=[];for(let i=0;i<64;i++)if(!s.board[i])e.push(i);s.duck=e[Math.floor(Math.random()*e.length)];Narr.say('Un canard géant surgit et bloque le passage !')}
-    else{const e=[];for(let i=0;i<64;i++)if(s.board[i]&&s.board[i].t!=='k')e.push(i);if(e.length){const i=e[Math.floor(Math.random()*e.length)];if(s.board[i].c==='w')M.lostPieces++;if(s.board[i].t==='q'&&s.board[i].c==='b')M.queenCaptured=true;s.board[i]=null;Narr.say('BOUM ! La case '+name(i)+' explose !')}}
-    Render.draw()},
-  loseHeart(why){const s=this.cur;s.hearts--;SFX.lose();Match.hud();Narr.say(why+(s.hearts>0?' Il te reste '+s.hearts+' cœurs.':' Tu n\'as plus de cœur !'));
-    if(s.hearts<=0){Match.over=true;clearInterval(Match.timer);UI.modal('<h3>💔 Plus de cœurs !</h3>Robin doit se reposer… Tes cœurs sont restaurés, mais le niveau est à recommencer.',[{t:'Retour à la carte',cls:'green',focus:true,f:()=>{s.hearts=s.maxHearts;this.save();this.drawMap();UI.show('mapScreen')}}])}},
-  /** Fin de niveau : étoiles, vies bonus, boss, cinématique */
-  async onEnd(v){const M=Match,i=this.levelIdx,L=M.story.def,s=this.cur;
-    if(v.winner!=='w'){SFX.lose();if(s.hearts>0)this.loseHeart('Défaite : '+v.reason);if(s.hearts>0)await UI.modal('<h3>Échec de la quête</h3>'+v.reason,[{t:'🔁 Réessayer',cls:'green',focus:true,f:()=>M.restart()},{t:'Carte',f:()=>{this.save();this.drawMap();UI.show('mapScreen')}}]);return}
-    const stars=1+(M.moveCount<16?1:0)+(M.lostPieces===0?1:0);const prev=s.stars[i];s.stars[i]=Math.max(prev,stars);
-    if(i===s.unlocked)s.unlocked=Math.min(36,i+1);
-    // Vies bonus
-    const w=Math.floor(i/6),perfect=n=>s.stars.slice(n*6,n*6+6).filter(x=>x===3).length;let bonus='';
-    if(w===0&&!s.bonus.w1&&perfect(0)>=3){s.bonus.w1=true;s.maxHearts++;s.hearts++;bonus='+1 ❤️ permanent (3 niveaux parfaits) !'}
-    if(w===1&&!s.bonus.w2&&perfect(1)>=2){s.bonus.w2=true;s.maxHearts++;s.hearts++;bonus='+1 ❤️ permanent (2 niveaux parfaits) !'}
-    if(w>=2&&stars===3&&!s.bonus.w3.includes(i)){s.bonus.w3.push(i);s.maxHearts++;s.hearts++;bonus='+1 ❤️ permanent pour cette performance 3 étoiles !'}
-    this.save();
-    if(L.boss!==undefined){SFX.goal();await wait(3800)}else SFX.win();
-    Narr.say(L.boss!==undefined?'Le boss est vaincu ! Un fragment de la Couronne d\'Or brille dans ta main !':'Quête accomplie, noble Robin.');
-    await UI.modal(`<h3>${L.boss!==undefined?'🏆 BOSS VAINCU !':'✅ Quête réussie !'}</h3><div style="font-size:2em;color:var(--gold)">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
-      Coups : ${M.moveCount} ${M.moveCount<16?'✔':'✘ (moins de 16 pour ★)'}<br>Pièces perdues : ${M.lostPieces} ${M.lostPieces===0?'✔':'✘ (aucune pour ★)'}<br><b>${bonus}</b>`,[{t:'Carte du monde',cls:'green',focus:true}]);
-    this.drawMap();UI.show('mapScreen');
-    if(i===s.unlocked-1&&i<35){const r=$('robin');if(L.boss!==undefined){r.classList.add('bolt','fast');r.textContent='⚡🏃';SFX.tone(1200,.4);await wait(1800);this.moveRobin(i+1);await wait(1300);r.textContent='🏹🗿';r.classList.remove('bolt','fast')}
-      else{await wait(400);this.moveRobin(i+1)}}
-    if(i===35)setTimeout(()=>this.ending(),1200)},
-  /** Cinématique finale : livre-parchemin, fragments, ciel qui se déchire */
-  async ending(){const c=$('cine');c.classList.remove('blue');c.classList.add('on');$('cineTxt').textContent='Robin rassemble les six fragments de la Couronne d\'Or…';
-    Narr.say('Et ainsi, Robin des Bois rassembla les six fragments de la Couronne d\'Or.');const frags=c.querySelectorAll('.frag');
-    for(let i=0;i<6;i++){await wait(900);frags[i].classList.add('in');SFX.tone(600+i*100,.3)}
-    await wait(1200);c.classList.add('blue');SFX.win();$('cineTxt').innerHTML='Les cieux gris se déchirent…<br><br><b>Le monde est redevenu bon, juste et prospère. Les gens sont enfin heureux !</b><br><br><span style="font-size:1.6em">FIN.</span>';
-    Narr.say('Les cieux gris se déchirèrent. Le monde est redevenu bon, juste et prospère. Les gens sont enfin heureux ! Fin.')}
-};
+/* ===== ÉTAT ===== */
+let board, turn, selected, mode, difficulty=0, gameActive=false;
+let opponentType="ai";
+let ep=null, castle, reserves, duckPos=null, duckPhase=false;
+let lastFrom=null, lastTo=null, timer=null, wt=600, bt=600;
+let view3d=false, moveHistory=[], chosenMode="normal";
+let pendingPromotionMoves=[];
 
-/* =====================================================================
-   7. DÉMARRAGE
-   ===================================================================== */
-window.addEventListener('load',()=>{if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>{};
-  document.body.addEventListener('click',()=>{try{SFX.c.resume()}catch(e){}},{once:true});
-  setTimeout(()=>Narr.say('Bienvenue, jeune aventurier, dans le Royaume des Rois. Choisis ta voie.'),800)});
+/* ===== MENU ===== */
+function openDifficulty(m){
+  chosenMode=m;
+  document.getElementById("opponentBox").classList.add("show");
+}
+function closeOpponentBox(){document.getElementById("opponentBox").classList.remove("show")}
+function chooseOpponent(type){
+  opponentType=type;
+  closeOpponentBox();
+  if(type==="ai"){
+    document.getElementById("difficultyBox").classList.add("show");
+    updateDifficulty(0);
+    return;
+  }
+  startGame();
+}
+function closeDifficulty(){document.getElementById("difficultyBox").classList.remove("show")}
+function updateDifficulty(v){
+  difficulty=Number(v);
+  document.getElementById("diffSlider").value=v;
+  document.getElementById("diffAvatar").textContent=DIFF[v][1];
+  document.getElementById("diffName").textContent=DIFF[v][0];
+  document.getElementById("diffDesc").textContent=DIFF[v][2];
+}
+function startGame(){
+  closeDifficulty();
+  mode=chosenMode;
+  gameActive=true;
+  selected=null;ep=null;duckPos=null;duckPhase=false;
+  lastFrom=null;lastTo=null;moveHistory=[];
+  castle={K:true,Q:true,k:true,q:true};
+  reserves={[W]:[],[B]:[]};
+  turn=W;
+  setTimes();
+  setupBoard();
+  document.getElementById("menu").style.display="none";
+  document.getElementById("game").style.display="flex";
+  const opponentLabel=opponentType==="pvp"?"⚔️ VS":"🤖 AI";
+  document.getElementById("modeTitle").textContent=`${MODE_NAME[mode]} — ${opponentLabel}`;
+  document.getElementById("blackLabel").textContent=opponentType==="pvp"?"🟤 Joueur Marron":"🤖 Bot Marron";
+  render();
+  startTimer();
+  status(opponentType==="pvp"?"⬜ Tour du Joueur Blanc.":"⬜ À toi de jouer.");
+}
+function setTimes(){
+  if(mode==="normal"){wt=3600;bt=3600}
+  else if(mode==="blitz"){wt=600;bt=600}
+  else if(mode==="rapid"){wt=900;bt=900}
+  else{wt=99999;bt=99999}
+}
+function goMenu(){
+  gameActive=false;clearInterval(timer);
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById("game").style.display="none";
+  document.getElementById("menu").style.display="flex";
+}
+function restart(){document.getElementById("overlay").classList.remove("show");startGame()}
+
+/* ===== PLATEAU ===== */
+function empty(){return Array.from({length:8},()=>Array(8).fill(null))}
+function inside(r,c){return r>=0&&r<8&&c>=0&&c<8}
+function clone(b){return b.map(row=>row.map(p=>p?{...p}:null))}
+function setupBoard(){
+  board=empty();
+  if(mode==="pawnrace"){
+    for(let x=0;x<8;x++){board[1][x]={t:P,c:B};board[6][x]={t:P,c:W}}
+    return;
+  }
+  if(mode==="horde"){
+    back(0,B);pawns(1,B);
+    for(let y=4;y<8;y++)for(let x=0;x<8;x++)board[y][x]={t:P,c:W};
+    for(const x of [1,3,5,7])board[3][x]={t:P,c:W};
+    return;
+  }
+  back(0,B);pawns(1,B);pawns(6,W);back(7,W);
+  if(mode==="duck"){duckPos=[3,4];board[3][4]={t:DUCK,c:-1}}
+}
+function back(y,c){const a=[R,N,BI,Q,K,BI,N,R];for(let x=0;x<8;x++)board[y][x]={t:a[x],c}}
+function pawns(y,c){for(let x=0;x<8;x++)board[y][x]={t:P,c}}
+
+/* ===== MOTEUR DE RÈGLES — MOUVEMENTS NATIFS ===== */
+function canLandOn(b,r,c,color){
+  if(!inside(r,c))return false;
+  const t=b[r][c];
+  if(!t)return true;
+  if(t.t===DUCK)return false;
+  return t.c!==color;
+}
+function pawnMoves(b,r,c,color){
+  const moves=[];
+  const dir=color===W?-1:1;
+  const start=color===W?6:1;
+  const promo=color===W?0:7;
+  const one=r+dir;
+  if(inside(one,c)&&!b[one][c]){
+    if(one===promo)[Q,R,BI,N].forEach(pt=>moves.push({fr:r,fc:c,tr:one,tc:c,promo:pt}));
+    else moves.push({fr:r,fc:c,tr:one,tc:c});
+    const two=r+dir*2;
+    if(r===start&&inside(two,c)&&!b[two][c]&&!b[one][c])moves.push({fr:r,fc:c,tr:two,tc:c});
+  }
+  for(const dc of [-1,1]){
+    const tr=r+dir,tc=c+dc;
+    if(!inside(tr,tc))continue;
+    const t=b[tr][tc];
+    if(t&&t.c!==color&&t.t!==DUCK){
+      if(tr===promo)[Q,R,BI,N].forEach(pt=>moves.push({fr:r,fc:c,tr,tc,promo:pt}));
+      else moves.push({fr:r,fc:c,tr,tc});
+    }
+    if(ep&&ep[0]===tr&&ep[1]===tc)moves.push({fr:r,fc:c,tr,tc,ep:true});
+  }
+  return moves;
+}
+function knightMoves(b,r,c,color){
+  const moves=[];
+  for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){
+    const tr=r+dr,tc=c+dc;
+    if(canLandOn(b,tr,tc,color))moves.push({fr:r,fc:c,tr,tc});
+  }
+  return moves;
+}
+function slideMoves(b,r,c,color,dirs){
+  const moves=[];
+  for(const [dr,dc] of dirs){
+    let tr=r+dr,tc=c+dc;
+    while(inside(tr,tc)){
+      const t=b[tr][tc];
+      if(t){
+        if(t.t!==DUCK&&t.c!==color)moves.push({fr:r,fc:c,tr,tc});
+        break;
+      }
+      moves.push({fr:r,fc:c,tr,tc});
+      tr+=dr;tc+=dc;
+    }
+  }
+  return moves;
+}
+function bishopMoves(b,r,c,col){return slideMoves(b,r,c,col,[[-1,-1],[-1,1],[1,-1],[1,1]])}
+function rookMoves(b,r,c,col){return slideMoves(b,r,c,col,[[-1,0],[1,0],[0,-1],[0,1]])}
+function queenMoves(b,r,c,col){return slideMoves(b,r,c,col,[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]])}
+function kingMoves(b,r,c,color,attackOnly=false){
+  const moves=[];
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    if(dr===0&&dc===0)continue;
+    const tr=r+dr,tc=c+dc;
+    if(canLandOn(b,tr,tc,color))moves.push({fr:r,fc:c,tr,tc});
+  }
+  if(attackOnly||mode==="duck")return moves;
+  const row=color===W?7:0;
+  const ks=color===W?"K":"k", qs=color===W?"Q":"q";
+  const enemy=1-color;
+  if(r!==row||c!==4)return moves;
+  if(isSquareAttacked(b,row,4,enemy))return moves;
+  if(castle[ks]&&!b[row][5]&&!b[row][6]){
+    const rook=b[row][7];
+    if(rook&&rook.t===R&&rook.c===color){
+      if(!isSquareAttacked(b,row,5,enemy)&&!isSquareAttacked(b,row,6,enemy))
+        moves.push({fr:r,fc:c,tr:row,tc:6,castle:"K"});
+    }
+  }
+  if(castle[qs]&&!b[row][1]&&!b[row][2]&&!b[row][3]){
+    const rook=b[row][0];
+    if(rook&&rook.t===R&&rook.c===color){
+      if(!isSquareAttacked(b,row,3,enemy)&&!isSquareAttacked(b,row,2,enemy))
+        moves.push({fr:r,fc:c,tr:row,tc:2,castle:"Q"});
+    }
+  }
+  return moves;
+}
+
+/* ===== ATTAQUES ===== */
+function pieceAttacksSquare(b,piece,fr,fc,tr,tc){
+  const dr=tr-fr, dc=tc-fc;
+  if(piece.t===P){
+    const dir=piece.c===W?-1:1;
+    return dr===dir&&Math.abs(dc)===1;
+  }
+  if(piece.t===N){
+    return (Math.abs(dr)===2&&Math.abs(dc)===1)||(Math.abs(dr)===1&&Math.abs(dc)===2);
+  }
+  if(piece.t===K){
+    return Math.abs(dr)<=1&&Math.abs(dc)<=1&&!(dr===0&&dc===0);
+  }
+  if(piece.t===BI){
+    if(Math.abs(dr)!==Math.abs(dc)||dr===0)return false;
+    return isPathClear(b,fr,fc,tr,tc);
+  }
+  if(piece.t===R){
+    if(dr!==0&&dc!==0)return false;
+    if(dr===0&&dc===0)return false;
+    return isPathClear(b,fr,fc,tr,tc);
+  }
+  if(piece.t===Q){
+    const diag=Math.abs(dr)===Math.abs(dc);
+    const straight=dr===0||dc===0;
+    if(!diag&&!straight)return false;
+    if(dr===0&&dc===0)return false;
+    return isPathClear(b,fr,fc,tr,tc);
+  }
+  return false;
+}
+function isPathClear(b,fr,fc,tr,tc){
+  const sr=Math.sign(tr-fr), sc=Math.sign(tc-fc);
+  let r=fr+sr, c=fc+sc;
+  while(r!==tr||c!==tc){
+    if(b[r][c])return false;
+    r+=sr;c+=sc;
+  }
+  return true;
+}
+function isSquareAttacked(b,tr,tc,attacker){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=b[r][c];
+    if(!p||p.c!==attacker||p.t===DUCK)continue;
+    if(pieceAttacksSquare(b,p,r,c,tr,tc))return true;
+  }
+  return false;
+}
+function kingPos(b,color){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)
+    if(b[r][c]&&b[r][c].t===K&&b[r][c].c===color)return [r,c];
+  return null;
+}
+function inCheck(b,color){
+  const k=kingPos(b,color);
+  if(!k)return true;
+  return isSquareAttacked(b,k[0],k[1],1-color);
+}
+
+/* ===== COUPS LEGAUX ===== */
+function pseudoMoves(b,color){
+  const moves=[];
+  if(mode==="duck"&&duckPhase){
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++)
+      if(!b[r][c])moves.push({fr:duckPos[0],fc:duckPos[1],tr:r,tc:c,duck:true});
+    return moves;
+  }
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=b[r][c];
+    if(!p||p.c!==color||p.t===DUCK)continue;
+    if(p.t===P)moves.push(...pawnMoves(b,r,c,color));
+    if(p.t===N)moves.push(...knightMoves(b,r,c,color));
+    if(p.t===BI)moves.push(...bishopMoves(b,r,c,color));
+    if(p.t===R)moves.push(...rookMoves(b,r,c,color));
+    if(p.t===Q)moves.push(...queenMoves(b,r,c,color));
+    if(p.t===K)moves.push(...kingMoves(b,r,c,color));
+  }
+  if(mode==="crazyhouse"){
+    for(const pt of reserves[color])for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+      if(b[r][c])continue;
+      if(pt===P&&(r===0||r===7))continue;
+      moves.push({drop:true,t:pt,tr:r,tc:c});
+    }
+  }
+  return moves;
+}
+function modeUsesCheckRules(color){
+  if(mode==="duck")return false;
+  if(mode==="pawnrace")return false;
+  if(mode==="horde"&&color===W)return false;
+  return true;
+}
+function legalMoves(color=turn){
+  const raw=pseudoMoves(board,color);
+  if(!modeUsesCheckRules(color))return raw;
+  if(mode==="atomic"){
+    return raw.filter(m=>{
+      const test=simulateAtomic(board,m,color);
+      if(!kingPos(test,color))return false;
+      if(!kingPos(test,1-color))return true;
+      return !inCheck(test,color);
+    });
+  }
+  if(mode==="fog"){
+    return raw.filter(m=>{
+      const test=apply(board,m,color);
+      const k=kingPos(test,color);
+      if(!k)return false;
+      return !visibleEnemyAttacksKing(test,color,k[0],k[1]);
+    });
+  }
+  return raw.filter(m=>!inCheck(apply(board,m,color),color));
+}
+function simulateAtomic(b,m,color){
+  const captured=m.ep?b[m.fr][m.tc]:b[m.tr][m.tc];
+  let test=apply(b,m,color);
+  if(captured&&captured.t!==DUCK&&!m.drop){
+    const cr=m.tr,cc=m.tc;
+    test[cr][cc]=null;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(dr===0&&dc===0)continue;
+      const r=cr+dr,c=cc+dc;if(!inside(r,c))continue;
+      const v=test[r][c];
+      if(v&&v.t!==P&&v.t!==DUCK)test[r][c]=null;
+    }
+  }
+  return test;
+}
+
+/* ===== FOG ===== */
+function isSquareVisibleBy(b,tr,tc,color){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=b[r][c];
+    if(!p||p.c!==color)continue;
+    if(r===tr&&c===tc)return true;
+    if(pieceAttacksSquare(b,p,r,c,tr,tc))return true;
+    if(p.t===N){
+      const dr=Math.abs(tr-r), dc=Math.abs(tc-c);
+      if((dr===2&&dc===1)||(dr===1&&dc===2))return true;
+    }
+    if(p.t===P){
+      const dir=p.c===W?-1:1;
+      if(tr===r+dir&&tc===c)return true;
+    }
+  }
+  return false;
+}
+function visibleEnemyAttacksKing(b,color,kr,kc){
+  const enemy=1-color;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const e=b[r][c];
+    if(!e||e.c!==enemy)continue;
+    if(!isSquareVisibleBy(b,r,c,color))continue;
+    if(pieceAttacksSquare(b,e,r,c,kr,kc))return true;
+  }
+  return false;
+}
+function visible(r,c){
+  const vc=opponentType==="pvp"?turn:W;
+  return isSquareVisibleBy(board,r,c,vc);
+}
+
+/* ===== APPLIQUER UN COUP ===== */
+function apply(b,m,color=turn){
+  const nb=clone(b);
+  if(m.drop){nb[m.tr][m.tc]={t:m.t,c:color};return nb}
+  if(m.duck){nb[m.fr][m.fc]=null;nb[m.tr][m.tc]={t:DUCK,c:-1};return nb}
+  const p=nb[m.fr][m.fc];
+  if(!p)return nb;
+  if(m.ep)nb[m.fr][m.tc]=null;
+  nb[m.tr][m.tc]=p;nb[m.fr][m.fc]=null;
+  if(m.promo)p.t=m.promo;
+  if(m.castle==="K"){nb[m.fr][5]=nb[m.fr][7];nb[m.fr][7]=null}
+  if(m.castle==="Q"){nb[m.fr][3]=nb[m.fr][0];nb[m.fr][0]=null}
+  return nb;
+}
+
+/* ===== ANIMATION BATTLE ===== */
+function playBattleCaptureAnimation(fr,fc,tr,tc){
+  if(!view3d)return;
+  const boardEl=document.getElementById("board");
+  const squares=boardEl.querySelectorAll(".square");
+  const attacker=squares[fr*8+fc]?.querySelector(".piece");
+  const victimSq=squares[tr*8+tc];
+  const victim=victimSq?.querySelector(".piece");
+  if(attacker)attacker.classList.add("battle-attacker");
+  if(victim)victim.classList.add("battle-victim");
+  if(victimSq){
+    const rect=victimSq.getBoundingClientRect();
+    const cloud=document.createElement("div");
+    cloud.className="battle-cloud";
+    cloud.textContent="💥";
+    cloud.style.left=`${rect.left+rect.width/2}px`;
+    cloud.style.top=`${rect.top+rect.height/2}px`;
+    document.body.appendChild(cloud);
+    setTimeout(()=>cloud.remove(),700);
+  }
+  setTimeout(()=>{
+    if(attacker)attacker.classList.remove("battle-attacker");
+    if(victim)victim.classList.remove("battle-victim");
+  },700);
+}
+
+/* ===== JOUER UN COUP ===== */
+function play(m){
+  if(!gameActive)return;
+
+  if(m.drop){
+    reserves[turn].splice(reserves[turn].indexOf(m.t),1);
+    board=apply(board,m);finishTurn(m);return;
+  }
+  if(m.duck){
+    board=apply(board,m);duckPos=[m.tr,m.tc];duckPhase=false;
+    document.getElementById("duckNotice").style.display="none";
+    finishTurn(m);return;
+  }
+
+  const piece=board[m.fr][m.fc];
+  let captured=m.ep?board[m.fr][m.tc]:board[m.tr][m.tc];
+
+  if(captured&&captured.t!==DUCK&&!m.ep){
+    playBattleCaptureAnimation(m.fr,m.fc,m.tr,m.tc);
+  }
+  if(captured&&captured.t!==DUCK){
+    if(mode==="crazyhouse"&&captured.t!==K)reserves[turn].push(captured.t);
+  }
+
+  board=apply(board,m);
+
+  if(mode==="atomic"&&captured&&captured.t!==DUCK){
+    const cr=m.tr,cc=m.tc;
+    board[cr][cc]=null;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(dr===0&&dc===0)continue;
+      const r=cr+dr,c=cc+dc;if(!inside(r,c))continue;
+      const v=board[r][c];
+      if(v&&v.t!==P&&v.t!==DUCK)board[r][c]=null;
+    }
+    if(!kingPos(board,W)){end("💥 Le Roi blanc a explosé ! Marron gagne !");return}
+    if(!kingPos(board,B)){end("💥 Le Roi marron a explosé ! Blanc gagne !");return}
+  }
+
+  ep=null;
+  if(piece.t===P&&Math.abs(m.tr-m.fr)===2)ep=[(m.tr+m.fr)/2,m.fc];
+
+  if(piece.t===K){
+    if(turn===W){castle.K=false;castle.Q=false}else{castle.k=false;castle.q=false}
+  }
+  if(piece.t===R){
+    if(m.fr===7&&m.fc===0)castle.Q=false;
+    if(m.fr===7&&m.fc===7)castle.K=false;
+    if(m.fr===0&&m.fc===0)castle.q=false;
+    if(m.fr===0&&m.fc===7)castle.k=false;
+  }
+
+  if(mode==="duck"){
+    duckPhase=true;lastFrom=[m.fr,m.fc];lastTo=[m.tr,m.tc];
+    document.getElementById("duckNotice").style.display="block";
+    render();status("🦆 Déplace maintenant le canard !");
+    return;
+  }
+  finishTurn(m);
+}
+function finishTurn(m){
+  lastFrom=m.drop?null:[m.fr,m.fc];lastTo=[m.tr,m.tc];
+  moveHistory.push(m);turn=1-turn;
+  render();updateClocks();
+  if(variantWin()||gameEnd())return;
+  if(opponentType==="ai"&&turn===B){
+    status("🤖 Le Bot Marron réfléchit...");
+    setTimeout(aiMove,450);
+    return;
+  }
+  if(opponentType==="pvp"){
+    if(turn===W)status("⬜ Tour du Joueur Blanc.");
+    else status("🟤 Tour du Joueur Marron.");
+    if(checkRules(turn)&&inCheck(board,turn)){
+      status(turn===W?"⚠️ Joueur Blanc : Roi en échec !":"⚠️ Joueur Marron : Roi en échec !");
+    }
+    return;
+  }
+  if(checkRules(W)&&inCheck(board,W))status("⚠️ Ton Roi est en échec !");
+  else status("⬜ À toi de jouer.");
+}
+function checkRules(color){return modeUsesCheckRules(color)}
+
+function variantWin(){
+  if(mode==="koth"){
+    const center=[[3,3],[3,4],[4,3],[4,4]];
+    for(const [r,c] of center){
+      const p=board[r][c];
+      if(p&&p.t===K){
+        if(!isSquareAttacked(board,r,c,1-p.c)){
+          end(p.c===W?"🏔️ Roi de la Colline ! Blanc gagne en sécurité !":"🏔️ Marron atteint la colline en sécurité !");
+          return true;
+        }
+      }
+    }
+  }
+  if(mode==="pawnrace"){
+    for(let c=0;c<8;c++){
+      if(board[0][c]&&board[0][c].c===W){end("🏃 Pion blanc promu ! Victoire !");return true}
+      if(board[7][c]&&board[7][c].c===B){end("🏃 Pion marron promu ! Victoire marron !");return true}
+    }
+  }
+  if(mode==="horde"){
+    let w=0;for(const row of board)for(const p of row)if(p&&p.c===W)w++;
+    if(!w){end("La Horde est détruite ! Marron gagne.");return true}
+  }
+  if(mode==="duck"){
+    if(!kingPos(board,W)){end("Roi blanc capturé ! Marron gagne.");return true}
+    if(!kingPos(board,B)){end("Roi marron capturé ! Blanc gagne !");return true}
+  }
+  return false;
+}
+function gameEnd(){
+  const lm=legalMoves(turn);
+  if(lm.length)return false;
+  if(mode==="pawnrace"){end(turn===W?"Blanc bloqué : Marron gagne.":"Marron bloqué : Blanc gagne.");return true}
+  if(mode==="duck"){end("Le canard bloque tout : match nul.");return true}
+  if(checkRules(turn)&&inCheck(board,turn)){
+    end(turn===W?"Échec et mat ! Marron gagne.":"Échec et mat ! Blanc gagne !");
+  }else end("Pat ! Match nul.");
+  return true;
+}
+
+/* ===== IA ===== */
+function aiMove(){
+  if(!gameActive||turn!==B)return;
+  const ms=legalMoves(B);
+  if(!ms.length){gameEnd();return}
+  let best=ms[0],bestScore=-9999;
+  for(const m of ms){
+    let score=Math.random()*(difficulty===0?25:3);
+    if(m.drop)score+=(VALUE[m.t]||0)*2;
+    else{
+      const t=board[m.tr][m.tc];
+      if(t&&t.t!==DUCK)score+=(VALUE[t.t]||0)*10;
+      if(m.promo)score+=VALUE[m.promo]*8;
+      if(m.castle)score+=4;
+      if(m.tr>=2&&m.tr<=5&&m.tc>=2&&m.tc<=5)score+=1;
+    }
+    if(difficulty>=2){
+      const test=apply(board,m,B);
+      if(!inCheck(test,B)&&inCheck(test,W))score+=6;
+    }
+    if(score>bestScore){bestScore=score;best=m}
+  }
+  play(best);
+}
+
+/* ===== AFFICHAGE ===== */
+function render(){
+  const el=document.getElementById("board");
+  el.innerHTML="";
+  el.classList.toggle("battle-mode",view3d);
+  const moves=legalMoves(turn);
+  const targets=selected&&selected[0]!=="drop"
+    ? moves.filter(m=>!m.drop&&m.fr===selected[0]&&m.fc===selected[1])
+    : (selected&&selected[0]==="drop"?moves.filter(m=>m.drop&&m.t===selected[1]):[]);
+
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const s=document.createElement("div");
+    s.className="square "+((r+c)%2?"dark":"light");
+    if(lastFrom&&lastFrom[0]===r&&lastFrom[1]===c)s.classList.add("last");
+    if(lastTo&&lastTo[0]===r&&lastTo[1]===c)s.classList.add("last");
+    if(selected&&selected[0]!=="drop"&&selected[0]===r&&selected[1]===c)s.classList.add("selected");
+    const hit=targets.find(m=>m.tr===r&&m.tc===c);
+    if(hit)s.classList.add(board[r][c]?"capture":"dot");
+    const kp=kingPos(board,turn);
+    if(kp&&kp[0]===r&&kp[1]===c&&checkRules(turn)&&inCheck(board,turn))s.classList.add("check");
+    if(mode==="fog"&&!visible(r,c))s.classList.add("fog");
+    if(c===0)s.innerHTML+=`<span class="coord rank">${8-r}</span>`;
+    if(r===7)s.innerHTML+=`<span class="coord file">${F[c]}</span>`;
+    const p=board[r][c];
+    if(p){
+      let cls="piece";
+      if(p.c===W)cls+=" white-piece";
+      if(p.c===B)cls+=" brown-piece";
+      s.innerHTML+=`<span class="${cls}">${ICON[p.c]?.[p.t]||"🦆"}</span>`;
+    }
+    s.onclick=()=>clickSquare(r,c);
+    el.appendChild(s);
+  }
+  renderReserve();
+}
+function renderReserve(){
+  const wr=document.getElementById("whiteReserve");
+  const br=document.getElementById("blackReserve");
+  if(mode!=="crazyhouse"){wr.style.display="none";br.style.display="none";return}
+  wr.style.display="block";br.style.display="block";
+  wr.innerHTML="⬜ Réserve blanche : ";
+  br.innerHTML="🟤 Réserve marron : ";
+  reserves[W].forEach(t=>{
+    const b=document.createElement("button");
+    b.textContent=ICON[W][t];
+    b.onclick=()=>selectDrop(t,W);
+    wr.appendChild(b);
+  });
+  reserves[B].forEach(t=>{
+    const b=document.createElement("button");
+    b.textContent=ICON[B][t];
+    b.onclick=()=>selectDrop(t,B);
+    br.appendChild(b);
+  });
+}
+function selectDrop(t,color){
+  if(opponentType==="ai"&&color!==W)return;
+  if(color!==turn)return;
+  selected=["drop",t];
+  status(color===W?"⬜ Choisis une case vide.":"🟤 Choisis une case vide.");
+  render();
+}
+function clickSquare(r,c){
+  if(!gameActive)return;
+  if(opponentType==="ai"&&turn!==W)return;
+  if(duckPhase){
+    const m=legalMoves().find(x=>x.duck&&x.tr===r&&x.tc===c);
+    if(m)play(m);return;
+  }
+  if(selected&&selected[0]==="drop"){
+    const m=legalMoves().find(x=>x.drop&&x.t===selected[1]&&x.tr===r&&x.tc===c);
+    if(m){selected=null;play(m)}return;
+  }
+  const moves=legalMoves();
+  if(selected){
+    const choices=moves.filter(m=>!m.drop&&m.fr===selected[0]&&m.fc===selected[1]&&m.tr===r&&m.tc===c);
+    if(choices.length>0){
+      if(choices.length>1&&choices[0].promo){askPromotion(choices);return}
+      selected=null;play(choices[0]);return;
+    }
+  }
+  const p=board[r][c];
+  if(p&&p.c===turn&&p.t!==DUCK)selected=[r,c];
+  else selected=null;
+  render();
+}
+
+/* ===== PROMOTION ===== */
+function askPromotion(moves){
+  pendingPromotionMoves=moves;
+  document.getElementById("promotionBox").classList.remove("hidden");
+}
+function choosePromotion(pt){
+  const m=pendingPromotionMoves.find(x=>x.promo===pt);
+  if(m){
+    document.getElementById("promotionBox").classList.add("hidden");
+    selected=null;play(m);
+  }
+  pendingPromotionMoves=[];
+}
+
+/* ===== TIMER & FIN ===== */
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    if(!gameActive)return;
+    if(turn===W)wt--;else bt--;
+    updateClocks();
+    if(wt<=0)end("Temps écoulé ! Marron gagne.");
+    if(bt<=0)end("Temps écoulé ! Blanc gagne !");
+  },1000);
+}
+function fmt(t){return `${Math.floor(Math.max(0,t)/60)}:${String(Math.max(0,t)%60).padStart(2,"0")}`}
+function updateClocks(){
+  const a=document.getElementById("whiteClock"),b=document.getElementById("blackClock");
+  a.textContent=fmt(wt);b.textContent=fmt(bt);
+  a.classList.toggle("active",turn===W);
+  b.classList.toggle("active",turn===B);
+}
+function status(t){document.getElementById("status").textContent=t}
+function end(text){
+  gameActive=false;clearInterval(timer);
+  document.getElementById("endText").textContent=text;
+  document.getElementById("overlay").classList.add("show");
+}
+function toggleView(){
+  view3d=!view3d;
+  const btn=document.getElementById("viewBtn");
+  if(view3d){btn.textContent="⚔️ BATTLE";status("⚔️ Mode Battle Chess activé !")}
+  else{btn.textContent="♟ 2D";status("♟ Vue classique 2D.")}
+  render();
+}
 </script>
 </body>
 </html>
