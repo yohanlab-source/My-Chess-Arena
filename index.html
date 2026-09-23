@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Chess Arena : Le Royaume des Échecs</title>
 <style>
-/* ── DESIGN SYSTÈME MÉDIÉVAL & RETRO ── */
+/* ── THÈME ET STYLE MÉDIÉVAL ET RETRO ── */
 @font-face {
     font-family: 'Medieval';
     src: local('Georgia'), local('Times New Roman');
@@ -42,7 +42,7 @@ body {
     align-items: center;
 }
 
-/* Boîte style parchemin ancien */
+/* Boîte style parchemin usé */
 .parchment {
     background: linear-gradient(145deg, #f4e4c1, #e8d5a3, #f0deb8);
     border: 4px solid var(--wood);
@@ -79,7 +79,7 @@ body {
     display: flex;
 }
 
-/* Barre de navigation globale */
+/* Barre supérieure globale */
 .top-bar {
     position: fixed;
     top: 0;
@@ -204,8 +204,36 @@ body {
     text-align: center;
 }
 
+/* Switch d'adversaire IA vs PvP */
+.opponent-switch-container {
+    margin: 10px 0 15px;
+}
+.switch-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+.switch-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid var(--wood);
+    background: var(--parchment-dark);
+    color: var(--wood);
+    transition: all 0.2s;
+}
+.switch-btn.active {
+    background: var(--gold);
+    color: black;
+    box-shadow: 0 0 10px var(--gold);
+}
+
 .slider-container {
-    margin: 20px 0;
+    margin: 15px 0;
 }
 .diff-slider {
     width: 100%;
@@ -215,16 +243,16 @@ body {
 }
 .diff-avatar {
     font-size: 4rem;
-    margin: 10px 0;
+    margin: 5px 0;
     transition: transform 0.2s;
 }
 .diff-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: bold;
     color: var(--blood);
 }
 .diff-desc {
-    font-size: 12px;
+    font-size: 11px;
     color: #4a321a;
     font-style: italic;
     min-height: 30px;
@@ -241,6 +269,24 @@ body {
     background: var(--parchment);
     font-family: inherit;
     font-weight: bold;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid var(--wood);
+    font-size: 15px;
+}
+.btn-green {
+    background: #2a9d8f;
+    color: white;
+}
+.btn-red {
+    background: var(--blood);
+    color: white;
 }
 
 /* ── PLATEAU DE JEU ── */
@@ -291,7 +337,7 @@ body {
     transition: transform 0.8s ease-in-out;
 }
 
-/* Vue isometric 3D "Battle Chess" */
+/* Mode Combat 3D isométrique (Style Battle Chess) */
 .board.battle-3d {
     transform: perspective(800px) rotateX(28deg) rotateY(0deg) rotateZ(-3deg);
     box-shadow: -15px 25px 45px rgba(0,0,0,0.85);
@@ -339,7 +385,7 @@ body {
     transition: transform 0.2s;
 }
 
-/* Zone Crazyhouse pour parachutage */
+/* Reserves pour le parachutage Crazyhouse */
 .reserve-container {
     display: none;
     gap: 8px;
@@ -364,7 +410,7 @@ body {
     transform: scale(1.15);
 }
 
-/* ── ARÈNE DE COMBAT 3D SIMULÉ ── */
+/* ── ARÈNE DE COMBAT 3D TEMPORAIRE ── */
 #battle-arena {
     display: none;
     position: fixed;
@@ -466,7 +512,7 @@ body {
             </div>
             <div class="mode-btn" onclick="openConfig('horde')">
                 <h4>👹 La Horde</h4>
-                <p>Une armée blanche chaotique de 36 pions déferle.</p>
+                <p>Une armée blanche de 36 pions déferle contre l'armée noire.</p>
             </div>
             <div class="mode-btn" onclick="openConfig('fog')">
                 <h4>🌫️ Brouillard</h4>
@@ -474,7 +520,7 @@ body {
             </div>
             <div class="mode-btn" onclick="openConfig('duck')">
                 <h4>🦆 Canard</h4>
-                <p>Bloque l'IA en posant un canard en plastique jaune.</p>
+                <p>Bloque l'autre joueur en posant un canard jaune.</p>
             </div>
         </div>
     </div>
@@ -485,7 +531,17 @@ body {
     <div class="popup-content parchment">
         <h3 id="config-mode-title">Configuration</h3>
         
-        <div class="slider-container">
+        <!-- Sélection du type d'affrontement (IA vs PvP) -->
+        <div class="opponent-switch-container">
+            <label style="font-weight:bold; color:var(--blood)">Type d'affrontement :</label>
+            <div class="switch-buttons">
+                <button class="switch-btn active" id="btn-switch-ai" onclick="setOpponentType('ai')">🤖 VS IA</button>
+                <button class="switch-btn" id="btn-switch-pvp" onclick="setOpponentType('pvp')">👥 PVP LOCAL</button>
+            </div>
+        </div>
+
+        <!-- Section de difficulté IA (affichée uniquement si type === 'ai') -->
+        <div class="slider-container" id="ai-difficulty-settings">
             <div class="diff-avatar" id="diff-avatar">♟️</div>
             <div class="diff-title" id="diff-title">Facile</div>
             <p class="diff-desc" id="diff-desc">Un petit pion maladroit</p>
@@ -537,7 +593,7 @@ body {
     </div>
 </div>
 
-<!-- CRASH-SEQUENCE DUEL BATTLE CHESS -->
+<!-- VISUEL ANIMÉ CHOC COMBAT -->
 <div id="battle-arena">
     <div class="battle-stage">
         <div class="fighter" id="attacker-fig">♟️</div>
@@ -546,9 +602,9 @@ body {
     </div>
 </div>
 
-<!-- ── CODE D'AUTOMATION DES MOTEURS ── -->
+<!-- ── CODE FONCTIONNEL ET LOGIQUE DES MODULES ── -->
 <script>
-// ── SYNTHÈSE SONORE PAR WEB AUDIO API ──
+// ── SYNTHÈSE SONORE RETRO (Web Audio API) ──
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -593,7 +649,7 @@ function playSynthSound(type) {
     } catch(e){}
 }
 
-// ── PÈRE FOURAS VOICE SYNTHESIS ──
+// ── NARRATEUR VOCAL (Voix de vieux sage) ──
 let isMuted = false;
 
 function speakNarrator(text) {
@@ -607,8 +663,8 @@ function speakNarrator(text) {
         speechSynthesis.cancel();
         const speech = new SpeechSynthesisUtterance(text);
         speech.lang = 'fr-FR';
-        speech.pitch = 0.55;  // Voix grave et mystérieuse
-        speech.rate = 0.85;   // Parler lent pour un ton sage
+        speech.pitch = 0.55;
+        speech.rate = 0.85;
         speechSynthesis.speak(speech);
     }
     
@@ -630,7 +686,8 @@ function toggleMute() {
     }
 }
 
-// ── CONFIGURATION DIFFICULTÉ ET AVATARS EVOLUTIFS ──
+// ── CONFIGURATION POPUP DIFFICULTÉ / ADVERSAIRE ──
+let opponentType = 'ai'; // 'ai' ou 'pvp'
 let currentDifficulty = 0;
 let selectedMode = 'normal';
 
@@ -642,6 +699,15 @@ const AI_DIFFICULTIES = [
     { name: "Roi Sombre", avatar: "👑", desc: "Force maximale de calcul. Exploite chaque faille.", depth: 5 }
 ];
 
+function setOpponentType(type) {
+    opponentType = type;
+    document.getElementById('btn-switch-ai').classList.toggle('active', type === 'ai');
+    document.getElementById('btn-switch-pvp').classList.toggle('active', type === 'pvp');
+    
+    // Cache la sélection de difficulté d'IA si on est en PvP
+    document.getElementById('ai-difficulty-settings').style.display = (type === 'ai') ? 'block' : 'none';
+}
+
 document.getElementById('diff-slider').addEventListener('input', (e) => {
     currentDifficulty = parseInt(e.target.value);
     const data = AI_DIFFICULTIES[currentDifficulty];
@@ -649,7 +715,6 @@ document.getElementById('diff-slider').addEventListener('input', (e) => {
     document.getElementById('diff-title').innerText = data.name;
     document.getElementById('diff-desc').innerText = data.desc;
     
-    // Style visuel sombre pour le Roi Sombre
     if (currentDifficulty === 4) {
         document.getElementById('diff-avatar').style.color = "purple";
         document.getElementById('diff-avatar').style.textShadow = "0 0 15px purple";
@@ -689,7 +754,7 @@ function toggleView3D() {
     renderBoard();
 }
 
-// ── MOTEUR DE JEU D'ÉCHECS ET VARIANTES COMPLET ──
+// ── MOTEUR DE JEU D'ÉCHECS MULTI-MODES ──
 const W = 0, B = 1;
 const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
 
@@ -726,13 +791,11 @@ function setupBoardState() {
     duckPlacementPhase = false;
 
     if (selectedMode === 'pawnrace') {
-        // Mode Course des Pions (8 pions contre 8 pions seulement)
         for (let x = 0; x < 8; x++) {
             board[1][x] = { t: P, c: B };
             board[6][x] = { t: P, c: W };
         }
     } else if (selectedMode === 'horde') {
-        // Mode La Horde (36 Pions Blancs contre armée Noire Standard)
         const backRank = [R, N, BI, Q, K, BI, N, R];
         for (let x = 0; x < 8; x++) {
             board[0][x] = { t: backRank[x], c: B };
@@ -748,7 +811,6 @@ function setupBoardState() {
         board[3][5] = { t: P, c: W };
         board[3][7] = { t: P, c: W };
     } else {
-        // Placement initial Standard
         const backRank = [R, N, BI, Q, K, BI, N, R];
         for (let x = 0; x < 8; x++) {
             board[0][x] = { t: backRank[x], c: B };
@@ -774,7 +836,6 @@ function renderBoard() {
             const isLight = (r + c) % 2 === 0;
             sq.className = `square ${isLight ? 'light' : 'dark'}`;
             
-            // Mode Fog of War (Brouillard de Guerre)
             if (selectedMode === 'fog' && activeTurn === W) {
                 let show = false;
                 for (let i = -1; i <= 1; i++) {
@@ -804,11 +865,11 @@ function renderBoard() {
             boardEl.appendChild(sq);
         }
     }
-    
     renderReserves();
 }
 
 let selectedReservePieceIndex = null;
+let selectedReserveColor = null;
 
 function renderReserves() {
     const barW = document.getElementById('white-reserve-bar');
@@ -818,15 +879,17 @@ function renderReserves() {
         barW.style.display = 'flex';
         barB.style.display = 'flex';
         
+        // Réserve Blanche
         barW.innerHTML = '';
         reserves[W].forEach((t, i) => {
             const sp = document.createElement('span');
-            sp.className = `reserve-piece ${selectedReservePieceIndex === i ? 'selected-drop' : ''}`;
+            sp.className = `reserve-piece ${selectedReservePieceIndex === i && selectedReserveColor === W ? 'selected-drop' : ''}`;
             sp.innerText = PIECE_SYMBOLS[W][t];
             sp.onclick = (e) => {
                 e.stopPropagation();
                 if (activeTurn === W) {
                     selectedReservePieceIndex = i;
+                    selectedReserveColor = W;
                     selected = null;
                     renderBoard();
                 }
@@ -834,7 +897,23 @@ function renderReserves() {
             barW.appendChild(sp);
         });
         
-        barB.innerHTML = reserves[B].map(t => `<span class="reserve-piece">${PIECE_SYMBOLS[B][t]}</span>`).join(' ');
+        // Réserve Noire (PvP uniquement interactive)
+        barB.innerHTML = '';
+        reserves[B].forEach((t, i) => {
+            const sp = document.createElement('span');
+            sp.className = `reserve-piece ${selectedReservePieceIndex === i && selectedReserveColor === B ? 'selected-drop' : ''}`;
+            sp.innerText = PIECE_SYMBOLS[B][t];
+            sp.onclick = (e) => {
+                e.stopPropagation();
+                if (activeTurn === B && opponentType === 'pvp') {
+                    selectedReservePieceIndex = i;
+                    selectedReserveColor = B;
+                    selected = null;
+                    renderBoard();
+                }
+            };
+            barB.appendChild(sp);
+        });
     } else {
         barW.style.display = 'none';
         barB.style.display = 'none';
@@ -842,9 +921,10 @@ function renderReserves() {
 }
 
 function handleSquareClick(r, c) {
-    if (activeTurn === B || gameFinished) return;
+    if (gameFinished) return;
+    if (opponentType === 'ai' && activeTurn === B) return; // Verrouille le tour de l'IA
 
-    // Phase de placement obligatoire du Canard Jaune (Duck Chess)
+    // Placement obligatoire du Canard
     if (selectedMode === 'duck' && duckPlacementPhase) {
         if (!board[r][c]) {
             board[duckPos[0]][duckPos[1]] = null;
@@ -852,24 +932,32 @@ function handleSquareClick(r, c) {
             board[r][c] = { t: DUCK, c: -1 };
             duckPlacementPhase = false;
             playSynthSound('capture');
-            activeTurn = B;
+            
+            // Fin de tour du joueur actif
+            activeTurn = 1 - activeTurn;
             renderBoard();
-            setTimeout(executeAIMove, 1000);
+            if (opponentType === 'ai' && activeTurn === B) {
+                setTimeout(executeAIMove, 1000);
+            }
         }
         return;
     }
 
-    // Crazyhouse : Parachutage depuis la réserve
-    if (selectedReservePieceIndex !== null) {
+    // Parachutage Crazyhouse
+    if (selectedReservePieceIndex !== null && selectedReserveColor === activeTurn) {
         if (!board[r][c]) {
-            let pieceType = reserves[W][selectedReservePieceIndex];
-            board[r][c] = { t: pieceType, c: W };
-            reserves[W].splice(selectedReservePieceIndex, 1);
+            let pieceType = reserves[activeTurn][selectedReservePieceIndex];
+            board[r][c] = { t: pieceType, c: activeTurn };
+            reserves[activeTurn].splice(selectedReservePieceIndex, 1);
             selectedReservePieceIndex = null;
+            selectedReserveColor = null;
             playSynthSound('capture');
-            activeTurn = B;
+            
+            activeTurn = 1 - activeTurn;
             renderBoard();
-            setTimeout(executeAIMove, 1000);
+            if (opponentType === 'ai' && activeTurn === B) {
+                setTimeout(executeAIMove, 1000);
+            }
         }
         return;
     }
@@ -885,19 +973,19 @@ function handleSquareClick(r, c) {
 
         let movingPiece = board[fr][fc];
         
-        // Simulation de cinématique 3D si mode activé
         if (viewMode3D && board[r][c] && board[r][c].t !== DUCK) {
             triggerBattleAnimation(movingPiece.t, board[r][c].t, () => {
-                executePlayerMove(fr, fc, r, c);
+                executeMove(fr, fc, r, c);
             });
             selected = null;
             return;
         }
 
-        executePlayerMove(fr, fc, r, c);
+        executeMove(fr, fc, r, c);
         selected = null;
     } else {
-        if (piece && piece.c === W && piece.t !== DUCK) {
+        // En PvP, on permet la sélection des Blancs sur tour W, et Noirs sur tour B
+        if (piece && piece.c === activeTurn && piece.t !== DUCK) {
             selected = [r, c];
             renderBoard();
         }
@@ -909,8 +997,8 @@ function triggerBattleAnimation(att, vic, callback) {
     const attF = document.getElementById('attacker-fig');
     const vicF = document.getElementById('victim-fig');
     
-    attF.innerText = PIECE_SYMBOLS[W][att] || '♟️';
-    vicF.innerText = PIECE_SYMBOLS[B][vic] || '♟️';
+    attF.innerText = PIECE_SYMBOLS[activeTurn][att] || '♟️';
+    vicF.innerText = PIECE_SYMBOLS[1-activeTurn][vic] || '♟️';
     arena.style.display = 'flex';
     
     setTimeout(() => {
@@ -926,34 +1014,35 @@ function triggerBattleAnimation(att, vic, callback) {
     }, 1500);
 }
 
-function executePlayerMove(fr, fc, r, c) {
+function executeMove(fr, fc, r, c) {
     let piece = board[fr][fc];
     let victim = board[r][c];
     
     if (victim && victim.t !== DUCK) {
-        capturesB.push(victim.t);
+        if (piece.c === W) capturesB.push(victim.t);
+        else capturesW.push(victim.t);
         playSynthSound('capture');
         
         if (selectedMode === 'crazyhouse') {
-            reserves[W].push(victim.t);
+            reserves[piece.c].push(victim.t);
         }
     }
     
     board[r][c] = piece;
     board[fr][fc] = null;
     
-    // Mode Atomic Chess : Explosion d'entourage lors de captures
+    // Mode Atomic
     if (selectedMode === 'atomic' && victim && victim.t !== DUCK) {
         playSynthSound('explosion');
-        board[r][c] = null; // La pièce d'attaque est détruite
+        board[r][c] = null;
         for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
                 let nr = r + dr, nc = c + dc;
                 if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
                     let sidePiece = board[nr][nc];
-                    if (sidePiece && sidePiece.t !== P) { // Les pions d'entourage résistent
+                    if (sidePiece && sidePiece.t !== P) {
                         if (sidePiece.t === K) {
-                            handleEndGame(sidePiece.c === W ? B : W, "Le Roi a été pulvérisé par l'onde de choc !");
+                            handleEndGame(sidePiece.c === W ? B : W, "Le Roi a été éliminé dans l'explosion !");
                             return;
                         }
                         board[nr][nc] = null;
@@ -963,39 +1052,62 @@ function executePlayerMove(fr, fc, r, c) {
         }
     }
 
-    // Victoires instantanées de variantes
+    // Victoires instantanées
     if (victim && victim.t === K && selectedMode !== 'duck') {
-        handleEndGame(W, "Le Roi ennemi s'est fait terrasser !");
+        handleEndGame(piece.c, "Le Roi adverse s'est fait capturer !");
         return;
     }
     
-    // Mode King of the Hill (4 cases du centre)
     if (selectedMode === 'koth' && piece.t === K) {
         if ((r === 3 || r === 4) && (c === 3 || c === 4)) {
-            handleEndGame(W, "Ton Roi est solidement couronné au sommet de la colline !");
+            handleEndGame(piece.c, "Le Roi a conquis le sommet de la colline !");
             return;
         }
     }
 
-    // Mode Pawn Race (Arrivée d'un pion au bout)
-    if (selectedMode === 'pawnrace' && piece.t === P && r === 0) {
-        handleEndGame(W, "Ton éclaireur a franchi la ligne d'horizon !");
-        return;
+    if (selectedMode === 'pawnrace' && piece.t === P) {
+        if ((piece.c === W && r === 0) || (piece.c === B && r === 7)) {
+            handleEndGame(piece.c, "Un pion a franchi la ligne d'horizon !");
+            return;
+        }
     }
 
     if (selectedMode === 'duck') {
         duckPlacementPhase = true;
-        speakNarrator("Où vas-tu déposer le canard jaune pour obstruer sa route ?");
-        renderBoard();
+        if (opponentType === 'ai' && piece.c === B) {
+            placeDuckAI();
+        } else {
+            speakNarrator("Déplace le canard jaune pour obstruer le passage.");
+            renderBoard();
+        }
         return;
     }
     
-    activeTurn = B;
+    activeTurn = 1 - activeTurn;
     renderBoard();
-    setTimeout(executeAIMove, 1000);
+
+    if (opponentType === 'ai' && activeTurn === B) {
+        setTimeout(executeAIMove, 1000);
+    }
 }
 
-// ── IA INTELLIGENTE ET ANALYSE ──
+// placement automatique du canard pour l'IA
+function placeDuckAI() {
+    board[duckPos[0]][duckPos[1]] = null;
+    let emptySquares = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (!board[r][c]) emptySquares.push([r, c]);
+        }
+    }
+    duckPos = emptySquares[Math.floor(Math.random() * emptySquares.length)];
+    board[duckPos[0]][duckPos[1]] = { t: DUCK, c: -1 };
+    duckPlacementPhase = false;
+    activeTurn = W;
+    renderBoard();
+}
+
+// ── INTELLIGENCE ARTIFICIELLE IA CONTROLLER ──
 function executeAIMove() {
     if (gameFinished) return;
     
@@ -1016,7 +1128,6 @@ function executeAIMove() {
     let depth = AI_DIFFICULTIES[currentDifficulty].depth;
     let moved = false;
     
-    // Analyse tactique selon la profondeur de l'avatar choisi
     if (depth >= 2) {
         for (let p of pieces) {
             let fr = p[0], fc = p[1];
@@ -1028,10 +1139,10 @@ function executeAIMove() {
                         if (tgt && tgt.c === W && tgt.t !== DUCK) {
                             if (viewMode3D) {
                                 triggerBattleAnimation(board[fr][fc].t, tgt.t, () => {
-                                    applyAIMove(fr, fc, tr, tc);
+                                    executeMove(fr, fc, tr, tc);
                                 });
                             } else {
-                                applyAIMove(fr, fc, tr, tc);
+                                executeMove(fr, fc, tr, tc);
                             }
                             moved = true;
                             break;
@@ -1044,7 +1155,6 @@ function executeAIMove() {
         }
     }
     
-    // Déplacement classique par défaut
     if (!moved) {
         let randomPiece = pieces[Math.floor(Math.random() * pieces.length)];
         let fr = randomPiece[0], fc = randomPiece[1];
@@ -1052,94 +1162,26 @@ function executeAIMove() {
         let tc = Math.min(7, Math.max(0, fc + (Math.random() > 0.5 ? 1 : -1)));
         
         if (!board[tr][tc] || board[tr][tc].c === W) {
-            applyAIMove(fr, fc, tr, tc);
+            executeMove(fr, fc, tr, tc);
         } else {
             setTimeout(executeAIMove, 100);
         }
     }
 }
 
-function applyAIMove(fr, fc, tr, tc) {
-    let piece = board[fr][fc];
-    let victim = board[tr][tc];
-    
-    if (victim) {
-        capturesW.push(victim.t);
-        playSynthSound('capture');
-        if (selectedMode === 'crazyhouse') {
-            reserves[B].push(victim.t);
-        }
-    }
-    
-    board[tr][tc] = piece;
-    board[fr][fc] = null;
-    
-    // Atomic Chess IA
-    if (selectedMode === 'atomic' && victim && victim.t !== DUCK) {
-        playSynthSound('explosion');
-        board[tr][tc] = null;
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-                let nr = tr + dr, nc = tc + dc;
-                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                    let sidePiece = board[nr][nc];
-                    if (sidePiece && sidePiece.t !== P) {
-                        if (sidePiece.t === K) {
-                            handleEndGame(W, "Le souffle de l'explosion a balayé ton Roi !");
-                            return;
-                        }
-                        board[nr][nc] = null;
-                    }
-                }
-            }
-        }
-    }
-
-    if (victim && victim.t === K && selectedMode !== 'duck') {
-        handleEndGame(B, "Le commandement adverse a capturé ton Roi !");
-        return;
-    }
-
-    if (selectedMode === 'koth' && piece.t === K) {
-        if ((tr === 3 || tr === 4) && (tc === 3 || tc === 4)) {
-            handleEndGame(B, "Le Roi Noir a sécurisé le château central !");
-            return;
-        }
-    }
-
-    if (selectedMode === 'pawnrace' && piece.t === P && tr === 7) {
-        handleEndGame(B, "L'adversaire a promu son éclaireur en premier !");
-        return;
-    }
-
-    if (selectedMode === 'duck') {
-        board[duckPos[0]][duckPos[1]] = null;
-        let emptySquares = [];
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                if (!board[r][c]) emptySquares.push([r, c]);
-            }
-        }
-        duckPos = emptySquares[Math.floor(Math.random() * emptySquares.length)];
-        board[duckPos[0]][duckPos[1]] = { t: DUCK, c: -1 };
-    }
-
-    activeTurn = W;
-    renderBoard();
-}
-
-// ── TOUR DE JEU ET REBONDISSEMENT ──
+// ── FIN DES PARTIES ET CHRONOMETRE ──
 function handleEndGame(winner, reason) {
     gameFinished = true;
     clearInterval(timerInterval);
     
     if (winner === W) {
         playSynthSound('victory');
-        speakNarrator("Victoire retentissante ! Ton esprit de stratège est inégalable !");
-        alert(`🏆 Félicitations ! ${reason}`);
+        speakNarrator("Le camp Blanc triomphe ! Belle démonstration de force !");
+        alert(`🏆 Victoire des Blancs ! \n${reason}`);
     } else {
-        speakNarrator("L'armée noire te domine pour cette fois. Analyse tes erreurs.");
-        alert(`❌ Échec. ${reason}`);
+        playSynthSound('victory');
+        speakNarrator("Le camp Noir l'emporte ! Fin du combat.");
+        alert(`🏆 Victoire des Noirs ! \n${reason}`);
     }
     
     exitToDashboard();
@@ -1151,13 +1193,18 @@ function launchGame() {
     document.getElementById('game-screen').style.display = 'flex';
     document.getElementById('global-top-bar').style.display = 'flex';
     
-    document.getElementById('game-status-label').innerText = `${selectedMode.toUpperCase()}`;
-    document.getElementById('ai-avatar-tag').innerText = `⬛ ${AI_DIFFICULTIES[currentDifficulty].name}`;
+    document.getElementById('game-status-label').innerText = `${selectedMode.toUpperCase()} (${opponentType.toUpperCase()})`;
+    
+    if (opponentType === 'ai') {
+        document.getElementById('ai-avatar-tag').innerText = `⬛ IA : ${AI_DIFFICULTIES[currentDifficulty].name}`;
+    } else {
+        document.getElementById('ai-avatar-tag').innerText = `⬛ Joueur Noir`;
+    }
     
     setupBoardState();
     renderBoard();
     
-    // Configuration des horloges de cadences
+    // Configuration des timers
     if (selectedMode === 'normal') {
         whiteTime = 3600; blackTime = 3600;
     } else if (selectedMode === 'blitz') {
@@ -1170,7 +1217,7 @@ function launchGame() {
     }
     
     startTimer();
-    speakNarrator(`C'est parti pour le combat de ${selectedMode} ! Concentre-toi.`);
+    speakNarrator("La confrontation débute ! Restez concentrés.");
 }
 
 function startTimer() {
@@ -1180,11 +1227,11 @@ function startTimer() {
         if (activeTurn === W) {
             whiteTime--;
             document.getElementById('white-clock').innerText = formatTime(whiteTime);
-            if (whiteTime <= 0) handleEndGame(B, "Temps écoulé !");
+            if (whiteTime <= 0) handleEndGame(B, "Temps écoulé pour le joueur Blanc !");
         } else {
             blackTime--;
             document.getElementById('black-clock').innerText = formatTime(blackTime);
-            if (blackTime <= 0) handleEndGame(W, "Temps adverse épuisé !");
+            if (blackTime <= 0) handleEndGame(W, "Temps écoulé pour le joueur Noir !");
         }
     }, 1000);
 }
@@ -1203,8 +1250,8 @@ function exitToDashboard() {
     document.getElementById('menu-screen').style.display = 'flex';
 }
 
-// Accueil vocal du narrateur
-speakNarrator("Salutations ! Sélectionne une variante ou une cadence dans l'arène.");
+// Message de bienvenue du narrateur
+speakNarrator("Salutations ! Sélectionne une variante de jeu et choisis si tu veux t'exercer face à mon IA ou défier un ami localement.");
 </script>
 </body>
 </html>
