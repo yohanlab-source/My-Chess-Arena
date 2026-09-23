@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Quest - Version Cel-Shading Propre</title>
+    <title>Chess Quest - Version Cel-Shading & Vraies Règles</title>
+    <!-- Chargement de la bibliothèque officielle des règles d'échecs -->
+    <script src="https://cloudflare.com"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
@@ -38,7 +40,7 @@
         .mode-title { font-size: 1.2rem; text-shadow: 2px 2px 0 #000; }
         .view-badge { background: #ffd700; color: #000; padding: 4px 8px; border-radius: 6px; border: 2px solid #000; font-size: 0.8rem; box-shadow: 2px 2px 0 #000; }
 
-        /* CONTENEUR DE L'ÉCHIQUIER PARAMÉTRÉ AU PIXEL PRÈS */
+        /* CONTENEUR DE L'ÉCHIQUIER PARFAIT */
         .board-container {
             width: 95vw;
             max-width: 500px;
@@ -62,7 +64,7 @@
             gap: 0;
         }
 
-        /* CASES EN STYLE CEL-SHADING (Ombres plates et contours nets) */
+        /* CASES EN STYLE CEL-SHADING */
         .square {
             width: 100%;
             height: 100%;
@@ -71,7 +73,6 @@
             justify-content: center;
             position: relative;
             cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.15);
         }
 
         .square.light { 
@@ -83,13 +84,25 @@
             box-shadow: inset -4px -4px 0px rgba(0,0,0,0.15);
         }
 
-        /* Effet de sélection de case */
+        /* Effet de sélection de case active */
         .square.selected {
             background: #ffd700 !important;
             box-shadow: inset 0 0 0 4px #000 !important;
         }
 
-        /* 👑 STYLE DES PERSONNAGES EN CEL-SHADING (Gros contours noirs, couleurs vives effet BD) */
+        /* Point vert pour indiquer les mouvements légaux autorisés */
+        .square.legal-hint::after {
+            content: '';
+            position: absolute;
+            width: 24%;
+            height: 24%;
+            background: #228b22;
+            border-radius: 50%;
+            border: 2px solid #000;
+            z-index: 5;
+        }
+
+        /* 👑 PIÈCES EN CEL-SHADING (Gros contours noirs, couleurs vives effet BD) */
         .piece {
             font-size: clamp(32px, 9vw, 52px);
             display: flex;
@@ -99,7 +112,6 @@
             height: 100%;
             transition: transform 0.1s;
             z-index: 10;
-            /* L'astuce magique du Cel-shading en CSS : un énorme contour noir parfait autour des personnages */
             filter: drop-shadow(2px 0 0 #000) 
                     drop-shadow(-2px 0 0 #000) 
                     drop-shadow(0 2px 0 #000) 
@@ -107,15 +119,8 @@
                     drop-shadow(3px 4px 0px rgba(0,0,0,0.4));
         }
 
-        /* Couleur vibrante pour l'armée Blanche (Cel-shaded) */
-        .piece.white-piece {
-            color: #ffffff;
-        }
-
-        /* Couleur vibrante pour l'armée Marron/Noire (Cel-shaded) */
-        .piece.black-piece {
-            color: #d2691e; /* Un beau orange/marron de bande dessinée pour trancher sur le plateau */
-        }
+        .piece.w { color: #ffffff; } /* Blancs */
+        .piece.b { color: #d2691e; } /* Noirs (style Marron/Orange BD) */
 
         .square:active .piece {
             transform: scale(1.15);
@@ -126,75 +131,125 @@
 
     <!-- BANDEAU DE JEU -->
     <div class="top-bar">
-        <span class="mode-title">🏹 Normal — 👑 vs 🤖</span>
-        <span class="view-badge">CEL-SHADING 2.5D</span>
+        <span class="mode-title" id="game-status">🏹 Tour des Blancs</span>
+        <span class="view-badge">CEL-SHADING + REGLES</span>
     </div>
 
-    <!-- CONTENEUR BLINDÉ DE L'ÉCHIQUIER -->
+    <!-- ÉCHIQUIER -->
     <div class="board-container">
         <div class="board" id="chessboard"></div>
     </div>
 
     <script>
-        // Tableau officiel complet de départ pour éviter TOUT oubli de pièce
-        const startingBoard = [
-            ['♜','♞','♝','♛','♚','♝','♞','♜'], // Ligne 8 (Noirs)
-            ['♟','♟','♟','♟','♟','♟','♟','♟'], // Ligne 7 (Noirs)
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['♙','♙','♙','♙','♙','♙','♙','♙'], // Ligne 2 (Blancs)
-            ['♖','♘','♗','♕','♔','♗','♘','♖']  // Ligne 1 (Blancs)
-        ];
-
+        // Initialisation du moteur officiel Chess.js
+        const chess = new Chess();
         const boardElement = document.getElementById('chessboard');
-        let selectedSquare = null;
+        let selectedSquareName = null;
 
-        // Génération automatique et ultra-robuste des 64 cases identiques
-        function createBoard() {
+        // Dictionnaire de conversion pour l'affichage visuel des personnages dessinés
+        const unicodePieces = {
+            'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚',
+            'P': '♙', 'R': '♓', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔'
+        };
+
+        // Génère le nom d'une case d'échecs (ex: col 0, row 0 -> "a8")
+        function getSquareName(row, col) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+            return files[col] + ranks[row];
+        }
+
+        // Met à jour et redessine l'échiquier complet selon l'état réel du moteur de règles
+        function renderBoard() {
             boardElement.innerHTML = '';
+            const currentBoard = chess.board(); // Récupère la position des pièces du moteur
+
             for (let row = 0; row < 8; row++) {
                 for (let col = 0; col < 8; col++) {
-                    const square = document.createElement('div');
+                    const squareElement = document.createElement('div');
+                    const squareName = getSquareName(row, col);
                     
-                    // Alternance parfaite des couleurs des cases
                     const isLight = (row + col) % 2 === 0;
-                    square.className = `square ${isLight ? 'light' : 'dark'}`;
-                    square.dataset.row = row;
-                    square.dataset.col = col;
+                    squareElement.className = `square ${isLight ? 'light' : 'dark'}`;
+                    squareElement.id = squareName;
 
-                    // Récupération de la pièce
-                    const pieceSymbol = startingBoard[row][col];
-                    if (pieceSymbol !== '') {
+                    // Si une pièce est sur cette case selon le moteur
+                    const piece = currentBoard[row][col];
+                    if (piece) {
                         const pieceElement = document.createElement('div');
-                        // Attribution de la faction (Blancs en bas, Noirs en haut)
-                        const isWhite = row >= 6;
-                        pieceElement.className = `piece ${isWhite ? 'white-piece' : 'black-piece'}`;
-                        pieceElement.innerText = pieceSymbol;
-                        square.appendChild(pieceElement);
+                        pieceElement.className = `piece ${piece.color}`;
+                        // Utilise le bon symbole cel-shaded (majuscule pour blanc, minuscule pour noir)
+                        const symbol = piece.color === 'w' ? piece.type.toUpperCase() : piece.type.toLowerCase();
+                        pieceElement.innerText = unicodePieces[symbol];
+                        squareElement.appendChild(pieceElement);
                     }
 
-                    // Logique de clic simple (sélection visuelle sans bug)
-                    square.addEventListener('click', () => {
-                        if (selectedSquare) {
-                            selectedSquare.classList.remove('selected');
-                        }
-                        if (selectedSquare === square) {
-                            selectedSquare = null;
-                        } else {
-                            square.classList.add('selected');
-                            selectedSquare = square;
-                        }
-                    });
+                    // Ajout de l'interaction intelligente au clic
+                    squareElement.addEventListener('click', () => handleSquareClick(squareName));
 
-                    boardElement.appendChild(square);
+                    boardElement.appendChild(squareElement);
+                }
+            }
+
+            // Met à jour le bandeau supérieur (Tour des joueurs ou Échec et mat)
+            const statusElement = document.getElementById('game-status');
+            if (chess.in_checkmate()) {
+                statusElement.innerText = "👑 ÉCHEC ET MAT ! 🎉";
+            } else if (chess.in_draw()) {
+                statusElement.innerText = "🤝 PARTIE NULLE !";
+            } else {
+                statusElement.innerText = chess.turn() === 'w' ? "🏹 Tour des Blancs" : "🤖 Tour des Noirs (Bot)";
+            }
+        }
+
+        // Gestionnaire d'analyse des clics et de validation des règles
+        function handleSquareClick(squareName) {
+            // Nettoyage des points verts de suggestion précédents
+            document.querySelectorAll('.square').forEach(el => {
+                el.classList.remove('legal-hint');
+                el.classList.remove('selected');
+            });
+
+            // ÉTAPE 1 : Si aucune case n'était sélectionnée auparavant
+            if (selectedSquareName === null) {
+                const piece = chess.get(squareName);
+                // On ne sélectionne que si la case contient une pièce appartenant au joueur actif
+                if (piece && piece.color === chess.turn()) {
+                    selectedSquareName = squareName;
+                    document.getElementById(squareName).classList.add('selected');
+                    
+                    // Récupère la liste de tous les déplacements légaux calculés par Chess.js pour cette pièce
+                    const moves = chess.moves({ square: squareName, verbose: true });
+                    moves.forEach(move => {
+                        document.getElementById(move.to).classList.add('legal-hint');
+                    });
+                }
+            } 
+            // ÉTAPE 2 : Si le joueur clique sur sa case de destination légale
+            else {
+                const move = chess.move({
+                    from: selectedSquareName,
+                    to: squareName,
+                    promotion: 'q' // Promotion automatique en Reine en cas d'arrivée au bout
+                });
+
+                selectedSquareName = null; // Réinitialise la sélection
+                renderBoard(); // Redessine le plateau mis à jour
+
+                // Si le coup était valide et que c'est maintenant au tour des Noirs, on simule le Bot (IA)
+                if (move && !chess.game_over() && chess.turn() === 'b') {
+                    setTimeout(makeComputerMove, 600); // Le bot réfléchit 0,6 seconde
                 }
             }
         }
 
-        // Lancement immédiat de la grille
-        createBoard();
-    </script>
-</body>
-</html>
+        // Logique de l'IA (Mode Moyen 1 : choisit un des coups légaux au hasard de façon valide)
+        function makeComputerMove() {
+            const moves = chess.moves();
+            if (moves.length > 0) {
+                const randomMove = moves[Math.floor(Math.random() * moves.length)];
+                chess.move(randomMove);
+                renderBoard();
+            }
+        }
+
