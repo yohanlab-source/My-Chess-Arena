@@ -6,20 +6,21 @@
 <title>Chess Quest : Le Royaume des Rois</title>
 <style>
 /* ==========================================================================
-   MEDIEVAL RETRO STYLING & VARIABLES
+   CEL-SHADED MEDIEVAL COMIC STYLE & THEME CONFIGURATION
    ========================================================================== */
 :root {
-  --wood-dark: #2d1a0f;
+  --wood-dark: #2a150c;
   --wood-light: #5c3a21;
-  --parchment: #f4e4c1;
-  --parchment-dark: #d2b48c;
-  --gold: #ffd700;
-  --gold-glow: #ffaa00;
-  --blood-red: #8b0000;
-  --forest-green: #1e4620;
-  --sky-blue: #87ceeb;
-  --fog-grey: #1a1c1e;
-  --text-dark: #1c120c;
+  --parchment: #fde8c0;
+  --parchment-dark: #dca873;
+  --gold: #ffcb05;
+  --gold-glow: #ff9000;
+  --blood-red: #d11a2a;
+  --forest-green: #24ac42;
+  --sky-blue: #4ba3e3;
+  --fog-grey: #1a1a24;
+  --text-dark: #120905;
+  --ink-black: #000000;
 }
 
 * {
@@ -31,7 +32,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #0d0603;
+  background-color: #0c0604;
   color: var(--text-dark);
   font-family: 'Georgia', serif;
   overflow: hidden;
@@ -42,21 +43,8 @@ body {
   justify-content: center;
 }
 
-/* Scrollbar styling for medieval lists */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--wood-dark);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--parchment-dark);
-  border: 2px solid var(--wood-dark);
-  border-radius: 4px;
-}
-
 /* ==========================================================================
-   SCREEN ARCHITECTURE
+   SCREEN ARCHITECTURE (CEL-SHADED TOON LOOK)
    ========================================================================== */
 .screen {
   position: absolute;
@@ -65,7 +53,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle, #3d2516 0%, #0d0603 100%);
+  background: radial-gradient(circle, #50311f 0%, #0d0604 100%);
   padding: 10px;
   z-index: 10;
 }
@@ -74,12 +62,12 @@ body {
   display: flex;
 }
 
-/* Parchment Containers */
+/* Toon Border Box Parchment Panels */
 .parchment-container {
-  background: linear-gradient(135deg, #f8ebd0 0%, var(--parchment) 100%);
-  border: 8px double var(--wood-dark);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(92, 58, 33, 0.2);
+  background: linear-gradient(135deg, #fff0cf 0%, var(--parchment) 100%);
+  border: 6px solid var(--ink-black);
+  border-radius: 16px;
+  box-shadow: 10px 10px 0px var(--ink-black), inset -6px -6px 0px rgba(0, 0, 0, 0.15);
   padding: 25px;
   max-width: 600px;
   width: 95%;
@@ -88,38 +76,40 @@ body {
   position: relative;
 }
 
-/* Wood Button Styles */
+/* Comic Styled Buttons */
 .btn-wood {
   background: linear-gradient(to bottom, var(--wood-light) 0%, var(--wood-dark) 100%);
   color: var(--parchment);
-  border: 2px solid var(--gold);
-  border-radius: 6px;
+  border: 4px solid var(--ink-black);
+  border-radius: 8px;
   padding: 12px 24px;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 900;
   font-family: 'Georgia', serif;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  box-shadow: 4px 4px 0px var(--ink-black);
   transition: transform 0.1s, box-shadow 0.1s;
-  text-shadow: 1px 1px 2px black;
+  text-shadow: 1px 1px 0px var(--ink-black);
   margin: 6px;
 }
 
 .btn-wood:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(255, 215, 0, 0.3);
+  box-shadow: 6px 6px 0px var(--ink-black);
+  background: linear-gradient(to bottom, #7a4a2f 0%, var(--wood-light) 100%);
 }
 
 .btn-wood:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transform: translateY(2px) translateX(2px);
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
-/* Header Text */
 .medieval-title {
   font-size: clamp(28px, 6vw, 42px);
   color: var(--gold);
-  text-shadow: 2px 2px 0 black, 0 0 10px var(--gold-glow);
+  -webkit-text-stroke: 2.5px var(--ink-black);
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0px var(--ink-black), 0 0 10px rgba(255, 203, 5, 0.5);
   text-align: center;
   margin-top: 0;
   margin-bottom: 20px;
@@ -136,24 +126,19 @@ body {
   width: 100%;
 }
 
-@media (min-width: 600px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .dashboard-category {
-  background: rgba(139, 69, 19, 0.1);
-  border: 2px solid var(--wood-dark);
-  border-radius: 8px;
+  background: rgba(253, 232, 192, 0.5);
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
   padding: 12px;
+  box-shadow: 4px 4px 0px var(--ink-black);
 }
 
 .category-title {
   font-size: 18px;
   color: var(--blood-red);
-  font-weight: bold;
-  border-bottom: 2px solid var(--wood-dark);
+  font-weight: 900;
+  border-bottom: 3px solid var(--ink-black);
   padding-bottom: 4px;
   margin-bottom: 10px;
   text-align: center;
@@ -167,35 +152,42 @@ body {
 }
 
 .btn-mode {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--wood-dark);
-  border-radius: 6px;
+  background: #ffffff;
+  border: 3px solid var(--ink-black);
+  border-radius: 8px;
   padding: 12px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.15s, transform 0.1s;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  box-shadow: 3px 3px 0px var(--ink-black);
 }
 
 .btn-mode:hover {
   background: var(--gold);
-  transform: scale(1.01);
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0px var(--ink-black);
+}
+
+.btn-mode:active {
+  transform: translateY(1px) translateX(1px);
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
 .btn-mode strong {
   font-size: 16px;
-  color: var(--wood-dark);
+  color: var(--text-dark);
 }
 
 .btn-mode span {
   font-size: 12px;
-  color: #555;
+  color: #3d2516;
   margin-top: 2px;
 }
 
-/* Global Speaker and Back Navigation Control */
+/* Global Audio Controls */
 .global-controls {
   position: absolute;
   top: 15px;
@@ -206,9 +198,9 @@ body {
 }
 
 .icon-control {
-  background: var(--wood-dark);
-  color: var(--gold);
-  border: 2px solid var(--gold);
+  background: var(--parchment);
+  color: var(--text-dark);
+  border: 3px solid var(--ink-black);
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -217,11 +209,22 @@ body {
   justify-content: center;
   font-size: 20px;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 0px var(--ink-black);
+  transition: transform 0.1s;
+}
+
+.icon-control:hover {
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0px var(--ink-black);
+}
+
+.icon-control:active {
+  transform: translateY(1px) translateX(1px);
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
 /* ==========================================================================
-   AI DIFFICULTY SLIDER & AVATAR
+   AI CONFIGURATION
    ========================================================================== */
 .slider-container {
   margin: 20px 0;
@@ -235,9 +238,9 @@ body {
 }
 
 .ai-avatar-card {
-  background: rgba(255, 255, 255, 0.6);
-  border: 2px solid var(--wood-dark);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
   padding: 15px;
   margin-top: 15px;
   display: flex;
@@ -245,22 +248,23 @@ body {
   align-items: center;
   gap: 8px;
   min-height: 140px;
+  box-shadow: 5px 5px 0px var(--ink-black);
 }
 
 .ai-avatar-visual {
-  font-size: 48px;
+  font-size: 52px;
   line-height: 1;
   transition: transform 0.3s;
 }
 
 .ai-avatar-visual.glowing {
   filter: drop-shadow(0 0 10px red);
-  animation: darkGlow 1.5s infinite alternate;
+  animation: darkGlow 1s infinite alternate;
 }
 
 @keyframes darkGlow {
-  from { filter: drop-shadow(0 0 6px red); }
-  to { filter: drop-shadow(0 0 18px red); }
+  from { filter: drop-shadow(0 0 4px red); }
+  to { filter: drop-shadow(0 0 14px red); }
 }
 
 /* ==========================================================================
@@ -274,19 +278,20 @@ body {
 }
 
 .save-slot {
-  background: rgba(255, 255, 255, 0.6);
-  border: 2px dashed var(--wood-dark);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 3px dashed var(--ink-black);
+  border-radius: 12px;
   padding: 15px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: border-style 0.2s, background 0.2s;
+  box-shadow: 4px 4px 0px var(--ink-black);
 }
 
 .save-slot:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: #fffdf0;
   border-style: solid;
 }
 
@@ -302,56 +307,37 @@ body {
 }
 
 .save-header {
-  font-weight: bold;
+  font-weight: 900;
   font-size: 18px;
 }
 
 .save-details {
   font-size: 13px;
-  color: #444;
+  color: #3a2212;
 }
 
 .btn-delete-save {
   background: var(--blood-red);
   color: white;
-  border: none;
-  border-radius: 4px;
-  width: 36px;
-  height: 36px;
+  border: 3px solid var(--ink-black);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
-/* Safety Popup */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-}
-
-.modal-overlay.active {
-  display: flex;
-}
-
-.popup-box {
-  background: var(--parchment);
-  border: 6px double var(--wood-dark);
-  border-radius: 8px;
-  padding: 25px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
+.btn-delete-save:active {
+  transform: translateY(1px) translateX(1px);
+  box-shadow: 1px 1px 0px var(--ink-black);
 }
 
 /* ==========================================================================
-   ADVENTURE MAP SCREEN (Linear Floating Islands)
+   ADVENTURE MAP SCREEN
    ========================================================================== */
 .map-canvas-container {
   position: relative;
@@ -361,13 +347,12 @@ body {
   overflow: hidden;
 }
 
-/* Floating Clouds Background */
 .cloud-bg {
   position: absolute;
   width: 200%;
   height: 100%;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="20" cy="50" r="15" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="50" r="20" fill="rgba(255,255,255,0.08)"/><circle cx="60" cy="50" r="15" fill="rgba(255,255,255,0.08)"/></svg>');
-  animation: cloudDrift 120s linear infinite;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 100 100"><circle cx="20" cy="50" r="15" fill="rgba(255,255,255,0.06)"/><circle cx="40" cy="50" r="20" fill="rgba(255,255,255,0.06)"/><circle cx="60" cy="50" r="15" fill="rgba(255,255,255,0.06)"/></svg>');
+  animation: cloudDrift 100s linear infinite;
   pointer-events: none;
 }
 
@@ -376,7 +361,6 @@ body {
   100% { transform: translateX(-50%); }
 }
 
-/* Rail Pathway */
 #mapSvg {
   position: absolute;
   inset: 0;
@@ -387,8 +371,8 @@ body {
 }
 
 .rail-line {
-  stroke: #2a2015;
-  stroke-width: 8px;
+  stroke: var(--ink-black);
+  stroke-width: 10px;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
@@ -397,12 +381,11 @@ body {
 .rail-ties {
   stroke: var(--gold);
   stroke-width: 6px;
-  stroke-dasharray: 4, 12;
+  stroke-dasharray: 4, 14;
   stroke-linecap: butt;
   fill: none;
 }
 
-/* Map Islands */
 .map-islands-container {
   position: absolute;
   inset: 0;
@@ -424,10 +407,10 @@ body {
 .island-body {
   width: 70px;
   height: 50px;
-  background: linear-gradient(135deg, #7c9d64 0%, #4c6a38 100%);
-  border: 4px solid var(--wood-dark);
+  background: linear-gradient(135deg, #8dc63f 0%, #4c6c18 100%);
+  border: 4px solid var(--ink-black);
   border-radius: 50% / 40px 40px 10px 10px;
-  box-shadow: 0 12px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 0px var(--ink-black);
   position: relative;
   display: flex;
   align-items: center;
@@ -439,12 +422,12 @@ body {
   content: '';
   position: absolute;
   bottom: -15px;
-  left: 5px;
-  right: 5px;
+  left: 3px;
+  right: 3px;
   height: 15px;
-  background: #4a3424;
+  background: #5c3e21;
   border-radius: 0 0 50% 50% / 0 0 20px 20px;
-  border: 3px solid var(--wood-dark);
+  border: 4px solid var(--ink-black);
   border-top: none;
 }
 
@@ -455,31 +438,34 @@ body {
 .island-label {
   position: absolute;
   top: -24px;
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
+  background: #ffffff;
+  color: var(--ink-black);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
   white-space: nowrap;
-  border: 1px solid var(--gold);
+  border: 2px solid var(--ink-black);
+  font-weight: 900;
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
 .island-stars {
   position: absolute;
   bottom: -32px;
   color: var(--gold);
-  font-size: 14px;
-  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+  -webkit-text-stroke: 1px var(--ink-black);
+  paint-order: stroke fill;
+  text-shadow: 2px 2px 0px var(--ink-black);
   white-space: nowrap;
 }
 
-/* Hero Statue (Robin des Bois) */
 #heroStatue {
   position: absolute;
-  width: 44px;
-  height: 44px;
-  background: radial-gradient(circle, var(--gold) 0%, #ffaa00 100%);
-  border: 3px solid var(--wood-dark);
+  width: 46px;
+  height: 46px;
+  background: var(--gold);
+  border: 4px solid var(--ink-black);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -496,33 +482,33 @@ body {
 }
 
 @keyframes boltPoseAnimation {
-  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); filter: brightness(1); }
-  100% { transform: translate(-50%, -50%) rotate(15deg) scale(1.3); filter: brightness(1.3) drop-shadow(0 0 10px gold); }
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  100% { transform: translate(-50%, -50%) rotate(15deg) scale(1.3); }
 }
 
-/* Map HUD */
 .map-hud {
   position: absolute;
   top: 15px;
   left: 15px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid var(--gold);
-  border-radius: 8px;
+  background: var(--parchment);
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
   padding: 10px 15px;
-  color: var(--parchment);
+  color: var(--text-dark);
   display: flex;
   gap: 15px;
   font-size: 14px;
   z-index: 10;
+  box-shadow: 4px 4px 0px var(--ink-black);
 }
 
 .map-hud-stat {
   display: flex;
   align-items: center;
   gap: 5px;
+  font-weight: 900;
 }
 
-/* Dialog Frame Overlay */
 .dialog-overlay {
   position: absolute;
   inset: 0;
@@ -540,16 +526,16 @@ body {
 
 .dialog-box {
   background: var(--parchment);
-  border: 8px double var(--wood-dark);
-  border-radius: 8px;
+  border: 6px solid var(--ink-black);
+  border-radius: 16px;
   padding: 20px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 10px 25px black;
+  box-shadow: 8px 8px 0px var(--ink-black);
 }
 
 .dialog-speaker {
-  font-weight: bold;
+  font-weight: 900;
   font-size: 18px;
   color: var(--blood-red);
   margin-bottom: 8px;
@@ -563,15 +549,16 @@ body {
 }
 
 .quest-objective {
-  background: rgba(139, 69, 19, 0.1);
-  border-left: 4px solid var(--wood-light);
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px solid var(--ink-black);
+  border-radius: 8px;
   padding: 8px 12px;
   font-size: 14px;
   margin-bottom: 15px;
 }
 
 /* ==========================================================================
-   GAME BOARD INTERFACE
+   GAME BOARD INTERFACE & PERFECT GRID DIMENSIONS
    ========================================================================== */
 .game-layout {
   display: flex;
@@ -590,20 +577,19 @@ body {
   }
 }
 
-/* User Card Panel */
 .user-card {
-  background: rgba(45, 26, 15, 0.95);
-  border: 3px solid var(--gold);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
   padding: 10px 15px;
-  color: var(--parchment);
+  color: var(--text-dark);
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   max-width: 500px;
   margin-bottom: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 4px 4px 0px var(--ink-black);
 }
 
 .user-card-left {
@@ -624,122 +610,127 @@ body {
 .player-timer {
   font-family: monospace;
   font-size: 24px;
-  color: var(--gold);
+  font-weight: 900;
+  color: var(--blood-red);
 }
 
-.player-timer.ticking {
-  animation: clockTick 1s steps(2, start) infinite;
-}
-
-@keyframes clockTick {
-  to { opacity: 0.7; }
-}
-
-/* Interactive Reserve Tray (Crazyhouse) */
 .reserve-tray {
   display: flex;
   gap: 6px;
-  background: rgba(139, 69, 19, 0.2);
-  border: 1px dashed var(--parchment-dark);
-  border-radius: 6px;
+  background: #ffffff;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
   padding: 6px;
   width: 100%;
   max-width: 500px;
   margin-bottom: 8px;
-  min-height: 44px;
+  min-height: 52px;
   overflow-x: auto;
+  box-shadow: 4px 4px 0px var(--ink-black);
 }
 
 .reserve-piece-item {
   font-size: 28px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid var(--parchment-dark);
-  border-radius: 4px;
-  width: 36px;
-  height: 36px;
+  background: var(--parchment);
+  border: 2px solid var(--ink-black);
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
 .reserve-piece-item.selected {
   background: var(--gold);
-  box-shadow: 0 0 8px var(--gold-glow);
+  box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* Chess Board Wrapper */
+/* Perfect Symmetrical Board Layout (Aspect Ratio Limit Safeguard) */
 .board-viewport {
   position: relative;
   width: min(90vw, 90vh - 200px);
   max-width: 500px;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
 }
 
-/* 2D / 3D Isometric View Transforms */
 .board-container {
   width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
   transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
   transform-style: preserve-3d;
 }
 
 .board-container.view-3d {
-  transform: perspective(1000px) rotateX(55deg) rotateZ(-45deg);
+  transform: perspective(1000px) rotateX(45deg) rotateZ(-45deg);
 }
 
+/* Symmetrical Grid Implementation */
 .board-mesh {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   width: 100%;
   height: 100%;
-  border: 8px solid var(--wood-dark);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+  aspect-ratio: 1 / 1;
+  border: 6px solid var(--ink-black);
+  box-shadow: 12px 12px 0px var(--ink-black);
   background-color: var(--wood-light);
+  box-sizing: border-box;
 }
 
-/* Tile Grid Styles */
+/* ==========================================================================
+   CEL-SHADED TILES & HIGH CONTRAST OUTLINES
+   ========================================================================== */
 .tile {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(100% + 2vw);
-  cursor: pointer;
-  transform-style: preserve-3d;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  border: 2px solid var(--ink-black);
+  transition: background-color 0.15s;
 }
 
-.tile.light-tile { background-color: #f0d9b5; }
-.tile.dark-tile { background-color: #b58863; }
+.tile.light-tile {
+  background-color: #fcebb6; /* Rich golden parchment */
+  box-shadow: inset -4px -4px 0px rgba(0, 0, 0, 0.08);
+}
 
-/* Selection & Move Indicators */
-.tile.tile-selected::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 4px solid var(--gold);
-  box-shadow: inset 0 0 12px var(--gold-glow);
-  z-index: 2;
+.tile.dark-tile {
+  background-color: #b06c35; /* Rich medieval wood */
+  box-shadow: inset -4px -4px 0px rgba(0, 0, 0, 0.15);
+}
+
+/* Selection & Target Highlights (Toon Aesthetics) */
+.tile.tile-selected {
+  background-color: #ffda44 !important;
+  box-shadow: inset 0px 0px 0px 4px var(--ink-black);
 }
 
 .tile.tile-highlight::after {
   content: '';
   position: absolute;
-  width: 25%;
-  height: 25%;
-  background: var(--forest-green);
+  width: 35%;
+  height: 35%;
+  background-color: var(--forest-green);
+  border: 3px solid var(--ink-black);
   border-radius: 50%;
   z-index: 2;
-  opacity: 0.7;
+  box-shadow: 2px 2px 0px var(--ink-black);
 }
 
 .tile.tile-capture::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border: 4px solid var(--blood-red);
-  background: rgba(139, 0, 0, 0.15);
+  inset: 4px;
+  border: 4px dashed var(--blood-red);
+  border-radius: 4px;
   z-index: 2;
 }
 
@@ -747,56 +738,70 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, rgba(139,0,0,0.6) 0%, transparent 80%);
+  background: radial-gradient(circle, rgba(209, 26, 42, 0.7) 0%, transparent 80%);
   z-index: 2;
 }
 
 /* Fog of War mask */
 .tile.fogged {
   background-color: var(--fog-grey) !important;
+  box-shadow: none !important;
 }
 .tile.fogged * {
   display: none !important;
 }
 
-/* Chess Piece Element positioning */
+/* ==========================================================================
+   CEL-SHADED CHESS PIECES (VIBRANT GLYPHS WITH HIGH-CONTRAST VOLUME)
+   ========================================================================== */
 .chess-piece {
-  font-size: clamp(24px, 8vw, 44px);
-  z-index: 3;
+  font-size: clamp(28px, 6.5vw, 48px);
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
   pointer-events: none;
+  font-weight: 900;
+  -webkit-text-stroke: 2.5px var(--ink-black);
+  paint-order: stroke fill;
+  filter: drop-shadow(4px 4px 0px var(--ink-black));
+  position: relative;
+  transform-style: preserve-3d;
 }
 
+/* Shiny Toon Bead Gradient fill */
 .chess-piece.white-side {
   color: #ffffff;
-  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.7));
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fff0aa 50%, #dca873 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .chess-piece.black-side {
-  color: #3a2212;
-  filter: drop-shadow(1px 1px 1px rgba(255, 255, 255, 0.4)) drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.9));
+  color: #4a2211;
+  background: radial-gradient(circle at 35% 35%, #e06020 0%, #7d3312 40%, #2a150c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Upright Billboard Orientation for 3D View */
+/* Billboard Projection Transform for 3D View orientation */
 .board-container.view-3d .chess-piece {
-  transform: rotateX(-55deg) rotateY(0deg) rotateZ(45deg) translateZ(10px) scale(1.4);
+  transform: rotateX(-45deg) rotateY(0deg) rotateZ(45deg) translateZ(12px) scale(1.35);
 }
 
 /* ==========================================================================
-   BATTLE CHESS 1988 ANIMATION OVERLAYS
+   BATTLE CHESS STAGE OVERLAY
    ========================================================================== */
 .battle-canvas-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 1000;
   pointer-events: none;
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .battle-canvas-overlay.active {
@@ -806,27 +811,27 @@ body {
 .battle-stage {
   width: 90%;
   max-width: 450px;
-  background: radial-gradient(circle, #8b5a2b 0%, #3d2516 100%);
-  border: 4px solid var(--gold);
-  border-radius: 8px;
+  background: radial-gradient(circle, #e6c8a0 0%, #a06e40 100%);
+  border: 6px solid var(--ink-black);
+  border-radius: 16px;
   aspect-ratio: 1.5;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+  box-shadow: 10px 10px 0px var(--ink-black);
 }
 
 .fighter {
   position: absolute;
   bottom: 20px;
-  font-size: 72px;
+  font-size: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(4px 4px 0px var(--ink-black));
 }
 
 #attackerFighter {
   left: 20%;
-  transform: scaleX(1);
 }
 
 #victimFighter {
@@ -834,7 +839,7 @@ body {
   transform: scaleX(-1);
 }
 
-/* Action animations */
+/* Action sequences */
 .fighter-slide-attack {
   animation: attackSlide 0.7s forwards;
 }
@@ -858,20 +863,16 @@ body {
 /* ==========================================================================
    ENDING CINEMATIC OVERLAY
    ========================================================================== */
-#endingScreen {
-  z-index: 2000;
-}
-
 .storybook {
-  background: #fdf5e6;
-  border: 12px double #8b4513;
-  border-radius: 8px;
+  background: #fff8e3;
+  border: 8px solid var(--ink-black);
+  border-radius: 16px;
   padding: 40px 25px;
   max-width: 550px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 0 40px black;
-  animation: parchmentOpen 1.5s ease-out;
+  box-shadow: 10px 10px 0px var(--ink-black);
+  animation: parchmentOpen 1.2s ease-out;
 }
 
 @keyframes parchmentOpen {
@@ -880,9 +881,9 @@ body {
 }
 
 .crown-piece {
-  font-size: 80px;
+  font-size: 84px;
   margin-bottom: 20px;
-  animation: goldenCrownGlow 2s infinite alternate;
+  animation: goldenCrownGlow 1.5s infinite alternate;
 }
 
 @keyframes goldenCrownGlow {
@@ -890,21 +891,16 @@ body {
   to { filter: drop-shadow(0 0 25px gold); }
 }
 
-/* Duck Element Styles */
+/* Duck Token style */
 .duck-token {
   font-size: 36px;
-  animation: duckWaddle 0.5s infinite alternate;
-}
-
-@keyframes duckWaddle {
-  from { transform: rotate(-5deg); }
-  to { transform: rotate(5deg); }
+  filter: drop-shadow(2px 2px 0px var(--ink-black));
 }
 </style>
 </head>
 <body>
 
-<!-- GLOBAL AUDIO AND BACK CONTROLS -->
+<!-- GLOBAL CONTROLS -->
 <div class="global-controls">
   <div class="icon-control" id="speakerToggleBtn" onclick="ctrlToggleSpeaker()">🔊</div>
   <div class="icon-control" id="homeReturnBtn" onclick="ctrlNavigateHome()">🏠</div>
@@ -973,8 +969,8 @@ body {
       </div>
 
       <!-- ADVENTURE MODE -->
-      <div class="dashboard-category" style="background: rgba(255, 215, 0, 0.15); border-color: var(--gold);">
-        <div class="category-title" style="color: var(--gold-glow)">Mode Campagne</div>
+      <div class="dashboard-category" style="background: rgba(255, 203, 5, 0.15); border-color: var(--gold);">
+        <div class="category-title" style="color: var(--wood-light)">Mode Campagne</div>
         <div class="mode-btn-container">
           <button class="btn-wood" style="margin: 0;" onclick="menuSelectAdventure()">
             ⚔️ CHESS QUEST : L'AVENTURE
@@ -1004,7 +1000,7 @@ body {
     <!-- Rapid Clock Config -->
     <div id="rapidClockConfigContainer" style="display: none; margin: 15px 0; text-align: center;">
       <label for="rapidTimerSelect" style="font-weight: bold; color: var(--wood-dark);">Temps de réflexion :</label>
-      <select id="rapidTimerSelect" style="padding: 8px; font-size: 16px; margin-left: 10px;">
+      <select id="rapidTimerSelect" style="padding: 8px; font-size: 16px; margin-left: 10px; border: 3px solid var(--ink-black); border-radius: 6px;">
         <option value="600">10 Minutes</option>
         <option value="900">15 Minutes</option>
         <option value="1200">20 Minutes</option>
@@ -1101,7 +1097,6 @@ body {
      ========================================================================== -->
 <div class="screen" id="activeMatchScreen">
   <div class="game-layout">
-    <!-- Game Control Side panel (Desktop view) or Header (Mobile) -->
     <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px;">
       
       <!-- OPPONENT CARD -->
@@ -1119,9 +1114,8 @@ body {
       <!-- Opponent Crazyhouse Tray -->
       <div class="reserve-tray" id="reserveOpponent" style="display: none;"></div>
 
-      <!-- MAIN PLAYABLE BOARD -->
+      <!-- MAIN PLAYABLE BOARD (Symmetrical viewport bounds) -->
       <div class="board-viewport">
-        <!-- Floating Duck Status Text -->
         <div id="duckNotice">🦆 Dépose le canard !</div>
         
         <div class="board-container" id="boardTransformer">
@@ -1144,10 +1138,10 @@ body {
         <div class="player-timer" id="clockPlayer">--:--</div>
       </div>
 
-      <!-- Middle Controls (2D/3D Toggles, Status feedback) -->
+      <!-- Controls -->
       <div style="display: flex; justify-content: space-between; width: 100%; max-width: 500px; margin-top: 5px;">
-        <button class="btn-wood" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="matchToggleView()">Vue 2D / 3D Combat</button>
-        <div id="matchFeedbackText" style="color: var(--gold); font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-align: center; flex-grow: 1;">En attente de démarrage...</div>
+        <button class="btn-wood" id="viewBtn" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="matchToggleView()">♟ 2D</button>
+        <div id="matchFeedbackText" style="color: var(--gold); font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-align: center; flex-grow: 1;">En attente...</div>
         <button class="btn-wood" style="margin: 0; padding: 6px 12px; font-size: 12px; background: var(--blood-red);" id="btnUndoMoveJoker" onclick="matchActionUndo()">Joker Retour</button>
       </div>
     </div>
@@ -1170,10 +1164,10 @@ body {
   <div class="popup-box">
     <h3 style="color: var(--wood-dark); margin-top: 0;">Nouvelle Sauvegarde</h3>
     <p style="font-size: 14px;">Entrez votre nom de chevalier :</p>
-    <input type="text" id="newPlayerNameInput" style="padding: 10px; font-size: 16px; width: 100%; border: 2px solid var(--wood-dark); border-radius: 4px; margin-bottom: 15px;" placeholder="Ex: Robin">
+    <input type="text" id="newPlayerNameInput" style="padding: 10px; font-size: 16px; width: 100%; border: 3px solid var(--ink-black); border-radius: 8px; margin-bottom: 15px;" placeholder="Ex: Robin">
     
     <p style="font-size: 14px; margin-bottom: 5px;">Difficulté du mode histoire :</p>
-    <select id="saveDifficultySelect" style="padding: 8px; font-size: 15px; margin-bottom: 20px; width: 100%;">
+    <select id="saveDifficultySelect" style="padding: 8px; font-size: 15px; margin-bottom: 20px; width: 100%; border: 3px solid var(--ink-black); border-radius: 8px;">
       <option value="easy">Facile (5 ❤️, Retours possibles)</option>
       <option value="medium">Moyen (3 ❤️)</option>
       <option value="hard">Difficile (3 ❤️, Minuteur de 60s)</option>
@@ -1229,20 +1223,15 @@ body {
   </div>
 </div>
 
-<!-- AUDIO CONTEXT GENERATOR AND CONTROLS -->
+<!-- AUDIO SYNTHESIZER -->
 <script>
-/* ==========================================================================
-   AUDIO SYNTHESIZER & SOUND GENERATOR
-   ========================================================================== */
 const SoundSynth = {
   ctx: null,
-  
   init() {
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
   },
-
   playWhistle() {
     this.init();
     const osc = this.ctx.createOscillator();
@@ -1257,7 +1246,6 @@ const SoundSynth = {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.4);
   },
-
   playThud() {
     this.init();
     const osc = this.ctx.createOscillator();
@@ -1272,10 +1260,8 @@ const SoundSynth = {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.3);
   },
-
   playCheer() {
     this.init();
-    // Simulate cheering with random frequency nodes
     for (let i = 0; i < 5; i++) {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -1289,7 +1275,6 @@ const SoundSynth = {
       osc.stop(this.ctx.currentTime + 1.2);
     }
   },
-
   playLaser() {
     this.init();
     const osc = this.ctx.createOscillator();
@@ -1307,10 +1292,8 @@ const SoundSynth = {
 };
 </script>
 
+<!-- RULES ENGINE -->
 <script>
-/* ==========================================================================
-   STRICT STANDARD CHESS RULES ENGINE
-   ========================================================================== */
 const PIECES = {
   EMPTY: { type: '', color: '' },
   PAWN: 'p', KNIGHT: 'n', BISHOP: 'b', ROOK: 'r', QUEEN: 'q', KING: 'k', DUCK: 'd'
@@ -1320,7 +1303,12 @@ const COLORS = {
   WHITE: 'w', BLACK: 'b', NEUTRAL: 'd'
 };
 
-// Deep copies a board matrix state
+// High contrast outlines demand uniform piece representations
+const ICON = {
+  0: { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚", d: "🦆" },
+  1: { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚", d: "🦆" }
+};
+
 function duplicateBoard(boardState) {
   return boardState.map(row => row.map(tile => {
     if (!tile) return null;
@@ -1328,12 +1316,10 @@ function duplicateBoard(boardState) {
   }));
 }
 
-// Check square coordinate validity
 function isValidCoord(r, c) {
   return r >= 0 && r < 8 && c >= 0 && c < 8;
 }
 
-// Scan and locate color's King on the board
 function locateKingSquare(board, color) {
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
@@ -1345,7 +1331,6 @@ function locateKingSquare(board, color) {
   return null;
 }
 
-// Generate all attacking paths threatening a square coord
 function isSquareThreatened(board, targetR, targetC, threatColor) {
   const vectors = {
     cross: [[-1, 0], [1, 0], [0, -1], [0, 1]],
@@ -1354,68 +1339,58 @@ function isSquareThreatened(board, targetR, targetC, threatColor) {
     pawn: threatColor === COLORS.WHITE ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]
   };
 
-  // 1. Cross (Rook, Queen)
+  // Cross threats
   for (const [dr, dc] of vectors.cross) {
     let r = targetR + dr, c = targetC + dc;
     while (isValidCoord(r, c)) {
       const piece = board[r][c];
       if (piece) {
-        if (piece.color === threatColor && (piece.type === PIECES.ROOK || piece.type === PIECES.QUEEN)) {
-          return true;
-        }
+        if (piece.color === threatColor && (piece.type === PIECES.ROOK || piece.type === PIECES.QUEEN)) return true;
         break;
       }
       r += dr; c += dc;
     }
   }
 
-  // 2. Diagonal (Bishop, Queen)
+  // Diagonal threats
   for (const [dr, dc] of vectors.diagonal) {
     let r = targetR + dr, c = targetC + dc;
     while (isValidCoord(r, c)) {
       const piece = board[r][c];
       if (piece) {
-        if (piece.color === threatColor && (piece.type === PIECES.BISHOP || piece.type === PIECES.QUEEN)) {
-          return true;
-        }
+        if (piece.color === threatColor && (piece.type === PIECES.BISHOP || piece.type === PIECES.QUEEN)) return true;
         break;
       }
       r += dr; c += dc;
     }
   }
 
-  // 3. Knight Paths
+  // Knight paths
   for (const [dr, dc] of vectors.knight) {
     const r = targetR + dr, c = targetC + dc;
     if (isValidCoord(r, c)) {
       const piece = board[r][c];
-      if (piece && piece.color === threatColor && piece.type === PIECES.KNIGHT) {
-        return true;
-      }
+      if (piece && piece.color === threatColor && piece.type === PIECES.KNIGHT) return true;
     }
   }
 
-  // 4. Pawn Threats
+  // Pawn threats
   for (const [dr, dc] of vectors.pawn) {
     const r = targetR + dr, c = targetC + dc;
     if (isValidCoord(r, c)) {
       const piece = board[r][c];
-      if (piece && piece.color === threatColor && piece.type === PIECES.PAWN) {
-        return true;
-      }
+      if (piece && piece.color === threatColor && piece.type === PIECES.PAWN) return true;
     }
   }
 
-  // 5. King Threat (to prevent kings from adjacent positioning)
+  // King constraints
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       if (dr === 0 && dc === 0) continue;
       const r = targetR + dr, c = targetC + dc;
       if (isValidCoord(r, c)) {
         const piece = board[r][c];
-        if (piece && piece.color === threatColor && piece.type === PIECES.KING) {
-          return true;
-        }
+        if (piece && piece.color === threatColor && piece.type === PIECES.KING) return true;
       }
     }
   }
@@ -1423,7 +1398,6 @@ function isSquareThreatened(board, targetR, targetC, threatColor) {
   return false;
 }
 
-// Generates strict, pseudo-legal moves for a specific tile position
 function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
   const moves = [];
   const piece = board[r][c];
@@ -1437,26 +1411,21 @@ function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
       const direction = color === COLORS.WHITE ? -1 : 1;
       const startRank = color === COLORS.WHITE ? 6 : 1;
 
-      // 1-step forward
       const nextR = r + direction;
       if (isValidCoord(nextR, c) && !board[nextR][c]) {
         moves.push({ from: { r, c }, to: { r: nextR, c } });
-        // 2-step forward
         const doubleR = r + direction * 2;
         if (r === startRank && !board[doubleR][c]) {
           moves.push({ from: { r, c }, to: { r: doubleR, c } });
         }
       }
 
-      // Diagonal Captures
-      const capturableCols = [c - 1, c + 1];
-      for (const col of capturableCols) {
+      for (const col of [c - 1, c + 1]) {
         if (isValidCoord(nextR, col)) {
           const target = board[nextR][col];
           if (target && target.color === oppColor && target.type !== PIECES.DUCK) {
             moves.push({ from: { r, c }, to: { r: nextR, c: col } });
           }
-          // En Passant
           if (epSquare && epSquare.r === nextR && epSquare.c === col) {
             moves.push({ from: { r, c }, to: { r: nextR, c: col }, isEP: true });
           }
@@ -1553,13 +1522,12 @@ function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
         }
       }
 
-      // Castling rules
+      // Castling requirements
       if (variantMode !== 'duck' && variantMode !== 'pawnrace') {
         const kingSide = color === COLORS.WHITE ? 'K' : 'k';
         const queenSide = color === COLORS.WHITE ? 'Q' : 'q';
         const rank = color === COLORS.WHITE ? 7 : 0;
 
-        // Petit Roque
         if (castleState[kingSide] && !piece.hasMoved) {
           if (!board[rank][5] && !board[rank][6]) {
             const rook = board[rank][7];
@@ -1569,7 +1537,6 @@ function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
           }
         }
 
-        // Grand Roque
         if (castleState[queenSide] && !piece.hasMoved) {
           if (!board[rank][1] && !board[rank][2] && !board[rank][3]) {
             const rook = board[rank][0];
@@ -1586,20 +1553,17 @@ function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
   return moves;
 }
 
-// Filter moves that resolve checks or comply with special variants
 function fetchStrictLegalMoves(board, r, c, epSquare, castleState, variantMode) {
   const rawMoves = computePieceMoves(board, r, c, epSquare, castleState, variantMode);
   const piece = board[r][c];
   if (!piece) return [];
 
-  // Exclude self-check results except in modes where check is disabled (Duck, Fog of War, Pawn Race)
   if (variantMode === 'duck' || variantMode === 'fog' || variantMode === 'pawnrace' || (variantMode === 'horde' && piece.color === COLORS.WHITE)) {
     return rawMoves;
   }
 
   return rawMoves.filter(m => {
     const virtualBoard = duplicateBoard(board);
-    // Apply simulated move
     const movingPiece = virtualBoard[m.from.r][m.from.c];
     virtualBoard[m.to.r][m.to.c] = movingPiece;
     virtualBoard[m.from.r][m.from.c] = null;
@@ -1613,10 +1577,8 @@ function fetchStrictLegalMoves(board, r, c, epSquare, castleState, variantMode) 
 }
 </script>
 
+<!-- GAME LOGIC -->
 <script>
-/* ==========================================================================
-   GAME ENGINE STATE & STORY QUEST MODULES
-   ========================================================================== */
 const StoryQuests = {
   activeQuestIndex: 1,
   activeWorldIndex: 1,
@@ -1701,9 +1663,9 @@ const GameSession = {
   reserve: { w: [], b: [] },
   duckPosition: { r: 3, c: 4 },
   isDuckTurn: false,
-  mode: 'normal', // classic controls or variants
+  mode: 'normal',
   aiDifficulty: 1,
-  timeLimit: null, // seconds total
+  timeLimit: null,
   timeLeft: { w: 3600, b: 3600 },
   moveCount: 0,
   lossesThisMatch: 0,
@@ -1713,42 +1675,35 @@ const GameSession = {
   selectedTile: null,
   activeHighlights: [],
   selectedReservePiece: null,
-  gameHistory: [] // Stack of past moves for rollback
+  gameHistory: []
 };
 
-// Default setup of native standard chess
 function setupClassicBoard() {
   const matrix = Array.from({ length: 8 }, () => Array(8).fill(null));
   
-  // Fill Pawns
   for (let c = 0; c < 8; c++) {
     matrix[1][c] = { type: PIECES.PAWN, color: COLORS.BLACK, hasMoved: false };
     matrix[6][c] = { type: PIECES.PAWN, color: COLORS.WHITE, hasMoved: false };
   }
 
-  // Rooks
   matrix[0][0] = { type: PIECES.ROOK, color: COLORS.BLACK, hasMoved: false };
   matrix[0][7] = { type: PIECES.ROOK, color: COLORS.BLACK, hasMoved: false };
   matrix[7][0] = { type: PIECES.ROOK, color: COLORS.WHITE, hasMoved: false };
   matrix[7][7] = { type: PIECES.ROOK, color: COLORS.WHITE, hasMoved: false };
 
-  // Knights
   matrix[0][1] = { type: PIECES.KNIGHT, color: COLORS.BLACK, hasMoved: false };
   matrix[0][6] = { type: PIECES.KNIGHT, color: COLORS.BLACK, hasMoved: false };
   matrix[7][1] = { type: PIECES.KNIGHT, color: COLORS.WHITE, hasMoved: false };
   matrix[7][6] = { type: PIECES.KNIGHT, color: COLORS.WHITE, hasMoved: false };
 
-  // Bishops
   matrix[0][2] = { type: PIECES.BISHOP, color: COLORS.BLACK, hasMoved: false };
   matrix[0][5] = { type: PIECES.BISHOP, color: COLORS.BLACK, hasMoved: false };
   matrix[7][2] = { type: PIECES.BISHOP, color: COLORS.WHITE, hasMoved: false };
   matrix[7][5] = { type: PIECES.BISHOP, color: COLORS.WHITE, hasMoved: false };
 
-  // Queens
   matrix[0][3] = { type: PIECES.QUEEN, color: COLORS.BLACK, hasMoved: false };
   matrix[7][3] = { type: PIECES.QUEEN, color: COLORS.WHITE, hasMoved: false };
 
-  // Kings
   matrix[0][4] = { type: PIECES.KING, color: COLORS.BLACK, hasMoved: false };
   matrix[7][4] = { type: PIECES.KING, color: COLORS.WHITE, hasMoved: false };
 
@@ -1756,21 +1711,12 @@ function setupClassicBoard() {
 }
 </script>
 
+<!-- APP SHELL -->
 <script>
-/* ==========================================================================
-   APP SHELL NAVIGATION & SAVE MANAGER
-   ========================================================================== */
 let activeSaveIndex = 1;
-let saveFiles = {
-  1: null,
-  2: null,
-  3: null
-};
-
-// Global audio voice feedback toggle state
+let saveFiles = { 1: null, 2: null, 3: null };
 let isVoiceMuted = false;
 
-// Init saves from localStorage on start
 function appInitSaves() {
   const localData = localStorage.getItem('chess_quest_saves');
   if (localData) {
@@ -1807,13 +1753,12 @@ function narrateStoryVoice(phrase) {
     window.speechSynthesis.cancel();
     const synth = new SpeechSynthesisUtterance(phrase);
     synth.lang = 'fr-FR';
-    synth.pitch = 0.55; // Père Fouras mysterious low pitch
-    synth.rate = 0.8;   // Slower, wise paced voice
+    synth.pitch = 0.55;
+    synth.rate = 0.8;
     window.speechSynthesis.speak(synth);
   }
 }
 
-// Menu Selections
 function menuSelectClassic(type) {
   GameSession.isAdventure = false;
   GameSession.mode = type;
@@ -1841,10 +1786,8 @@ function menuSelectAdventure() {
 }
 </script>
 
+<!-- AI PROFILES -->
 <script>
-/* ==========================================================================
-   AI PROFILE & DIFFICULTY LOGIC
-   ========================================================================== */
 function uiUpdateAIDiff(value) {
   const avatarVisual = document.getElementById('aiAvatarVisual');
   const avatarName = document.getElementById('aiAvatarName');
@@ -1910,10 +1853,9 @@ function uiConfigConfirmAndPlay() {
     GameSession.timeLeft.w = 3600;
     GameSession.timeLeft.b = 3600;
   } else {
-    GameSession.timeLimit = null; // No timers for standard variants
+    GameSession.timeLimit = null;
   }
 
-  // Launch Game screen
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('activeMatchScreen').classList.add('active');
 
@@ -1921,10 +1863,8 @@ function uiConfigConfirmAndPlay() {
 }
 </script>
 
+<!-- SAVE & CAMPAIGN CONTROLLER -->
 <script>
-/* ==========================================================================
-   SAVE DIALOG & CAMPAIGN ENGINE
-   ========================================================================== */
 function uiRefreshSaveSlots() {
   for (let slotId = 1; slotId <= 3; slotId++) {
     const slotData = saveFiles[slotId];
@@ -1945,10 +1885,8 @@ function uiSaveSlotClick(slotId) {
   activeSaveIndex = slotId;
   const slotData = saveFiles[slotId];
   if (!slotData) {
-    // Show creation popup modal
     document.getElementById('saveCreationOverlay').classList.add('active');
   } else {
-    // Proceed to Adventure Map
     uiCampaignLoadMap(slotId);
   }
 }
@@ -1958,12 +1896,10 @@ let activeSlotToDelete = null;
 function uiSaveSlotDelete(event, slotId) {
   event.stopPropagation();
   activeSlotToDelete = slotId;
-  if (!saveFiles[slotId]) return; // Nothing to delete
+  if (!saveFiles[slotId]) return;
   
   const safetyOverlay = document.getElementById('safetyDeleteOverlay');
   safetyOverlay.classList.add('active');
-  
-  // Set default focus to green cancel button to prevent accidental delete
   document.getElementById('btnSafetyCancel').focus();
 }
 
@@ -2012,15 +1948,13 @@ function uiSaveCreationConfirm() {
 
   appPersistSaves();
   document.getElementById('saveCreationOverlay').classList.remove('active');
-  nameInput.value = ""; // clear
+  nameInput.value = "";
   uiCampaignLoadMap(activeSaveIndex);
 }
 </script>
 
+<!-- ADVENTURE WORLD MAP -->
 <script>
-/* ==========================================================================
-   ADVENTURE WORLD MAP PARALLAX SCREEN
-   ========================================================================== */
 const IslandCoordinates = {
   1: { x: 15, y: 70 },
   2: { x: 30, y: 35 },
@@ -2034,15 +1968,11 @@ let mapTimerInterval = null;
 
 function uiCampaignLoadMap(slotId) {
   const save = saveFiles[slotId];
-  
-  // Stop existing interval
   if (mapTimerInterval) clearInterval(mapTimerInterval);
   
-  // Map HUD stats
   document.getElementById('hudHearts').innerText = save.hearts;
   document.getElementById('hudStars').innerText = `${save.stars}/18`;
   
-  // Format map timer
   const formatTime = (secs) => {
     const mins = Math.floor(secs / 60);
     const s = secs % 60;
@@ -2051,22 +1981,18 @@ function uiCampaignLoadMap(slotId) {
   
   document.getElementById('hudPlayTime').innerText = formatTime(save.playTimeSeconds);
   
-  // Update map gameplay timer
   mapTimerInterval = setInterval(() => {
     save.playTimeSeconds++;
     document.getElementById('hudPlayTime').innerText = formatTime(save.playTimeSeconds);
     appPersistSaves();
   }, 1000);
 
-  // Layout map islands and railways
   uiMapDrawPathway();
   uiMapDrawIslands(save);
 
-  // Navigate screen
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('adventureMapScreen').classList.add('active');
 
-  // Move statue to current quest island
   const activeIslandId = save.world;
   uiMapAnimateStatue(activeIslandId, true);
 }
@@ -2088,17 +2014,12 @@ function uiMapDrawIslands(save) {
   const container = document.getElementById('mapIslandsContainer');
   container.innerHTML = '';
 
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
   for (let i = 1; i <= 6; i++) {
     const coord = IslandCoordinates[i];
     const worldMeta = StoryQuests.worlds[i];
-    
     const island = document.createElement('div');
     island.className = 'island';
     
-    // Check locked status
     const isLocked = i > save.world;
     if (isLocked) {
       island.classList.add('locked');
@@ -2140,15 +2061,13 @@ function uiMapSelectIsland(worldId) {
 
   pendingWorldId = worldId;
   const questMeta = StoryQuests.worlds[worldId].quests[save.quest];
-  
-  // Show Dialogue intro box
   const introModal = document.getElementById('questIntroModal');
+  
   document.getElementById('dialogSpeaker').innerText = `Monde ${worldId} : ${StoryQuests.worlds[worldId].name}`;
   document.getElementById('dialogSpeech').innerText = `"${questMeta.desc}"`;
   document.getElementById('questObjectiveText').innerText = questMeta.goal;
   
   introModal.classList.add('active');
-  
   uiMapAnimateStatue(worldId);
   narrateStoryVoice(questMeta.desc);
 }
@@ -2160,35 +2079,31 @@ function uiQuestCloseIntro() {
 function uiQuestLaunchMatch() {
   document.getElementById('questIntroModal').classList.remove('active');
   
-  // Set Game Session state based on active story quest
   const save = saveFiles[activeSaveIndex];
   GameSession.isAdventure = true;
   GameSession.storyHearts = save.hearts;
   GameSession.moveCount = 0;
   GameSession.lossesThisMatch = 0;
   
-  // Load specialized gameplay environments depending on the World selected
   if (save.world === 1) GameSession.mode = 'normal';
-  if (save.world === 2) GameSession.mode = 'normal'; // Fous wave
-  if (save.world === 3) GameSession.mode = 'normal'; // Knight Fork
+  if (save.world === 2) GameSession.mode = 'normal';
+  if (save.world === 3) GameSession.mode = 'normal';
   if (save.world === 4) GameSession.mode = 'duck';
-  if (save.world === 5) GameSession.mode = 'normal'; // Laser path
+  if (save.world === 5) GameSession.mode = 'normal';
   if (save.world === 6) {
-    if (save.quest === 4) GameSession.mode = 'normal'; // Mirror match
+    if (save.quest === 4) GameSession.mode = 'normal';
     else GameSession.mode = 'normal';
   }
 
-  // Adjust timers based on Campaign Difficulty selected
   if (save.difficulty === 'hard') {
-    GameSession.timeLimit = 60; // 60s move timer
+    GameSession.timeLimit = 60;
   } else if (save.difficulty === 'dark') {
-    GameSession.timeLimit = 30; // 30s move timer
-    GameSession.mode = 'fog'; // Dark forced fog
+    GameSession.timeLimit = 30;
+    GameSession.mode = 'fog';
   } else {
-    GameSession.timeLimit = null; // No timer pressures for easy/medium
+    GameSession.timeLimit = null;
   }
 
-  // Navigate screen
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('activeMatchScreen').classList.add('active');
 
@@ -2196,10 +2111,8 @@ function uiQuestLaunchMatch() {
 }
 </script>
 
+<!-- BATTLE CHESS 3D VIEW TOGGLE -->
 <script>
-/* ==========================================================================
-   BATTLE CHESS 3D VIEW TOGGLE
-   ========================================================================== */
 function matchToggleView() {
   const container = document.getElementById('boardTransformer');
   const btn = document.getElementById('viewBtn');
@@ -2212,17 +2125,14 @@ function matchToggleView() {
   } else {
     container.classList.remove('view-3d');
     btn.innerText = "♟ 2D";
-    narrateStoryVoice("Retour à la sérénité bidimensionnelle de l'esprit.");
+    narrateStoryVoice("Retour à la sérénité de l'esprit.");
   }
 }
 </script>
 
+<!-- ACTIVE CHESS MATCH SYSTEM -->
 <script>
-/* ==========================================================================
-   ACTIVE CHESS MATCH ORCHESTRATION
-   ========================================================================== */
 function matchInitSession() {
-  // Clear any existing active ticker
   if (GameSession.timerInterval) clearInterval(GameSession.timerInterval);
 
   GameSession.board = setupClassicBoard();
@@ -2237,7 +2147,6 @@ function matchInitSession() {
   GameSession.selectedReservePiece = null;
   GameSession.activeHighlights = [];
 
-  // Hide or Show reserve trays based on Crazyhouse mode
   const whiteReserveTray = document.getElementById('reservePlayer');
   const blackReserveTray = document.getElementById('reserveOpponent');
   
@@ -2249,25 +2158,21 @@ function matchInitSession() {
     blackReserveTray.style.display = 'none';
   }
 
-  // Hide the Undo Joker button in non-easy difficulty Campaign matches
   const undoBtn = document.getElementById('btnUndoMoveJoker');
   if (GameSession.isAdventure) {
     const save = saveFiles[activeSaveIndex];
     undoBtn.style.display = save.difficulty === 'easy' ? 'block' : 'none';
   } else {
-    undoBtn.style.display = 'block'; // Always available for classic sandbox matches
+    undoBtn.style.display = 'block';
   }
 
-  // Setup specialized layouts for unique variants
   if (GameSession.mode === 'pawnrace') {
-    // Clear major pieces
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         if (r !== 1 && r !== 6) GameSession.board[r][c] = null;
       }
     }
   } else if (GameSession.mode === 'horde') {
-    // White massive horde army of 36 pawns
     for (let r = 2; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         if (r >= 4) {
@@ -2281,7 +2186,6 @@ function matchInitSession() {
     }
   }
 
-  // Render initial frame
   matchRenderBoard();
   matchRenderReserves();
   matchStartTimers();
@@ -2291,10 +2195,8 @@ function matchInitSession() {
 
 function matchStartTimers() {
   if (GameSession.timeLimit) {
-    // Standard game timer limit setup
     GameSession.timeLeft.w = GameSession.timeLimit;
     GameSession.timeLeft.b = GameSession.timeLimit;
-    
     uiUpdateClocks();
 
     GameSession.timerInterval = setInterval(() => {
@@ -2308,7 +2210,6 @@ function matchStartTimers() {
       uiUpdateClocks();
     }, 1000);
   } else {
-    // Un-timed display
     document.getElementById('clockPlayer').innerText = "∞";
     document.getElementById('clockOpponent').innerText = "∞";
   }
@@ -2333,8 +2234,6 @@ function matchRenderBoard() {
   const grid = document.getElementById('boardMeshGrid');
   grid.innerHTML = '';
 
-  const activeColor = GameSession.turn;
-
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const tile = document.createElement('div');
@@ -2342,7 +2241,6 @@ function matchRenderBoard() {
       tile.dataset.row = r;
       tile.dataset.col = c;
 
-      // Handle Fog of War variant mask
       if (GameSession.mode === 'fog' || (GameSession.isAdventure && saveFiles[activeSaveIndex].difficulty === 'dark')) {
         const isVisible = isSquareVisibleBy(GameSession.board, r, c, COLORS.WHITE);
         if (!isVisible) {
@@ -2350,12 +2248,10 @@ function matchRenderBoard() {
         }
       }
 
-      // Selection Glow
       if (GameSession.selectedTile && GameSession.selectedTile.r === r && GameSession.selectedTile.c === c) {
         tile.classList.add('tile-selected');
       }
 
-      // Highlight rings
       const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
       if (highlight) {
         if (highlight.isCapture) {
@@ -2365,23 +2261,18 @@ function matchRenderBoard() {
         }
       }
 
-      // King in Check red glow
       const piece = GameSession.board[r][c];
       if (piece) {
         if (piece.type === PIECES.KING && inCheck(GameSession.board, piece.color)) {
           tile.classList.add('tile-check');
         }
 
-        // Render piece glyph / character
         const pieceEl = document.createElement('span');
         pieceEl.className = `chess-piece ${piece.color === COLORS.WHITE ? 'white-side' : 'black-side'}`;
-        
-        // Use custom character mappings
         pieceEl.innerText = ICON[piece.color === COLORS.WHITE ? 0 : 1][piece.type];
         tile.appendChild(pieceEl);
       }
 
-      // Render shared yellow rubber duck
       if (GameSession.mode === 'duck' && GameSession.duckPosition.r === r && GameSession.duckPosition.c === c) {
         const duckEl = document.createElement('span');
         duckEl.className = "duck-token";
@@ -2429,12 +2320,10 @@ function matchSelectReservePiece(type, idx) {
   GameSession.selectedTile = null;
   GameSession.selectedReservePiece = { type, index: idx };
   
-  // Highlight empty squares where this reserve piece can drop
   GameSession.activeHighlights = [];
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       if (!GameSession.board[r][c]) {
-        // Pawns cannot be dropped on the 1st or 8th ranks
         if (type === PIECES.PAWN && (r === 0 || r === 7)) continue;
         GameSession.activeHighlights.push({ r, c, isCapture: false, isDrop: true });
       }
@@ -2446,7 +2335,6 @@ function matchSelectReservePiece(type, idx) {
 function matchHandleTileClick(r, c) {
   if (!GameActiveAndReady()) return;
 
-  // 1. Duck Movement Selection Phase
   if (GameSession.mode === 'duck' && GameSession.isDuckTurn) {
     if (!GameSession.board[r][c] && !(r === GameSession.duckPosition.r && c === GameSession.duckPosition.c)) {
       SoundSynth.playThud();
@@ -2454,7 +2342,6 @@ function matchHandleTileClick(r, c) {
       GameSession.isDuckTurn = false;
       document.getElementById('duckNotice').style.display = 'none';
       
-      // End player turn and hand over to opponent
       GameSession.turn = COLORS.BLACK;
       matchRenderBoard();
       matchProcessAIResponse();
@@ -2462,7 +2349,6 @@ function matchHandleTileClick(r, c) {
     return;
   }
 
-  // 2. Reserve Piece Dropping Logic
   if (GameSession.selectedReservePiece) {
     const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
     if (highlight && highlight.isDrop) {
@@ -2475,15 +2361,12 @@ function matchHandleTileClick(r, c) {
     return;
   }
 
-  // 3. Standard Navigation Move Click
   const clickedPiece = GameSession.board[r][c];
   const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
 
   if (highlight) {
-    // Perform selected valid move
     matchExecuteMove(GameSession.selectedTile, { r, c }, highlight);
   } else if (clickedPiece && clickedPiece.color === GameSession.turn) {
-    // Select tile and retrieve legal paths
     GameSession.selectedTile = { r, c };
     const validMoves = fetchStrictLegalMoves(GameSession.board, r, c, GameSession.epSquare, GameSession.castleState, GameSession.mode);
     
@@ -2497,7 +2380,6 @@ function matchHandleTileClick(r, c) {
 
     matchRenderBoard();
   } else {
-    // Deselect
     GameSession.selectedTile = null;
     GameSession.activeHighlights = [];
     matchRenderBoard();
@@ -2509,7 +2391,6 @@ function GameActiveAndReady() {
 }
 
 function matchExecuteMove(from, to, meta) {
-  // Push state to rollback history stack
   GameSession.gameHistory.push({
     board: duplicateBoard(GameSession.board),
     turn: GameSession.turn,
@@ -2524,67 +2405,55 @@ function matchExecuteMove(from, to, meta) {
   let capturedPiece = GameSession.board[to.r][to.c];
 
   if (view3d) {
-    // Trigger humorous Retro Battle Chess animations
     uiTriggerBattleAnimation(movingPiece, capturedPiece);
   } else {
     SoundSynth.playLaser();
   }
 
-  // En Passant execution
   if (meta.isEP) {
     capturedPiece = GameSession.board[from.r][to.c];
     GameSession.board[from.r][to.c] = null;
   }
 
-  // Capture logging to reserve drawers (Crazyhouse)
   if (capturedPiece && GameSession.mode === 'crazyhouse') {
     const oppCol = movingPiece.color === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
     GameSession.reserve[oppCol].push(capturedPiece.type);
   }
 
-  // Update King and Rook flags on movement
   movingPiece.hasMoved = true;
   GameSession.board[to.r][to.c] = movingPiece;
   GameSession.board[from.r][from.c] = null;
 
-  // Handle Castling Rook translocation
   if (meta.isCastle) {
     const rank = movingPiece.color === COLORS.WHITE ? 7 : 0;
     if (meta.isCastle === 'K') {
-      const rook = GameSession.board[rank][7];
-      GameSession.board[rank][5] = rook;
+      const rook = GameSession.board[rank][5] = GameSession.board[rank][7];
       GameSession.board[rank][7] = null;
       if (rook) rook.hasMoved = true;
     } else {
-      const rook = GameSession.board[rank][0];
-      GameSession.board[rank][3] = rook;
+      const rook = GameSession.board[rank][3] = GameSession.board[rank][0];
       GameSession.board[rank][0] = null;
       if (rook) rook.hasMoved = true;
     }
   }
 
-  // Set En Passant targets
   GameSession.epSquare = null;
   if (movingPiece.type === PIECES.PAWN && Math.abs(to.r - from.r) === 2) {
     GameSession.epSquare = { r: (from.r + to.r) / 2, c: from.c };
   }
 
-  // Pawn Promotion Logic
   if (movingPiece.type === PIECES.PAWN && (to.r === 0 || to.r === 7)) {
-    // Auto-promote to Queen for quick UX, Story Quests will adapt
     movingPiece.type = PIECES.QUEEN;
   }
 
-  // Atomic capture explosion mechanics
   if (GameSession.mode === 'atomic' && capturedPiece) {
     SoundSynth.playLaser();
-    GameSession.board[to.r][to.c] = null; // attacker self-destructs
+    GameSession.board[to.r][to.c] = null;
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         const blastR = to.r + dr, blastC = to.c + dc;
         if (isValidCoord(blastR, blastC)) {
           const victim = GameSession.board[blastR][blastC];
-          // All pieces including friendly, EXCEPT pawns are wiped
           if (victim && victim.type !== PIECES.PAWN) {
             GameSession.board[blastR][blastC] = null;
           }
@@ -2593,11 +2462,9 @@ function matchExecuteMove(from, to, meta) {
     }
   }
 
-  // Post move status checks
   GameSession.selectedTile = null;
   GameSession.activeHighlights = [];
 
-  // Duck Chess transition phase
   if (GameSession.mode === 'duck') {
     GameSession.isDuckTurn = true;
     document.getElementById('duckNotice').style.display = 'block';
@@ -2605,17 +2472,14 @@ function matchExecuteMove(from, to, meta) {
     return;
   }
 
-  // Swap turns
   GameSession.turn = GameSession.turn === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
   GameSession.moveCount++;
 
   matchRenderBoard();
   matchRenderReserves();
 
-  // Validate win conditions
   if (matchCheckEndingConditions()) return;
 
-  // Process next turn AI logic
   if (opponentType === 'ai' && GameSession.turn === COLORS.BLACK) {
     matchProcessAIResponse();
   }
@@ -2632,18 +2496,14 @@ function matchPerformDrop(type, r, c) {
     isDuckTurn: GameSession.isDuckTurn
   });
 
-  // Remove dropped piece from matching reserve tray
   const tray = GameSession.turn === COLORS.WHITE ? GameSession.reserve.w : GameSession.reserve.b;
   const idx = tray.indexOf(type);
   if (idx !== -1) tray.splice(idx, 1);
 
-  // Position on the grid
   GameSession.board[r][c] = { type, color: GameSession.turn, hasMoved: true };
   
   GameSession.selectedReservePiece = null;
   GameSession.activeHighlights = [];
-  
-  // Swap turns
   GameSession.turn = GameSession.turn === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
   
   matchRenderBoard();
@@ -2701,16 +2561,13 @@ function matchActionUndo() {
 
   matchRenderBoard();
   matchRenderReserves();
-  narrateStoryVoice("Le sablier s'est écoulé en arrière... Modifiez votre destin.");
+  narrateStoryVoice("Le sablier s'est écoulé en arrière...");
 }
 </script>
 
+<!-- ENDGAME STATE & AI EVALUATION -->
 <script>
-/* ==========================================================================
-   WIN / LOSS LOGIC & CAMPAIGN LEVEL EVALUATION
-   ========================================================================== */
 function matchCheckEndingConditions() {
-  // 1. King of the Hill Variant Proximity Check
   if (GameSession.mode === 'koth') {
     const hillSquares = [{ r: 3, c: 3 }, { r: 3, c: 4 }, { r: 4, c: 3 }, { r: 4, c: 4 }];
     for (const tile of hillSquares) {
@@ -2722,7 +2579,6 @@ function matchCheckEndingConditions() {
     }
   }
 
-  // 2. Pawn Race Variant Check
   if (GameSession.mode === 'pawnrace') {
     for (let c = 0; c < 8; c++) {
       if (GameSession.board[0][c] && GameSession.board[0][c].color === COLORS.WHITE) {
@@ -2736,7 +2592,6 @@ function matchCheckEndingConditions() {
     }
   }
 
-  // 3. Verify King Capture in Fog or Duck Chess where checks are bypassed
   if (GameSession.mode === 'duck' || GameSession.mode === 'fog') {
     const whiteKing = locateKingSquare(GameSession.board, COLORS.WHITE);
     const blackKing = locateKingSquare(GameSession.board, COLORS.BLACK);
@@ -2750,7 +2605,6 @@ function matchCheckEndingConditions() {
     }
   }
 
-  // 4. Standard Checkmate / Stalemate Scan
   const hasMoves = matchHasValidMoves(GameSession.turn);
   if (!hasMoves) {
     if (inCheck(GameSession.board, GameSession.turn)) {
@@ -2761,11 +2615,9 @@ function matchCheckEndingConditions() {
     return true;
   }
 
-  // 5. Special Story Mode Level Specific Evaluations
   if (GameSession.isAdventure) {
     const save = saveFiles[activeSaveIndex];
     if (save.world === 1 && save.quest === 1) {
-      // 3 pawns reached the 8th row
       let count = 0;
       for (let c = 0; c < 8; c++) {
         if (GameSession.board[0][c] && GameSession.board[0][c].type === PIECES.PAWN && GameSession.board[0][c].color === COLORS.WHITE) {
@@ -2801,10 +2653,8 @@ function matchProcessGameEnding(statusText) {
   const titleEl = document.getElementById('endResultTitle');
   const descEl = document.getElementById('endResultDesc');
   const starsEl = document.getElementById('endResultStars');
-  const btnRetry = document.getElementById('endResultBtnRetry');
-
-  starsEl.innerText = '';
   
+  starsEl.innerText = '';
   const isVictory = statusText.toLowerCase().includes('victoire') || statusText.toLowerCase().includes('atteint') || statusText.toLowerCase().includes('gagné');
 
   if (isVictory) {
@@ -2813,28 +2663,23 @@ function matchProcessGameEnding(statusText) {
     descEl.innerText = statusText;
     
     if (GameSession.isAdventure) {
-      // Compute Star Awards
       let starsAwarded = 1;
       if (GameSession.moveCount < 16) starsAwarded++;
       if (GameSession.lossesThisMatch === 0) starsAwarded++;
       
       starsEl.innerText = "★".repeat(starsAwarded) + "☆".repeat(3 - starsAwarded);
       
-      // Update Campaign Save File
       const save = saveFiles[activeSaveIndex];
       save.stars += starsAwarded;
       save.progression = Math.min(100, Math.floor((save.stars / 18) * 100));
 
-      // Extra Life Reward Rules
       if (save.world === 1 && starsAwarded === 3) save.hearts++;
       if (save.world === 2 && starsAwarded === 3) save.hearts++;
       if (save.world >= 3 && starsAwarded === 3) save.hearts++;
 
-      // Progress through worlds
       if (save.world < 6) {
         save.world++;
       } else {
-        // Complete campaign ending cinematic
         document.getElementById('matchEndOverlay').classList.remove('active');
         matchTriggerEndingCinematic();
         return;
@@ -2852,7 +2697,7 @@ function matchProcessGameEnding(statusText) {
       appPersistSaves();
       if (save.hearts <= 0) {
         descEl.innerText = "Votre énergie est à plat ! Réessayez l'aventure.";
-        save.hearts = 3; // Reset
+        save.hearts = 3;
         appPersistSaves();
       }
     }
@@ -2879,21 +2724,13 @@ function uiMatchEndContinue() {
 function matchTriggerEndingCinematic() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('endingScreen').classList.add('active');
-  
-  // Simulated retro football cheering sound effects
   SoundSynth.playWhistle();
   setTimeout(() => SoundSynth.playCheer(), 500);
 }
-</script>
 
-<script>
-/* ==========================================================================
-   MINIMAX ARTIFICIAL INTELLIGENCE CONTROLLER
-   ========================================================================== */
 function matchProcessAIResponse() {
   if (!gameActive) return;
 
-  // Simulate delayed thinking for realistic user feedback
   setTimeout(() => {
     const aiMove = computeBestAIMove(GameSession.board, GameSession.aiDifficulty);
     if (aiMove) {
@@ -2902,7 +2739,6 @@ function matchProcessAIResponse() {
   }, 600);
 }
 
-// Evaluate board states
 function evaluateBoardScore(board) {
   let score = 0;
   for (let r = 0; r < 8; r++) {
@@ -2917,9 +2753,7 @@ function evaluateBoardScore(board) {
   return score;
 }
 
-// Alpha-Beta Pruning Minimax AI Move Selector
 function computeBestAIMove(board, difficulty) {
-  // Collect all valid moves for Black
   const aiMoves = [];
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
@@ -2932,19 +2766,15 @@ function computeBestAIMove(board, difficulty) {
 
   if (aiMoves.length === 0) return null;
 
-  // Simple heuristic for lower difficulties, deep trees for higher settings
   if (difficulty === 1) {
-    // 100% Random Choice (Pion Clumsy)
     return aiMoves[Math.floor(Math.random() * aiMoves.length)];
   }
 
-  // Alpha-beta evaluation loop
   let bestScore = -Infinity;
   let optimalMove = aiMoves[0];
 
   for (const m of aiMoves) {
     const simBoard = duplicateBoard(board);
-    // Apply Simulated Move
     const piece = simBoard[m.from.r][m.from.c];
     simBoard[m.to.r][m.to.c] = piece;
     simBoard[m.from.r][m.from.c] = null;
@@ -2961,14 +2791,9 @@ function computeBestAIMove(board, difficulty) {
 </script>
 
 <script>
-/* ==========================================================================
-   INITIALIZATION
-   ========================================================================== */
 window.addEventListener('load', () => {
   appInitSaves();
   uiRefreshSaveSlots();
-  
-  // Play Welcome Sound on Interactivity trigger
   document.body.addEventListener('click', () => {
     SoundSynth.init();
   }, { once: true });
