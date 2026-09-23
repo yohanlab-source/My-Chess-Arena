@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Chess Arena 1988</title>
+<title>Chess Arena 1988 — Édition Championnat</title>
 <style>
-/* ── THÈME VISUEL MÉDIÉVAL ET RETRO ── */
+/* ── THÈME VISUEL MÉDIÉVAL & RETRO ── */
 @font-face {
     font-family: 'Medieval';
     src: local('Georgia'), local('Times New Roman');
@@ -20,6 +20,7 @@
     --blood: #8b0000;
     --sky: #1a0f0a;
     --highlight: rgba(255, 215, 0, 0.45);
+    --fog: #11111d;
 }
 
 * {
@@ -290,7 +291,7 @@ body {
     color: white;
 }
 
-/* ── PLATEAU DE JEU ET COLORATION DES PIÈCES ── */
+/* ── PLATEAU DE JEU ET DESIGN DES PIÈCES ── */
 #game-screen {
     padding-top: 65px;
     justify-content: flex-start;
@@ -380,7 +381,7 @@ body {
     color: transparent !important;
 }
 
-/* Coloration distinctive des pièces */
+/* Style de pièces hautement contrastées */
 .piece {
     z-index: 10;
     transition: transform 0.2s;
@@ -388,19 +389,19 @@ body {
     line-height: 1;
 }
 
-/* Pièces Blanches */
+/* Pièces Blanches (Blanc perle brillant) */
 .piece-white {
     color: #ffffff;
     filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.75));
 }
 
-/* Pièces Marron (Remplacent les Noires) */
+/* Pièces Marrons (Style bois sculpté riche) */
 .piece-brown {
     color: #5c3a1e;
     filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.85)) drop-shadow(0px 0px 1px #ffebd0);
 }
 
-/* Reserves pour le parachutage Crazyhouse */
+/* Réservoirs Crazyhouse */
 .reserve-container {
     display: none;
     gap: 8px;
@@ -423,6 +424,29 @@ body {
 .reserve-piece.selected-drop {
     text-shadow: 0 0 10px var(--gold);
     transform: scale(1.15);
+}
+
+/* ── MODAL PROMOTION PIECE ── */
+#promo-modal {
+    z-index: 3000;
+}
+.promo-choices {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+.promo-btn-choice {
+    font-size: 3rem;
+    padding: 10px;
+    border: 2px solid var(--wood);
+    border-radius: 8px;
+    background: var(--parchment);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.promo-btn-choice:active {
+    transform: scale(0.9);
 }
 
 /* ── ARÈNE DE COMBAT DUELS ── */
@@ -557,6 +581,20 @@ body {
     </div>
 </div>
 
+<!-- POPUP PROMOTION DE PION -->
+<div class="overlay" id="promo-modal">
+    <div class="popup-content parchment">
+        <h3>Promotion du Pion</h3>
+        <p>Sélectionnez votre nouvelle pièce maîtresse :</p>
+        <div class="promo-choices">
+            <button class="promo-btn-choice" id="promo-q" onclick="promoteTo(Q)">♕</button>
+            <button class="promo-btn-choice" id="promo-r" onclick="promoteTo(R)">♖</button>
+            <button class="promo-btn-choice" id="promo-b" onclick="promoteTo(BI)">♗</button>
+            <button class="promo-btn-choice" id="promo-n" onclick="promoteTo(N)">♘</button>
+        </div>
+    </div>
+</div>
+
 <!-- PLATEAU DE JEU PRINCIPAL -->
 <div class="screen" id="game-screen">
     <div class="game-info">
@@ -593,7 +631,7 @@ body {
     </div>
 </div>
 
-<!-- ── CODE FONCTIONNEL ET LOGIQUE DES MODULES ── -->
+<!-- ── LOGIQUE DES MOUVEMENTS ET SYSTEME DE JEU COMPLET ── -->
 <script>
 // ── SYNTHÈSE SONORE RETRO (Web Audio API) ──
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -641,7 +679,7 @@ function playSynthSound(type) {
 }
 
 // ── CONFIGURATION POPUP DIFFICULTÉ / ADVERSAIRE ──
-let opponentType = 'ai'; // 'ai' ou 'pvp'
+let opponentType = 'ai'; 
 let currentDifficulty = 0;
 let selectedMode = 'normal';
 
@@ -657,8 +695,6 @@ function setOpponentType(type) {
     opponentType = type;
     document.getElementById('btn-switch-ai').classList.toggle('active', type === 'ai');
     document.getElementById('btn-switch-pvp').classList.toggle('active', type === 'pvp');
-    
-    // Cache la sélection de difficulté d'IA si on est en PvP
     document.getElementById('ai-difficulty-settings').style.display = (type === 'ai') ? 'block' : 'none';
 }
 
@@ -706,7 +742,7 @@ function toggleView3D() {
     renderBoard();
 }
 
-// ── MOTEUR DE JEU D'ÉCHECS ET VARIANTES COMPLET ──
+// ── ENGIN DE REGLES ET MOUVEMENTS SPECIFIQUES DES ECHECS ──
 const W = 0, B = 1;
 const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
 
@@ -726,9 +762,9 @@ let capturesB = [];
 let reserves = { [W]: [], [B]: [] };
 let duckPlacementPhase = false;
 
-let timerInterval = null;
-let whiteTime = 3600;
-let blackTime = 3600;
+let castlingRights = { [W]: { K: true, Q: true }, [B]: { K: true, Q: true } };
+let enPassantSquare = null; // Enregistre [r, c] cible de capture en passant
+let promotionCoords = null; // Enregistre [r, c] du pion à promouvoir
 
 function setupBoardState() {
     board = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -741,34 +777,36 @@ function setupBoardState() {
     reserves[W] = [];
     reserves[B] = [];
     duckPlacementPhase = false;
+    enPassantSquare = null;
+    castlingRights = { [W]: { K: true, Q: true }, [B]: { K: true, Q: true } };
 
     if (selectedMode === 'pawnrace') {
         for (let x = 0; x < 8; x++) {
-            board[1][x] = { t: P, c: B };
-            board[6][x] = { t: P, c: W };
+            board[1][x] = { t: P, c: B, hasMoved: false };
+            board[6][x] = { t: P, c: W, hasMoved: false };
         }
     } else if (selectedMode === 'horde') {
         const backRank = [R, N, BI, Q, K, BI, N, R];
         for (let x = 0; x < 8; x++) {
-            board[0][x] = { t: backRank[x], c: B };
-            board[1][x] = { t: P, c: B };
+            board[0][x] = { t: backRank[x], c: B, hasMoved: false };
+            board[1][x] = { t: P, c: B, hasMoved: false };
         }
         for (let y = 4; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
-                board[y][x] = { t: P, c: W };
+                board[y][x] = { t: P, c: W, hasMoved: false };
             }
         }
-        board[3][1] = { t: P, c: W };
-        board[3][3] = { t: P, c: W };
-        board[3][5] = { t: P, c: W };
-        board[3][7] = { t: P, c: W };
+        board[3][1] = { t: P, c: W, hasMoved: false };
+        board[3][3] = { t: P, c: W, hasMoved: false };
+        board[3][5] = { t: P, c: W, hasMoved: false };
+        board[3][7] = { t: P, c: W, hasMoved: false };
     } else {
         const backRank = [R, N, BI, Q, K, BI, N, R];
         for (let x = 0; x < 8; x++) {
-            board[0][x] = { t: backRank[x], c: B };
-            board[1][x] = { t: P, c: B };
-            board[6][x] = { t: P, c: W };
-            board[7][x] = { t: backRank[x], c: W };
+            board[0][x] = { t: backRank[x], c: B, hasMoved: false };
+            board[1][x] = { t: P, c: B, hasMoved: false };
+            board[6][x] = { t: P, c: W, hasMoved: false };
+            board[7][x] = { t: backRank[x], c: W, hasMoved: false };
         }
     }
 
@@ -778,9 +816,225 @@ function setupBoardState() {
     }
 }
 
+// Générateur de mouvements légaux rigoureux
+function getPseudoLegalMoves(r, c) {
+    const piece = board[r][c];
+    if (!piece || piece.t === DUCK) return [];
+    
+    let moves = [];
+    const color = piece.c;
+    const oppColor = 1 - color;
+    
+    switch(piece.t) {
+        case P: {
+            const dir = (color === W) ? -1 : 1;
+            const startRow = (color === W) ? 6 : 1;
+            
+            // Avance simple
+            let targetR = r + dir;
+            if (targetR >= 0 && targetR < 8 && !board[targetR][c]) {
+                moves.push([targetR, c]);
+                
+                // Avance double lors du premier mouvement
+                let doubleR = r + (dir * 2);
+                if (r === startRow && !board[doubleR][c]) {
+                    moves.push([doubleR, c]);
+                }
+            }
+            
+            // Captures diagonales simples
+            for (let dc of [-1, 1]) {
+                let targetC = c + dc;
+                if (targetC >= 0 && targetC < 8 && targetR >= 0 && targetR < 8) {
+                    let tgt = board[targetR][targetC];
+                    if (tgt && tgt.c === oppColor && tgt.t !== DUCK) {
+                        moves.push([targetR, targetC]);
+                    }
+                    // Prise en Passant
+                    if (enPassantSquare && enPassantSquare[0] === targetR && enPassantSquare[1] === targetC) {
+                        moves.push([targetR, targetC]);
+                    }
+                }
+            }
+            break;
+        }
+        case N: {
+            const pattern = [
+                [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                [1, -2], [1, 2], [2, -1], [2, 1]
+            ];
+            for (let pat of pattern) {
+                let tr = r + pat[0], tc = c + pat[1];
+                if (tr >= 0 && tr < 8 && tc >= 0 && tc < 8) {
+                    let tgt = board[tr][tc];
+                    if (!tgt || (tgt.c === oppColor && tgt.t !== DUCK)) {
+                        moves.push([tr, tc]);
+                    }
+                }
+            }
+            break;
+        }
+        case BI: {
+            moves = moves.concat(getSlidingMoves(r, c, [[-1, -1], [-1, 1], [1, -1], [1, 1]], oppColor));
+            break;
+        }
+        case R: {
+            moves = moves.concat(getSlidingMoves(r, c, [[-1, 0], [1, 0], [0, -1], [0, 1]], oppColor));
+            break;
+        }
+        case Q: {
+            moves = moves.concat(getSlidingMoves(r, c, [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]], oppColor));
+            break;
+        }
+        case K: {
+            const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];
+            for (let d of dirs) {
+                let tr = r + d[0], tc = c + d[1];
+                if (tr >= 0 && tr < 8 && tc >= 0 && tc < 8) {
+                    let tgt = board[tr][tc];
+                    if (!tgt || (tgt.c === oppColor && tgt.t !== DUCK)) {
+                        moves.push([tr, tc]);
+                    }
+                }
+            }
+            
+            // Le Roque (Uniquement échecs classiques / modes standards, pas possible dans les variantes asymétriques hors d'ici)
+            if (!piece.hasMoved && selectedMode !== 'duck' && selectedMode !== 'horde') {
+                const row = (color === W) ? 7 : 0;
+                // Petit Roque
+                if (castlingRights[color].K && !board[row][5] && !board[row][6]) {
+                    let rPiece = board[row][7];
+                    if (rPiece && rPiece.t === R && !rPiece.hasMoved) {
+                        moves.push([row, 6]);
+                    }
+                }
+                // Grand Roque
+                if (castlingRights[color].Q && !board[row][1] && !board[row][2] && !board[row][3]) {
+                    let rPiece = board[row][0];
+                    if (rPiece && rPiece.t === R && !rPiece.hasMoved) {
+                        moves.push([row, 2]);
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return moves;
+}
+
+function getSlidingMoves(r, c, dirs, oppColor) {
+    let slMoves = [];
+    for (let d of dirs) {
+        let step = 1;
+        while (true) {
+            let tr = r + d[0] * step;
+            let tc = c + d[1] * step;
+            if (tr < 0 || tr >= 8 || tc < 0 || tc >= 8) break;
+            
+            let tgt = board[tr][tc];
+            if (!tgt) {
+                slMoves.push([tr, tc]);
+            } else {
+                if (tgt.c === oppColor && tgt.t !== DUCK) {
+                    slMoves.push([tr, tc]);
+                }
+                break; // Bloqué par une pièce
+            }
+            step++;
+        }
+    }
+    return slMoves;
+}
+
+// Filtre les coups pour s'assurer que notre Roi n'est pas mis en échec
+function getLegalMoves(r, c) {
+    const pMoves = getPseudoLegalMoves(r, c);
+    const color = board[r][c].c;
+    
+    // Si c'est du Fog of War, pas de vérification d'échec standard (le Roi peut se déplacer sous échec)
+    if (selectedMode === 'fog') return pMoves;
+
+    let legal = [];
+    const origState = board.map(row => row.slice());
+    
+    for (let mv of pMoves) {
+        // Applique virtuellement le mouvement
+        let tr = mv[0], tc = mv[1];
+        let originalAttacker = board[r][c];
+        let targetPiece = board[tr][tc];
+        
+        board[tr][tc] = originalAttacker;
+        board[r][c] = null;
+        
+        // Vérifie si le Roi est sous attaque
+        let kingPos = findKingCoords(color);
+        let inCheck = false;
+        if (kingPos) {
+            inCheck = isSquareAttacked(kingPos[0], kingPos[1], 1 - color);
+        }
+        
+        // Restaure la configuration initiale
+        board[r][c] = originalAttacker;
+        board[tr][tc] = targetPiece;
+        
+        if (!inCheck) {
+            legal.push(mv);
+        }
+    }
+    return legal;
+}
+
+function findKingCoords(color) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] && board[r][c].t === K && board[r][c].c === color) {
+                return [r, c];
+            }
+        }
+    }
+    return null;
+}
+
+function isSquareAttacked(tr, tc, attackerColor) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            let p = board[r][c];
+            if (p && p.c === attackerColor && p.t !== DUCK) {
+                // Utilise le pseudo-legal pour éviter une récursion infinie
+                let pseudo = getPseudoLegalMoves(r, c);
+                if (pseudo.some(mv => mv[0] === tr && mv[1] === tc)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// ── RENDERING ET LOGIQUE UTILISATEUR ──
+let timerInterval = null;
+let whiteTime = 3600;
+let blackTime = 3600;
+
 function renderBoard() {
     const boardEl = document.getElementById('board');
     boardEl.innerHTML = '';
+    
+    // Détermination de la liste complète des cases légalement atteignables pour la pièce sélectionnée
+    let legalDestinations = [];
+    if (selected) {
+        legalDestinations = getLegalMoves(selected[0], selected[1]);
+    }
+
+    // Détection d'un échec standard pour colorer la case du Roi
+    let kingInCheckW = false;
+    let kingInCheckB = false;
+    if (selectedMode !== 'fog') {
+        let kingW = findKingCoords(W);
+        if (kingW && isSquareAttacked(kingW[0], kingW[1], B)) kingInCheckW = true;
+        let kingB = findKingCoords(B);
+        if (kingB && isSquareAttacked(kingB[0], kingB[1], W)) kingInCheckB = true;
+    }
     
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -788,6 +1042,7 @@ function renderBoard() {
             const isLight = (r + c) % 2 === 0;
             sq.className = `square ${isLight ? 'light' : 'dark'}`;
             
+            // Brouillard de Guerre actif
             if (selectedMode === 'fog' && activeTurn === W) {
                 let show = false;
                 for (let i = -1; i <= 1; i++) {
@@ -804,14 +1059,29 @@ function renderBoard() {
             const piece = board[r][c];
             if (piece) {
                 const span = document.createElement('span');
-                // Application de la couleur : Blanc ou Marron
                 span.className = `piece ${piece.c === W ? 'piece-white' : 'piece-brown'}`;
                 span.innerText = PIECE_SYMBOLS[piece.c] ? PIECE_SYMBOLS[piece.c][piece.t] : '🦆';
                 sq.appendChild(span);
             }
             
+            // Échecs visuels sur la case du Roi
+            if (piece && piece.t === K) {
+                if (piece.c === W && kingInCheckW) sq.classList.add('check');
+                if (piece.c === B && kingInCheckB) sq.classList.add('check');
+            }
+
+            // Affichage de la sélection active
             if (selected && selected[0] === r && selected[1] === c) {
                 sq.classList.add('selected');
+            }
+            
+            // Affichage des chemins légaux
+            if (legalDestinations.some(dest => dest[0] === r && dest[1] === c)) {
+                if (board[r][c]) {
+                    sq.classList.add('legal-capture');
+                } else {
+                    sq.classList.add('legal-move');
+                }
             }
             
             sq.onclick = () => handleSquareClick(r, c);
@@ -875,9 +1145,9 @@ function renderReserves() {
 
 function handleSquareClick(r, c) {
     if (gameFinished) return;
-    if (opponentType === 'ai' && activeTurn === B) return; // Bloque pendant le tour de l'IA
+    if (opponentType === 'ai' && activeTurn === B) return; 
 
-    // Placement obligatoire du Canard
+    // Phase de placement obligatoire du Canard
     if (selectedMode === 'duck' && duckPlacementPhase) {
         if (!board[r][c]) {
             board[duckPos[0]][duckPos[1]] = null;
@@ -886,7 +1156,6 @@ function handleSquareClick(r, c) {
             duckPlacementPhase = false;
             playSynthSound('capture');
             
-            // Passage au tour suivant
             activeTurn = 1 - activeTurn;
             renderBoard();
             if (opponentType === 'ai' && activeTurn === B) {
@@ -900,7 +1169,7 @@ function handleSquareClick(r, c) {
     if (selectedReservePieceIndex !== null && selectedReserveColor === activeTurn) {
         if (!board[r][c]) {
             let pieceType = reserves[activeTurn][selectedReservePieceIndex];
-            board[r][c] = { t: pieceType, c: activeTurn };
+            board[r][c] = { t: pieceType, c: activeTurn, hasMoved: false };
             reserves[activeTurn].splice(selectedReservePieceIndex, 1);
             selectedReservePieceIndex = null;
             selectedReserveColor = null;
@@ -919,6 +1188,15 @@ function handleSquareClick(r, c) {
     if (selected) {
         let fr = selected[0], fc = selected[1];
         if (fr === r && fc === c) {
+            selected = null;
+            renderBoard();
+            return;
+        }
+
+        let legal = getLegalMoves(fr, fc);
+        let isMoveLegal = legal.some(mv => mv[0] === r && mv[1] === c);
+
+        if (!isMoveLegal) {
             selected = null;
             renderBoard();
             return;
@@ -952,7 +1230,6 @@ function triggerBattleAnimation(att, vic, callback) {
     attF.innerText = PIECE_SYMBOLS[activeTurn][att] || '♟️';
     vicF.innerText = PIECE_SYMBOLS[1-activeTurn][vic] || '♟️';
     
-    // Application correcte des styles de couleur blancs/marrons pour les combattants de l'arène
     attF.className = `fighter ${activeTurn === W ? 'piece-white' : 'piece-brown'}`;
     vicF.className = `fighter ${activeTurn === W ? 'piece-brown' : 'piece-white'}`;
     
@@ -975,6 +1252,32 @@ function executeMove(fr, fc, r, c) {
     let piece = board[fr][fc];
     let victim = board[r][c];
     
+    // Détection et application du roque
+    if (piece.t === K && Math.abs(fc - c) === 2) {
+        let row = (piece.c === W) ? 7 : 0;
+        if (c === 6) { // Petit roque
+            board[row][5] = board[row][7];
+            board[row][7] = null;
+            if (board[row][5]) board[row][5].hasMoved = true;
+        } else if (c === 2) { // Grand roque
+            board[row][3] = board[row][0];
+            board[row][0] = null;
+            if (board[row][3]) board[row][3].hasMoved = true;
+        }
+    }
+
+    // Capture en passant effective
+    if (piece.t === P && enPassantSquare && r === enPassantSquare[0] && c === enPassantSquare[1]) {
+        let captureRow = (piece.c === W) ? r + 1 : r - 1;
+        let epVictim = board[captureRow][c];
+        if (epVictim) {
+            if (piece.c === W) capturesB.push(epVictim.t);
+            else capturesW.push(epVictim.t);
+            board[captureRow][c] = null;
+        }
+    }
+
+    // Gestion de la capture classique
     if (victim && victim.t !== DUCK) {
         if (piece.c === W) capturesB.push(victim.t);
         else capturesW.push(victim.t);
@@ -985,13 +1288,40 @@ function executeMove(fr, fc, r, c) {
         }
     }
     
+    // Déplacement effectif de la pièce
     board[r][c] = piece;
     board[fr][fc] = null;
-    
-    // Mode Atomic
+    piece.hasMoved = true;
+
+    // Enregistrement de l'en passant possible pour le coup d'après
+    enPassantSquare = null;
+    if (piece.t === P && Math.abs(fr - r) === 2) {
+        enPassantSquare = [(fr + r) / 2, fc];
+    }
+
+    // Mises à jour des droits de roque suite au déplacement de pièces
+    if (piece.t === K) {
+        castlingRights[piece.c].K = false;
+        castlingRights[piece.c].Q = false;
+    }
+    if (piece.t === R) {
+        if (fr === 7 && fc === 7) castlingRights[W].K = false;
+        if (fr === 7 && fc === 0) castlingRights[W].Q = false;
+        if (fr === 0 && fc === 7) castlingRights[B].K = false;
+        if (fr === 0 && fc === 0) castlingRights[B].Q = false;
+    }
+
+    // Déclenchement de la Promotion
+    if (piece.t === P && (r === 0 || r === 7)) {
+        promotionCoords = [r, c];
+        showPromotionModal();
+        return; 
+    }
+
+    // Échecs Atomiques (Onde de choc)
     if (selectedMode === 'atomic' && victim && victim.t !== DUCK) {
         playSynthSound('explosion');
-        board[r][c] = null;
+        board[r][c] = null; // Mort de l'assaillant
         for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
                 let nr = r + dr, nc = c + dc;
@@ -999,7 +1329,7 @@ function executeMove(fr, fc, r, c) {
                     let sidePiece = board[nr][nc];
                     if (sidePiece && sidePiece.t !== P) {
                         if (sidePiece.t === K) {
-                            handleEndGame(sidePiece.c === W ? B : W, "Le Roi a été éliminé dans l'explosion !");
+                            handleEndGame(sidePiece.c === W ? B : W, "Le Roi est décédé suite à l'explosion d'une case adjacente !");
                             return;
                         }
                         board[nr][nc] = null;
@@ -1009,29 +1339,71 @@ function executeMove(fr, fc, r, c) {
         }
     }
 
-    // Victoires de variantes
-    if (victim && victim.t === K && selectedMode !== 'duck') {
-        handleEndGame(piece.c, "Le Roi adverse s'est fait capturer !");
+    completeMoveCheck();
+}
+
+function showPromotionModal() {
+    // Adapter les glyphes de la popup au joueur actif
+    const colorChar = activeTurn === W ? W : B;
+    document.getElementById('promo-q').innerText = PIECE_SYMBOLS[colorChar][Q];
+    document.getElementById('promo-r').innerText = PIECE_SYMBOLS[colorChar][R];
+    document.getElementById('promo-b').innerText = PIECE_SYMBOLS[colorChar][BI];
+    document.getElementById('promo-n').innerText = PIECE_SYMBOLS[colorChar][N];
+    document.getElementById('promo-modal').classList.add('show');
+}
+
+function promoteTo(type) {
+    if (promotionCoords) {
+        let r = promotionCoords[0], c = promotionCoords[1];
+        board[r][c].t = type;
+        promotionCoords = null;
+        document.getElementById('promo-modal').classList.remove('show');
+        completeMoveCheck();
+    }
+}
+
+function completeMoveCheck() {
+    let checkKingW = findKingCoords(W);
+    let checkKingB = findKingCoords(B);
+
+    // Si un Roi est capturé (variante Atomic / Brouillard / Canard)
+    if (!checkKingW) {
+        handleEndGame(B, "Le Roi Blanc a été terrassé !");
         return;
     }
-    
-    if (selectedMode === 'koth' && piece.t === K) {
-        if ((r === 3 || r === 4) && (c === 3 || c === 4)) {
-            handleEndGame(piece.c, "Le Roi a conquis le sommet de la colline !");
-            return;
+    if (!checkKingB) {
+        handleEndGame(W, "Le Roi Marron a été terrassé !");
+        return;
+    }
+
+    // Victoires spécifiques aux variantes
+    if (selectedMode === 'koth') {
+        for (let color of [W, B]) {
+            let kp = findKingCoords(color);
+            if (kp && (kp[0] === 3 || kp[0] === 4) && (kp[1] === 3 || kp[1] === 4)) {
+                handleEndGame(color, "Le Roi a été couronné au centre de la colline !");
+                return;
+            }
         }
     }
 
-    if (selectedMode === 'pawnrace' && piece.t === P) {
-        if ((piece.c === W && r === 0) || (piece.c === B && r === 7)) {
-            handleEndGame(piece.c, "Un pion a franchi la ligne d'horizon !");
-            return;
+    if (selectedMode === 'pawnrace') {
+        for (let c = 0; c < 8; c++) {
+            if (board[0][c] && board[0][c].t === P && board[0][c].c === W) {
+                handleEndGame(W, "Les Blancs remportent la course des pions !");
+                return;
+            }
+            if (board[7][c] && board[7][c].t === P && board[7][c].c === B) {
+                handleEndGame(B, "Les Marrons remportent la course des pions !");
+                return;
+            }
         }
     }
 
+    // Gestion Duck Chess
     if (selectedMode === 'duck') {
         duckPlacementPhase = true;
-        if (opponentType === 'ai' && piece.c === B) {
+        if (opponentType === 'ai' && activeTurn === B) {
             placeDuckAI();
         } else {
             renderBoard();
@@ -1062,7 +1434,7 @@ function placeDuckAI() {
     renderBoard();
 }
 
-// ── COMPORTEMENT INTELLIGENCE ARTIFICIELLE ──
+// ── COMPORTEMENT DE L'ORDINATEUR (IA) ──
 function executeAIMove() {
     if (gameFinished) return;
     
@@ -1070,61 +1442,65 @@ function executeAIMove() {
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             if (board[r][c] && board[r][c].c === B && board[r][c].t !== DUCK) {
-                pieces.push([r, c]);
+                // S'assurer qu'au moins un coup légal est possible pour cette pièce
+                if (getLegalMoves(r, c).length > 0) {
+                    pieces.push([r, c]);
+                }
             }
         }
     }
     
     if (pieces.length === 0) {
-        handleEndGame(W, "L'adversaire n'a plus de combattants.");
+        // En cas de pat ou d'échec et mat de l'ordinateur
+        let kingCoords = findKingCoords(B);
+        if (kingCoords && isSquareAttacked(kingCoords[0], kingCoords[1], W)) {
+            handleEndGame(W, "Échec et Mat de l'armée Blanche !");
+        } else {
+            handleEndGame(W, "Match nul par Pat !");
+        }
         return;
     }
     
     let depth = AI_DIFFICULTIES[currentDifficulty].depth;
     let moved = false;
     
+    // Algorithme de capture forcée immédiate si activé par niveau
     if (depth >= 2) {
         for (let p of pieces) {
             let fr = p[0], fc = p[1];
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    let tr = fr + dr, tc = fc + dc;
-                    if (tr >= 0 && tr < 8 && tc >= 0 && tc < 8) {
-                        let tgt = board[tr][tc];
-                        if (tgt && tgt.c === W && tgt.t !== DUCK) {
-                            if (viewMode3D) {
-                                triggerBattleAnimation(board[fr][fc].t, tgt.t, () => {
-                                    executeMove(fr, fc, tr, tc);
-                                });
-                            } else {
-                                executeMove(fr, fc, tr, tc);
-                            }
-                            moved = true;
-                            break;
-                        }
+            let legals = getLegalMoves(fr, fc);
+            for (let mv of legals) {
+                let tr = mv[0], tc = mv[1];
+                let tgt = board[tr][tc];
+                if (tgt && tgt.c === W && tgt.t !== DUCK) {
+                    // L'ordinateur capture
+                    if (viewMode3D) {
+                        triggerBattleAnimation(board[fr][fc].t, tgt.t, () => {
+                            executeMove(fr, fc, tr, tc);
+                        });
+                    } else {
+                        executeMove(fr, fc, tr, tc);
                     }
+                    moved = true;
+                    break;
                 }
-                if (moved) break;
             }
             if (moved) break;
         }
     }
     
+    // Mouvement d'esquive ou déplacement simple par défaut
     if (!moved) {
         let randomPiece = pieces[Math.floor(Math.random() * pieces.length)];
         let fr = randomPiece[0], fc = randomPiece[1];
-        let tr = Math.min(7, Math.max(0, fr + (Math.random() > 0.5 ? 1 : -1)));
-        let tc = Math.min(7, Math.max(0, fc + (Math.random() > 0.5 ? 1 : -1)));
+        let legals = getLegalMoves(fr, fc);
+        let randomMove = legals[Math.floor(Math.random() * legals.length)];
         
-        if (!board[tr][tc] || board[tr][tc].c === W) {
-            executeMove(fr, fc, tr, tc);
-        } else {
-            setTimeout(executeAIMove, 100);
-        }
+        executeMove(fr, fc, randomMove[0], randomMove[1]);
     }
 }
 
-// ── FIN DES PARTIES ET CHRONOMETRES ──
+// ── FIN DES PARTIES ET CHRONOMETRE ──
 function handleEndGame(winner, reason) {
     gameFinished = true;
     clearInterval(timerInterval);
