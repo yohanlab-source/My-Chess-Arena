@@ -3,1592 +3,2977 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Chess Quest - Le Royaume des Rois</title>
-
+<title>Chess Quest : Le Royaume des Rois</title>
 <style>
+/* ==========================================================================
+   MEDIEVAL RETRO STYLING & VARIABLES
+   ========================================================================== */
 :root {
-  --wood: #3b2113;
-  --wood2: #714225;
-  --gold: #ffd45b;
-  --paper: #f2ddb0;
-  --paper2: #cfad72;
-  --red: #8b1111;
-  --green: #196d31;
-  --dark: #15100d;
+  --wood-dark: #2d1a0f;
+  --wood-light: #5c3a21;
+  --parchment: #f4e4c1;
+  --parchment-dark: #d2b48c;
+  --gold: #ffd700;
+  --gold-glow: #ffaa00;
+  --blood-red: #8b0000;
+  --forest-green: #1e4620;
+  --sky-blue: #87ceeb;
+  --fog-grey: #1a1c1e;
+  --text-dark: #1c120c;
 }
 
 * {
   box-sizing: border-box;
+  user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-family: Georgia, serif;
-  color: #2b170b;
-  background: radial-gradient(circle at top, #704321, #1b100b 70%);
+  padding: 0;
+  background-color: #0d0603;
+  color: var(--text-dark);
+  font-family: 'Georgia', serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
-button, select {
-  font-family: Georgia, serif;
-  cursor: pointer;
+/* Scrollbar styling for medieval lists */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--wood-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--parchment-dark);
+  border: 2px solid var(--wood-dark);
+  border-radius: 4px;
 }
 
-.hidden {
-  display: none !important;
-}
-
-/* ==========================================
-   INTERFACES MENUS & PARCHEMINS
-========================================== */
-#menu {
-  min-height: 100vh;
-  padding: 25px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-h1 {
-  color: var(--gold);
-  text-shadow: 3px 3px 0 #000, 0 0 18px #e8a90a;
-  text-align: center;
-  margin: 5px 0;
-  font-size: clamp(30px, 7vw, 52px);
-}
-
-.subtitle {
-  color: #ffe8aa;
-  text-align: center;
-  margin-bottom: 15px;
-  font-style: italic;
-}
-
-.panel {
-  width: min(96vw, 560px);
-  padding: 18px;
-  border: 5px solid var(--wood);
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--paper), var(--paper2), var(--paper));
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 35px rgba(141,94,36,0.23);
-}
-
-.category {
-  color: var(--red);
-  border-bottom: 2px solid #8d5e24;
-  margin: 13px 0 8px;
-  padding-bottom: 5px;
-  font-weight: bold;
-}
-
-.mode {
-  width: 100%;
-  text-align: left;
-  margin: 5px 0;
-  padding: 11px;
-  color: #31190a;
-  font-size: 16px;
-  font-weight: bold;
-  border: 2px solid var(--wood2);
-  border-radius: 8px;
-  background: linear-gradient(#fff0c7, #d9b879);
-}
-
-.mode:active {
-  transform: scale(.98);
-  background: var(--gold);
-}
-
-.mode small {
-  display: block;
-  color: #654529;
-  font-style: italic;
-  margin-top: 3px;
-}
-
-/* FENÊTRES MODALES ET POPUPS */
-#opponentBox, #difficultyBox, #promotionBox, #overlay {
-  position: fixed;
+/* ==========================================================================
+   SCREEN ARCHITECTURE
+   ========================================================================== */
+.screen {
+  position: absolute;
   inset: 0;
-  z-index: 100;
-  display: none;
-  background: rgba(0,0,0,0.8);
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-}
-
-#opponentBox.show, #difficultyBox.show, #promotionBox.show, #overlay.show {
-  display: flex;
-}
-
-.opponent-panel, .panel {
-  text-align: center;
-}
-
-.opponent-btn {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin: 12px 0;
-  padding: 15px;
-  border: 3px solid #3b2113;
-  border-radius: 12px;
-  color: #2b170b;
-}
-
-.opponent-btn:active {
-  transform: scale(0.97);
-}
-
-.opponent-btn strong {
-  font-size: 27px;
-}
-
-.opponent-btn small {
-  font-size: 14px;
-  font-style: italic;
-}
-
-.big-icon {
-  font-size: 38px;
-}
-
-.vs-btn {
-  background: linear-gradient(135deg, #f7e2a8, #c89b58);
-}
-
-.ai-btn {
-  background: linear-gradient(135deg, #ded4d1, #927567);
-}
-
-#diffAvatar {
-  font-size: 58px;
-  margin: 5px;
-}
-
-#diffName {
-  font-size: 22px;
-  color: var(--red);
-  font-weight: bold;
-}
-
-input[type=range] {
-  width: 100%;
-  accent-color: #c68b00;
-}
-
-.action {
-  border: 2px solid var(--wood);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 4px;
-}
-
-.gold { background: var(--gold); color: #251400; }
-.red { background: var(--red); color: white; }
-.green { background: var(--green); color: white; }
-
-/* ==========================================
-   ZONE DE JEU & HUD
-========================================== */
-#game {
-  min-height: 100vh;
   display: none;
   flex-direction: column;
   align-items: center;
-  padding: 5px 8px 18px;
-  color: #fff2c9;
-  width: 100%;
-}
-
-.top {
-  width: min(96vw, 620px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-  padding: 5px;
-}
-
-.top button {
-  border: 2px solid var(--gold);
-  background: #24140c;
-  color: var(--gold);
-  padding: 7px;
-  border-radius: 7px;
-  font-weight: bold;
-}
-
-#modeTitle {
-  font-size: 14px;
-  text-align: center;
-  color: var(--gold);
-}
-
-.playerbar {
-  width: min(96vw, 620px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 8px;
-  color: #fff3c9;
-}
-
-.clock {
-  font-size: 20px;
-  padding: 4px 10px;
-  min-width: 70px;
-  text-align: center;
-  border: 2px solid #a77a34;
-  border-radius: 6px;
-  background: #2b190d;
-}
-
-.clock.active {
-  background: var(--gold);
-  color: #211000;
-  box-shadow: 0 0 12px var(--gold);
-}
-
-.reserve {
-  width: min(96vw, 620px);
-  min-height: 40px;
-  padding: 4px 8px;
-  background: #180f0a99;
-  border: 1px solid #a77a34;
-  border-radius: 7px;
-  color: var(--gold);
-  display: none;
-  align-items: center;
-  gap: 6px;
-}
-
-.reserve button {
-  font-size: 28px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-/* ==========================================
-   ÉCHIQUIER ET PIÈCES
-========================================== */
-#boardWrap {
-  position: relative;
-  width: min(96vw, 620px);
-}
-
-#board {
-  width: 100%;
-  aspect-ratio: 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  border: 5px solid #321a0d;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-  transition: transform 0.5s ease;
-}
-
-.square {
-  position: relative;
-  display: flex;
   justify-content: center;
-  align-items: center;
-  font-size: clamp(28px, 8.5vw, 58px);
-  user-select: none;
-}
-
-.light { background: #f0d9b5; }
-.dark { background: #a96f4a; }
-.selected { background: #f6db4a !important; }
-.last { background: rgba(184, 201, 87, 0.7) !important; }
-
-.dot:after {
-  content: "";
-  width: 24%;
-  height: 24%;
-  border-radius: 50%;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.capture {
-  box-shadow: inset 0 0 0 5px rgba(180, 0, 0, 0.67);
-}
-
-.check {
-  background: #e61e1e !important;
-}
-
-.fog {
-  background: #111 !important;
-  color: transparent !important;
-}
-
-.coord {
-  position: absolute;
-  font-size: 10px;
-  font-weight: bold;
-  opacity: .65;
-}
-
-.rank { top: 1px; left: 3px; }
-.file { bottom: 1px; right: 3px; }
-.light .coord { color: #9d6748; }
-.dark .coord { color: #f2dcb9; }
-
-.piece {
-  filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.5));
-  transition: transform 0.15s, filter 0.15s;
-  z-index: 5;
-}
-
-/* ==========================================
-   COULEURS SPÉCIFIQUES DES PIÈCES (BLANC / MARRON)
-========================================== */
-.piece.white-piece {
-  color: #fff9df;
-  text-shadow: 1px 1px 0 #5a381b, 2px 2px 3px rgba(0,0,0,.65);
-}
-
-.piece.brown-piece {
-  color: #512b16;
-  text-shadow: 1px 1px 0 #d09b61, 2px 2px 3px rgba(0,0,0,.85);
-}
-
-#duckNotice {
-  display: none;
-  position: absolute;
-  top: -35px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 5px 12px;
-  background: var(--gold);
-  color: #241400;
-  border-radius: 12px;
-  font-weight: bold;
+  background: radial-gradient(circle, #3d2516 0%, #0d0603 100%);
+  padding: 10px;
   z-index: 10;
 }
 
-#status {
-  min-height: 30px;
-  padding: 8px;
-  text-align: center;
+.screen.active {
+  display: flex;
+}
+
+/* Parchment Containers */
+.parchment-container {
+  background: linear-gradient(135deg, #f8ebd0 0%, var(--parchment) 100%);
+  border: 8px double var(--wood-dark);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(92, 58, 33, 0.2);
+  padding: 25px;
+  max-width: 600px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Wood Button Styles */
+.btn-wood {
+  background: linear-gradient(to bottom, var(--wood-light) 0%, var(--wood-dark) 100%);
+  color: var(--parchment);
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-shadow: 1px 1px 2px black;
+  margin: 6px;
+}
+
+.btn-wood:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 215, 0, 0.3);
+}
+
+.btn-wood:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Header Text */
+.medieval-title {
+  font-size: clamp(28px, 6vw, 42px);
   color: var(--gold);
+  text-shadow: 2px 2px 0 black, 0 0 10px var(--gold-glow);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
 }
 
-/* ==========================================
-   STYLE BATTLE CHESS (RENDU & ANIMATIONS)
-========================================== */
-#board.battle-mode {
-  transform: perspective(800px) rotateX(27deg);
-  transform-origin: center bottom;
-  margin-top: 30px;
-  border-width: 7px;
-  border-color: #24130a;
-  box-shadow: 0 32px 45px rgba(0,0,0,.85), inset 0 0 18px #000;
+/* ==========================================================================
+   DASHBOARD / MAIN MENU
+   ========================================================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  width: 100%;
 }
 
-#board.battle-mode .square {
-  border: 1px solid rgba(0,0,0,.16);
+@media (min-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-#board.battle-mode .piece {
-  transform: translateY(-7px) scale(1.10);
-  filter: drop-shadow(4px 8px 3px rgba(0,0,0,.8));
+.dashboard-category {
+  background: rgba(139, 69, 19, 0.1);
+  border: 2px solid var(--wood-dark);
+  border-radius: 8px;
+  padding: 12px;
 }
 
-.battle-attacker {
-  z-index: 20;
-  animation: battleAttack .65s ease-in-out;
+.category-title {
+  font-size: 18px;
+  color: var(--blood-red);
+  font-weight: bold;
+  border-bottom: 2px solid var(--wood-dark);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+  text-align: center;
+  text-transform: uppercase;
 }
 
-.battle-victim {
-  z-index: 19;
-  animation: battleVictim .65s ease-in forwards;
+.mode-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-@keyframes battleAttack {
-  0% { transform: translateY(-7px) scale(1.1); }
-  40% { transform: translateY(-35px) scale(1.48) rotate(-12deg); }
-  65% { transform: translateY(-14px) scale(1.28) rotate(9deg); }
-  100% { transform: translateY(-7px) scale(1.1); }
+.btn-mode {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--wood-dark);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 
-@keyframes battleVictim {
-  0% { transform: translateY(-7px) scale(1.1); opacity: 1; }
-  50% { transform: translateY(4px) scale(.78) rotate(35deg); }
-  100% { transform: translateY(25px) scale(.2) rotate(120deg); opacity: 0; }
+.btn-mode:hover {
+  background: var(--gold);
+  transform: scale(1.01);
 }
 
-.battle-cloud {
+.btn-mode strong {
+  font-size: 16px;
+  color: var(--wood-dark);
+}
+
+.btn-mode span {
+  font-size: 12px;
+  color: #555;
+  margin-top: 2px;
+}
+
+/* Global Speaker and Back Navigation Control */
+.global-controls {
   position: absolute;
-  z-index: 50;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
+.icon-control {
+  background: var(--wood-dark);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 68px;
-  height: 68px;
-  margin-left: -34px;
-  margin-top: -34px;
-  border-radius: 50%;
-  font-size: 30px;
-  pointer-events: none;
-  background: radial-gradient(circle, #fff4c8 0%, #ba7a32 38%, #4f250f 70%, transparent 72%);
-  animation: battleCloud .7s ease-out forwards;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-@keyframes battleCloud {
-  0% { transform: scale(.2) rotate(0deg); opacity: 0; }
-  25% { transform: scale(1.35) rotate(20deg); opacity: 1; }
-  100% { transform: scale(2) rotate(100deg); opacity: 0; }
+/* ==========================================================================
+   AI DIFFICULTY SLIDER & AVATAR
+   ========================================================================== */
+.slider-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.difficulty-slider {
+  width: 100%;
+  margin: 15px 0;
+  accent-color: var(--wood-light);
+}
+
+.ai-avatar-card {
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--wood-dark);
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 140px;
+}
+
+.ai-avatar-visual {
+  font-size: 48px;
+  line-height: 1;
+  transition: transform 0.3s;
+}
+
+.ai-avatar-visual.glowing {
+  filter: drop-shadow(0 0 10px red);
+  animation: darkGlow 1.5s infinite alternate;
+}
+
+@keyframes darkGlow {
+  from { filter: drop-shadow(0 0 6px red); }
+  to { filter: drop-shadow(0 0 18px red); }
+}
+
+/* ==========================================================================
+   SAVE FILE SCREEN
+   ========================================================================== */
+.save-slots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.save-slot {
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px dashed var(--wood-dark);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-style 0.2s, background 0.2s;
+}
+
+.save-slot:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-style: solid;
+}
+
+.save-slot.active-slot {
+  border: 3px solid var(--wood-light);
+  background: #fffdf0;
+}
+
+.save-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.save-header {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.save-details {
+  font-size: 13px;
+  color: #444;
+}
+
+.btn-delete-save {
+  background: var(--blood-red);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* Safety Popup */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.popup-box {
+  background: var(--parchment);
+  border: 6px double var(--wood-dark);
+  border-radius: 8px;
+  padding: 25px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+/* ==========================================================================
+   ADVENTURE MAP SCREEN (Linear Floating Islands)
+   ========================================================================== */
+.map-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, #5c84b4 0%, #1e2f42 100%);
+  overflow: hidden;
+}
+
+/* Floating Clouds Background */
+.cloud-bg {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="20" cy="50" r="15" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="50" r="20" fill="rgba(255,255,255,0.08)"/><circle cx="60" cy="50" r="15" fill="rgba(255,255,255,0.08)"/></svg>');
+  animation: cloudDrift 120s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes cloudDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Rail Pathway */
+#mapSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rail-line {
+  stroke: #2a2015;
+  stroke-width: 8px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.rail-ties {
+  stroke: var(--gold);
+  stroke-width: 6px;
+  stroke-dasharray: 4, 12;
+  stroke-linecap: butt;
+  fill: none;
+}
+
+/* Map Islands */
+.map-islands-container {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.island {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.island-body {
+  width: 70px;
+  height: 50px;
+  background: linear-gradient(135deg, #7c9d64 0%, #4c6a38 100%);
+  border: 4px solid var(--wood-dark);
+  border-radius: 50% / 40px 40px 10px 10px;
+  box-shadow: 0 12px 10px rgba(0, 0, 0, 0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.island-body::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 5px;
+  right: 5px;
+  height: 15px;
+  background: #4a3424;
+  border-radius: 0 0 50% 50% / 0 0 20px 20px;
+  border: 3px solid var(--wood-dark);
+  border-top: none;
+}
+
+.island.locked .island-body {
+  filter: grayscale(0.8) brightness(0.6);
+}
+
+.island-label {
+  position: absolute;
+  top: -24px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  border: 1px solid var(--gold);
+}
+
+.island-stars {
+  position: absolute;
+  bottom: -32px;
+  color: var(--gold);
+  font-size: 14px;
+  text-shadow: 1px 1px 2px black;
+  white-space: nowrap;
+}
+
+/* Hero Statue (Robin des Bois) */
+#heroStatue {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background: radial-gradient(circle, var(--gold) 0%, #ffaa00 100%);
+  border: 3px solid var(--wood-dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 15px var(--gold-glow);
+  pointer-events: none;
+}
+
+#heroStatue.bolt-pose {
+  animation: boltPoseAnimation 1.2s ease-out infinite alternate;
+}
+
+@keyframes boltPoseAnimation {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); filter: brightness(1); }
+  100% { transform: translate(-50%, -50%) rotate(15deg) scale(1.3); filter: brightness(1.3) drop-shadow(0 0 10px gold); }
+}
+
+/* Map HUD */
+.map-hud {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 10px 15px;
+  color: var(--parchment);
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.map-hud-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Dialog Frame Overlay */
+.dialog-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 15px;
+}
+
+.dialog-overlay.active {
+  display: flex;
+}
+
+.dialog-box {
+  background: var(--parchment);
+  border: 8px double var(--wood-dark);
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px black;
+}
+
+.dialog-speaker {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--blood-red);
+  margin-bottom: 8px;
+}
+
+.dialog-speech {
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+.quest-objective {
+  background: rgba(139, 69, 19, 0.1);
+  border-left: 4px solid var(--wood-light);
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   GAME BOARD INTERFACE
+   ========================================================================== */
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+
+@media (min-width: 800px) {
+  .game-layout {
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+  }
+}
+
+/* User Card Panel */
+.user-card {
+  background: rgba(45, 26, 15, 0.95);
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 10px 15px;
+  color: var(--parchment);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.user-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-avatar {
+  font-size: 32px;
+}
+
+.player-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-timer {
+  font-family: monospace;
+  font-size: 24px;
+  color: var(--gold);
+}
+
+.player-timer.ticking {
+  animation: clockTick 1s steps(2, start) infinite;
+}
+
+@keyframes clockTick {
+  to { opacity: 0.7; }
+}
+
+/* Interactive Reserve Tray (Crazyhouse) */
+.reserve-tray {
+  display: flex;
+  gap: 6px;
+  background: rgba(139, 69, 19, 0.2);
+  border: 1px dashed var(--parchment-dark);
+  border-radius: 6px;
+  padding: 6px;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 8px;
+  min-height: 44px;
+  overflow-x: auto;
+}
+
+.reserve-piece-item {
+  font-size: 28px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--parchment-dark);
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reserve-piece-item.selected {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+/* Chess Board Wrapper */
+.board-viewport {
+  position: relative;
+  width: min(90vw, 90vh - 200px);
+  max-width: 500px;
+  aspect-ratio: 1;
+}
+
+/* 2D / 3D Isometric View Transforms */
+.board-container {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  transform-style: preserve-3d;
+}
+
+.board-container.view-3d {
+  transform: perspective(1000px) rotateX(55deg) rotateZ(-45deg);
+}
+
+.board-mesh {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  height: 100%;
+  border: 8px solid var(--wood-dark);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+  background-color: var(--wood-light);
+}
+
+/* Tile Grid Styles */
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(100% + 2vw);
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.tile.light-tile { background-color: #f0d9b5; }
+.tile.dark-tile { background-color: #b58863; }
+
+/* Selection & Move Indicators */
+.tile.tile-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--gold);
+  box-shadow: inset 0 0 12px var(--gold-glow);
+  z-index: 2;
+}
+
+.tile.tile-highlight::after {
+  content: '';
+  position: absolute;
+  width: 25%;
+  height: 25%;
+  background: var(--forest-green);
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0.7;
+}
+
+.tile.tile-capture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--blood-red);
+  background: rgba(139, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.tile.tile-check::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(139,0,0,0.6) 0%, transparent 80%);
+  z-index: 2;
+}
+
+/* Fog of War mask */
+.tile.fogged {
+  background-color: var(--fog-grey) !important;
+}
+.tile.fogged * {
+  display: none !important;
+}
+
+/* Chess Piece Element positioning */
+.chess-piece {
+  font-size: clamp(24px, 8vw, 44px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+
+.chess-piece.white-side {
+  color: #ffffff;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.7));
+}
+
+.chess-piece.black-side {
+  color: #3a2212;
+  filter: drop-shadow(1px 1px 1px rgba(255, 255, 255, 0.4)) drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.9));
+}
+
+/* Upright Billboard Orientation for 3D View */
+.board-container.view-3d .chess-piece {
+  transform: rotateX(-55deg) rotateY(0deg) rotateZ(45deg) translateZ(10px) scale(1.4);
+}
+
+/* ==========================================================================
+   BATTLE CHESS 1988 ANIMATION OVERLAYS
+   ========================================================================== */
+.battle-canvas-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+}
+
+.battle-canvas-overlay.active {
+  display: flex;
+}
+
+.battle-stage {
+  width: 90%;
+  max-width: 450px;
+  background: radial-gradient(circle, #8b5a2b 0%, #3d2516 100%);
+  border: 4px solid var(--gold);
+  border-radius: 8px;
+  aspect-ratio: 1.5;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+}
+
+.fighter {
+  position: absolute;
+  bottom: 20px;
+  font-size: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#attackerFighter {
+  left: 20%;
+  transform: scaleX(1);
+}
+
+#victimFighter {
+  right: 20%;
+  transform: scaleX(-1);
+}
+
+/* Action animations */
+.fighter-slide-attack {
+  animation: attackSlide 0.7s forwards;
+}
+
+.fighter-die-spin {
+  animation: dieSpin 0.7s forwards;
+}
+
+@keyframes attackSlide {
+  0% { left: 20%; }
+  50% { left: 55%; transform: scaleX(1) rotate(-15deg); }
+  100% { left: 20%; }
+}
+
+@keyframes dieSpin {
+  0% { right: 20%; transform: scaleX(-1) rotate(0); opacity: 1; }
+  50% { right: 10%; transform: scaleX(-1) rotate(180deg) scale(0.5); opacity: 0.5; }
+  100% { right: 0%; transform: scaleX(-1) rotate(360deg) scale(0); opacity: 0; }
+}
+
+/* ==========================================================================
+   ENDING CINEMATIC OVERLAY
+   ========================================================================== */
+#endingScreen {
+  z-index: 2000;
+}
+
+.storybook {
+  background: #fdf5e6;
+  border: 12px double #8b4513;
+  border-radius: 8px;
+  padding: 40px 25px;
+  max-width: 550px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 40px black;
+  animation: parchmentOpen 1.5s ease-out;
+}
+
+@keyframes parchmentOpen {
+  from { transform: scaleX(0.1); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.crown-piece {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: goldenCrownGlow 2s infinite alternate;
+}
+
+@keyframes goldenCrownGlow {
+  from { filter: drop-shadow(0 0 10px gold); }
+  to { filter: drop-shadow(0 0 25px gold); }
+}
+
+/* Duck Element Styles */
+.duck-token {
+  font-size: 36px;
+  animation: duckWaddle 0.5s infinite alternate;
+}
+
+@keyframes duckWaddle {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
 }
 </style>
 </head>
-
 <body>
 
-<!-- ==========================================
-     ÉCRAN : MENU PRINCIPAL
-========================================== -->
-<section id="menu">
-  <h1>♚ Chess Quest ♔</h1>
-  <div class="subtitle">Le Royaume des Rois</div>
+<!-- GLOBAL AUDIO AND BACK CONTROLS -->
+<div class="global-controls">
+  <div class="icon-control" id="speakerToggleBtn" onclick="ctrlToggleSpeaker()">🔊</div>
+  <div class="icon-control" id="homeReturnBtn" onclick="ctrlNavigateHome()">🏠</div>
+</div>
 
-  <div class="panel">
-    <div class="category">⏱️ ÉCHECS CLASSIQUES</div>
+<!-- ==========================================================================
+     SCREEN: MAIN DASHBOARD
+     ========================================================================== -->
+<div class="screen active" id="dashboardScreen">
+  <div class="parchment-container">
+    <h1 class="medieval-title">♚ CHESS QUEST ♔</h1>
+    
+    <div class="dashboard-grid">
+      <!-- CLASSIC TIME CONTROLS -->
+      <div class="dashboard-category">
+        <div class="category-title">Contre-la-Montre Classique</div>
+        <div class="mode-btn-container">
+          <button class="btn-mode" onclick="menuSelectClassic('normal')">
+            <strong>Normal (1 heure)</strong>
+            <span>Échecs classiques, temps de réflexion détendu.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectClassic('blitz')">
+            <strong>Blitz (10 minutes)</strong>
+            <span>Rythme rapide, chaque seconde est comptée.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectClassic('rapid')">
+            <strong>Rapide (Personnalisable)</strong>
+            <span>Réglez le minuteur à votre rythme.</span>
+          </button>
+        </div>
+      </div>
 
-    <button class="mode" onclick="openDifficulty('normal')">
-      ♟ Normal
-      <small>Partie classique : 1 heure par joueur.</small>
-    </button>
+      <!-- VARIANT & FUN MODES -->
+      <div class="dashboard-category">
+        <div class="category-title">Modes & Variantes Drôles</div>
+        <div class="mode-btn-container">
+          <button class="btn-mode" onclick="menuSelectVariant('crazyhouse')">
+            <strong>Crazyhouse</strong>
+            <span>Parachutez vos prisonniers capturés au combat.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('pawnrace')">
+            <strong>La Course des Pions</strong>
+            <span>Seulement des pions ! Le premier qui traverse gagne.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('koth')">
+            <strong>Roi de la Colline</strong>
+            <span>Atteignez l'une des 4 cases du centre pour gagner !</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('atomic')">
+            <strong>Échecs Atomiques</strong>
+            <span>Les captures provoquent des explosions gigantesques !</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('horde')">
+            <strong>La Horde</strong>
+            <span>Affrontez une armée démesurée de 36 pions blancs.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('fog')">
+            <strong>Brouillard de Guerre</strong>
+            <span>Éclairez le terrain avec vos soldats.</span>
+          </button>
+          <button class="btn-mode" onclick="menuSelectVariant('duck')">
+            <strong>Échecs Canard</strong>
+            <span>Bloquez les attaques ennemies avec le canard en plastique.</span>
+          </button>
+        </div>
+      </div>
 
-    <button class="mode" onclick="openDifficulty('blitz')">
-      ⚡ Blitz
-      <small>10 minutes par joueur.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('rapid')">
-      ⏳ Rapide
-      <small>15 minutes par joueur.</small>
-    </button>
-
-    <div class="category">🎲 VARIANTES & FUN</div>
-
-    <button class="mode" onclick="openDifficulty('crazyhouse')">
-      🏠 Crazyhouse
-      <small>Les pièces capturées deviennent des renforts.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('pawnrace')">
-      🏃 Course des Pions
-      <small>Promouvoir un pion ou bloquer l'adversaire.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('koth')">
-      ⛰️ Roi de la Colline
-      <small>Amène ton Roi au centre de l'échiquier.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('atomic')">
-      💥 Échecs Atomiques
-      <small>Chaque capture provoque une explosion.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('horde')">
-      👹 La Horde
-      <small>36 pions blancs contre l'armée noire.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('fog')">
-      🌫️ Brouillard de Guerre
-      <small>Les ennemis cachés restent dans le brouillard.</small>
-    </button>
-
-    <button class="mode" onclick="openDifficulty('duck')">
-      🦆 Échecs Canard
-      <small>Déplace le canard après chaque coup.</small>
-    </button>
-  </div>
-</section>
-
-<!-- ==========================================
-     MODALE : TYPE D'AFFRONTEMENT (VS / AI)
-========================================== -->
-<section id="opponentBox">
-  <div class="panel opponent-panel">
-    <h2>Choisis ton affrontement</h2>
-    <p style="color:#5c3e1e; font-style:italic">Affronte un ami sur le même écran ou mesure-toi à l'ordinateur.</p>
-
-    <button class="opponent-btn vs-btn" onclick="chooseOpponent('pvp')">
-      <span class="big-icon">⚔️</span>
-      <strong>VS</strong>
-      <small>Joueur Blanc contre Joueur Marron</small>
-    </button>
-
-    <button class="opponent-btn ai-btn" onclick="chooseOpponent('ai')">
-      <span class="big-icon">🤖</span>
-      <strong>AI</strong>
-      <small>Joueur Blanc contre Bot Marron</small>
-    </button>
-
-    <button class="action red" onclick="closeOpponentBox()">← Retour</button>
-  </div>
-</section>
-
-<!-- ==========================================
-     MODALE : DIFFICULTÉ DE L'AI
-========================================== -->
-<section id="difficultyBox">
-  <div class="panel">
-    <h2>Force de l'adversaire</h2>
-    <div id="diffAvatar">♟️</div>
-    <div id="diffName">Facile</div>
-    <p id="diffDesc">Un pion maladroit qui fait des erreurs.</p>
-
-    <input id="diffSlider" type="range" min="0" max="4" value="0" oninput="updateDifficulty(this.value)">
-
-    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-top:5px">
-      <span>Facile</span><span>Dark</span>
-    </div>
-
-    <br>
-    <button class="action gold" onclick="startGame()">⚔️ Lancer la bataille</button>
-    <button class="action red" onclick="closeDifficulty()">Retour</button>
-  </div>
-</section>
-
-<!-- ==========================================
-     ÉCRAN : PARTIE DE JEU
-========================================== -->
-<section id="game">
-  <div class="top">
-    <button onclick="goMenu()">🏠</button>
-    <strong id="modeTitle"></strong>
-    <div>
-      <button id="viewBtn" onclick="toggleView()">♟ 2D</button>
+      <!-- ADVENTURE MODE -->
+      <div class="dashboard-category" style="background: rgba(255, 215, 0, 0.15); border-color: var(--gold);">
+        <div class="category-title" style="color: var(--gold-glow)">Mode Campagne</div>
+        <div class="mode-btn-container">
+          <button class="btn-wood" style="margin: 0;" onclick="menuSelectAdventure()">
+            ⚔️ CHESS QUEST : L'AVENTURE
+          </button>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="playerbar">
-    <div style="font-weight:bold">🟤 Joueur Marron / Bot</div>
-    <div id="blackClock" class="clock">10:00</div>
-  </div>
+<!-- ==========================================================================
+     SCREEN: AI CONFIGURATION SLIDER
+     ========================================================================== -->
+<div class="screen" id="aiConfigScreen">
+  <div class="parchment-container" style="max-width: 450px;">
+    <h1 class="medieval-title" style="color: var(--wood-dark); text-shadow: none;">Difficulté du Bot</h1>
+    
+    <div class="slider-container">
+      <input type="range" min="1" max="5" value="1" class="difficulty-slider" id="aiDiffSlider" oninput="uiUpdateAIDiff(this.value)">
+      <div class="ai-avatar-card">
+        <div class="ai-avatar-visual" id="aiAvatarVisual">♟️</div>
+        <strong id="aiAvatarName" style="font-size: 20px; color: var(--wood-dark);">Pion Clumsy</strong>
+        <p id="aiAvatarDesc" style="font-size: 14px; margin: 5px 0 0 0; color: #555; text-align: center;">Un petit pion débutant qui trébuche souvent.</p>
+      </div>
+    </div>
 
-  <div id="blackReserve" class="reserve"></div>
+    <!-- Rapid Clock Config -->
+    <div id="rapidClockConfigContainer" style="display: none; margin: 15px 0; text-align: center;">
+      <label for="rapidTimerSelect" style="font-weight: bold; color: var(--wood-dark);">Temps de réflexion :</label>
+      <select id="rapidTimerSelect" style="padding: 8px; font-size: 16px; margin-left: 10px;">
+        <option value="600">10 Minutes</option>
+        <option value="900">15 Minutes</option>
+        <option value="1200">20 Minutes</option>
+        <option value="1800">30 Minutes</option>
+        <option value="2700">45 Minutes</option>
+        <option value="3600">60 Minutes</option>
+      </select>
+    </div>
 
-  <div id="boardWrap">
-    <div id="duckNotice">🦆 Déplace le canard !</div>
-    <div id="board"></div>
-  </div>
-
-  <div id="whiteReserve" class="reserve"></div>
-
-  <div class="playerbar">
-    <div style="font-weight:bold">⬜ Joueur Blanc</div>
-    <div id="whiteClock" class="clock active">10:00</div>
-  </div>
-
-  <div id="status">Chargement...</div>
-</section>
-
-<!-- ==========================================
-     MODALE : PROMOTION DU PION
-========================================== -->
-<section id="promotionBox">
-  <div class="panel">
-    <h2>Promotion d'un pion !</h2>
-    <p style="color:#5c3e1e; font-style:italic">Sélectionnez la pièce dans laquelle vous souhaitez muter votre pion.</p>
-    <div style="display:flex; justify-content:center; gap:10px">
-      <button class="action gold" onclick="choosePromotion(5)" style="font-size:35px; width:70px">♕</button>
-      <button class="action gold" onclick="choosePromotion(4)" style="font-size:35px; width:70px">♖</button>
-      <button class="action gold" onclick="choosePromotion(3)" style="font-size:35px; width:70px">♗</button>
-      <button class="action gold" onclick="choosePromotion(2)" style="font-size:35px; width:70px">♘</button>
+    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <button class="btn-wood" onclick="uiConfigBackToDashboard()">Annuler</button>
+      <button class="btn-wood" style="background: var(--forest-green);" onclick="uiConfigConfirmAndPlay()">Commencer</button>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==========================================
-     MODALE : FIN DE PARTIE
-========================================== -->
-<section id="overlay">
-  <div class="panel">
-    <h2 id="endTitle">Partie terminée</h2>
-    <p id="endText" style="font-size:18px; color:#5c3e1e"></p>
-    <button class="action gold" onclick="restart()">🔄 Recommencer</button>
-    <button class="action red" onclick="goMenu()">🏠 Menu</button>
+<!-- ==========================================================================
+     SCREEN: SAVE SELECT SCREEN
+     ========================================================================== -->
+<div class="screen" id="saveSelectScreen">
+  <div class="parchment-container">
+    <h1 class="medieval-title">Sauvegardes de l'Aventure</h1>
+    
+    <div class="save-slots-container">
+      <!-- Slot 1 -->
+      <div class="save-slot" id="slot1" onclick="uiSaveSlotClick(1)">
+        <div class="save-info">
+          <div class="save-header" id="slot1Name">Vide</div>
+          <div class="save-details" id="slot1Stats">-</div>
+        </div>
+        <button class="btn-delete-save" onclick="uiSaveSlotDelete(event, 1)">🗑️</button>
+      </div>
+      <!-- Slot 2 -->
+      <div class="save-slot" id="slot2" onclick="uiSaveSlotClick(2)">
+        <div class="save-info">
+          <div class="save-header" id="slot2Name">Vide</div>
+          <div class="save-details" id="slot2Stats">-</div>
+        </div>
+        <button class="btn-delete-save" onclick="uiSaveSlotDelete(event, 2)">🗑️</button>
+      </div>
+      <!-- Slot 3 -->
+      <div class="save-slot" id="slot3" onclick="uiSaveSlotClick(3)">
+        <div class="save-info">
+          <div class="save-header" id="slot3Name">Vide</div>
+          <div class="save-details" id="slot3Stats">-</div>
+        </div>
+        <button class="btn-delete-save" onclick="uiSaveSlotDelete(event, 3)">🗑️</button>
+      </div>
+    </div>
   </div>
-</section>
+</div>
 
-<!-- ==========================================
-     SCRIPTS & MOTEUR DE JEU
-========================================== -->
+<!-- ==========================================================================
+     SCREEN: ADVENTURE MAP
+     ========================================================================== -->
+<div class="screen" id="adventureMapScreen">
+  <div class="map-canvas-container">
+    <div class="cloud-bg"></div>
+    <div class="map-hud">
+      <div class="map-hud-stat">❤️ <span id="hudHearts">5</span></div>
+      <div class="map-hud-stat">⭐ <span id="hudStars">0/18</span></div>
+      <div class="map-hud-stat">⏱️ <span id="hudPlayTime">00:00</span></div>
+    </div>
+    
+    <!-- Railway SVGs -->
+    <svg id="mapSvg">
+      <path class="rail-line" d="" id="railLinePath"/>
+      <path class="rail-ties" d="" id="railTiesPath"/>
+    </svg>
+
+    <div class="map-islands-container" id="mapIslandsContainer"></div>
+    <div id="heroStatue">🏹</div>
+  </div>
+
+  <!-- Interactive Dialogue / Intro Modal overlay -->
+  <div class="dialog-overlay" id="questIntroModal">
+    <div class="dialog-box">
+      <div class="dialog-speaker" id="dialogSpeaker">Robin des Bois</div>
+      <div class="dialog-speech" id="dialogSpeech">"Le combat sera difficile mais nous libérerons le royaume !"</div>
+      <div class="quest-objective">
+        <strong>Objectif de Quête :</strong>
+        <span id="questObjectiveText">Capturez le Roi adverse.</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <button class="btn-wood" onclick="uiQuestCloseIntro()">Retour</button>
+        <button class="btn-wood" style="background: var(--forest-green);" onclick="uiQuestLaunchMatch()">Engager le combat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     SCREEN: ACTIVE CHESS GAME
+     ========================================================================== -->
+<div class="screen" id="activeMatchScreen">
+  <div class="game-layout">
+    <!-- Game Control Side panel (Desktop view) or Header (Mobile) -->
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px;">
+      
+      <!-- OPPONENT CARD -->
+      <div class="user-card" id="cardOpponent">
+        <div class="user-card-left">
+          <div class="player-avatar" id="avatarOpponent">🤖</div>
+          <div class="player-meta">
+            <span style="font-weight: bold;" id="nameOpponent">Bot</span>
+            <span style="font-size: 11px; opacity: 0.8;" id="statusOpponent">Pièces Marron</span>
+          </div>
+        </div>
+        <div class="player-timer" id="clockOpponent">--:--</div>
+      </div>
+
+      <!-- Opponent Crazyhouse Tray -->
+      <div class="reserve-tray" id="reserveOpponent" style="display: none;"></div>
+
+      <!-- MAIN PLAYABLE BOARD -->
+      <div class="board-viewport">
+        <!-- Floating Duck Status Text -->
+        <div id="duckNotice">🦆 Dépose le canard !</div>
+        
+        <div class="board-container" id="boardTransformer">
+          <div class="board-mesh" id="boardMeshGrid"></div>
+        </div>
+      </div>
+
+      <!-- Player Crazyhouse Tray -->
+      <div class="reserve-tray" id="reservePlayer" style="display: none;"></div>
+
+      <!-- PLAYER CARD -->
+      <div class="user-card" id="cardPlayer">
+        <div class="user-card-left">
+          <div class="player-avatar">🏹</div>
+          <div class="player-meta">
+            <span style="font-weight: bold;" id="namePlayer">Joueur</span>
+            <span style="font-size: 11px; opacity: 0.8;">Pièces Blanches</span>
+          </div>
+        </div>
+        <div class="player-timer" id="clockPlayer">--:--</div>
+      </div>
+
+      <!-- Middle Controls (2D/3D Toggles, Status feedback) -->
+      <div style="display: flex; justify-content: space-between; width: 100%; max-width: 500px; margin-top: 5px;">
+        <button class="btn-wood" style="margin: 0; padding: 6px 12px; font-size: 12px;" onclick="matchToggleView()">Vue 2D / 3D Combat</button>
+        <div id="matchFeedbackText" style="color: var(--gold); font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-align: center; flex-grow: 1;">En attente de démarrage...</div>
+        <button class="btn-wood" style="margin: 0; padding: 6px 12px; font-size: 12px; background: var(--blood-red);" id="btnUndoMoveJoker" onclick="matchActionUndo()">Joker Retour</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Battle Animation Overlay -->
+  <div class="battle-canvas-overlay" id="battleCanvasOverlay">
+    <div class="battle-stage">
+      <div class="fighter" id="attackerFighter">⚔️</div>
+      <div class="fighter" id="victimFighter">🛡️</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     POPUP / OVERLAY ELEMENTS (CRITICAL MODALS)
+     ========================================================================== -->
+<!-- Save File Creation Dialog Popup -->
+<div class="modal-overlay" id="saveCreationOverlay">
+  <div class="popup-box">
+    <h3 style="color: var(--wood-dark); margin-top: 0;">Nouvelle Sauvegarde</h3>
+    <p style="font-size: 14px;">Entrez votre nom de chevalier :</p>
+    <input type="text" id="newPlayerNameInput" style="padding: 10px; font-size: 16px; width: 100%; border: 2px solid var(--wood-dark); border-radius: 4px; margin-bottom: 15px;" placeholder="Ex: Robin">
+    
+    <p style="font-size: 14px; margin-bottom: 5px;">Difficulté du mode histoire :</p>
+    <select id="saveDifficultySelect" style="padding: 8px; font-size: 15px; margin-bottom: 20px; width: 100%;">
+      <option value="easy">Facile (5 ❤️, Retours possibles)</option>
+      <option value="medium">Moyen (3 ❤️)</option>
+      <option value="hard">Difficile (3 ❤️, Minuteur de 60s)</option>
+      <option value="dark">Dark (1 ❤️, Minuteur de 30s, Fog)</option>
+    </select>
+
+    <div style="display: flex; justify-content: space-between;">
+      <button class="btn-wood" onclick="uiSaveCreationCancel()">Annuler</button>
+      <button class="btn-wood" style="background: var(--forest-green);" onclick="uiSaveCreationConfirm()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save Delete Safety Popup -->
+<div class="modal-overlay" id="safetyDeleteOverlay">
+  <div class="popup-box">
+    <h3 style="color: var(--blood-red); margin-top: 0;">⚠️ SUPPRESSION</h3>
+    <p style="font-size: 15px; line-height: 1.4;">Êtes-vous certain de vouloir supprimer cette sauvegarde ?</p>
+    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+      <button class="btn-wood" style="background: var(--forest-green); flex-grow: 1;" id="btnSafetyCancel" onclick="uiSaveDeleteCancel()">NON, RETOUR</button>
+      <button class="btn-wood" style="background: var(--blood-red);" onclick="uiSaveDeleteConfirm()">OUI, SUPPRIMER</button>
+    </div>
+  </div>
+</div>
+
+<!-- Match End Result Screen Overlay -->
+<div class="modal-overlay" id="matchEndOverlay">
+  <div class="popup-box">
+    <h2 id="endResultTitle" style="color: var(--wood-dark); margin-top:0;">PARTIE TERMINÉE</h2>
+    <p id="endResultDesc" style="font-size: 16px; margin: 15px 0;">Le match s'est achevé.</p>
+    <div id="endResultStars" style="font-size: 24px; color: var(--gold); margin-bottom: 20px;"></div>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+      <button class="btn-wood" id="endResultBtnRetry" onclick="uiMatchEndRetry()">🔄 Réessayer</button>
+      <button class="btn-wood" style="background: var(--forest-green);" onclick="uiMatchEndContinue()">Continuer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Final Game Ending Screen -->
+<div class="screen" id="endingScreen">
+  <div class="storybook">
+    <div class="crown-piece">👑</div>
+    <h1 style="color: var(--wood-dark); margin-top:0;">FÉLICITATIONS !</h1>
+    <p style="font-size: 18px; line-height: 1.6; font-style: italic; color: #3d2516;">
+      "Robin assembla les 6 fragments de la Couronne d'Or sous les yeux ébahis du peuple. 
+      Soudain, les nuages sombres et orageux se déchirèrent, laissant place à un ciel d'un bleu radieux."
+    </p>
+    <p style="font-size: 20px; font-weight: bold; color: var(--gold-glow); margin: 20px 0;">
+      Le monde est redevenu bon, juste et prospère. Les gens sont enfin heureux !
+    </p>
+    <h2 style="font-family: monospace; color: var(--wood-dark);">FIN</h2>
+    <button class="btn-wood" style="margin-top: 15px;" onclick="ctrlNavigateHome()">Retourner à l'accueil</button>
+  </div>
+</div>
+
+<!-- AUDIO CONTEXT GENERATOR AND CONTROLS -->
 <script>
-"use strict";
+/* ==========================================================================
+   AUDIO SYNTHESIZER & SOUND GENERATOR
+   ========================================================================== */
+const SoundSynth = {
+  ctx: null,
+  
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
 
-/* =========================
-   CONSTANTES & DICTIONNAIRES
-========================= */
-const W = 0, B = 1;
-const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
-const F = "abcdefgh";
+  playWhistle() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.4);
+  },
 
-const ICON = {
-  0: { 1: "♙", 2: "♘", 3: "♗", 4: "♖", 5: "♕", 6: "♔", 7: "🦆" },
-  1: { 1: "♟", 2: "♞", 3: "♝", 4: "♜", 5: "♛", 6: "♚", 7: "🦆" }
+  playThud() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.3);
+  },
+
+  playCheer() {
+    this.init();
+    // Simulate cheering with random frequency nodes
+    for (let i = 0; i < 5; i++) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200 + Math.random() * 300, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1.2);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 1.2);
+    }
+  },
+
+  playLaser() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.5);
+  }
+};
+</script>
+
+<script>
+/* ==========================================================================
+   STRICT STANDARD CHESS RULES ENGINE
+   ========================================================================== */
+const PIECES = {
+  EMPTY: { type: '', color: '' },
+  PAWN: 'p', KNIGHT: 'n', BISHOP: 'b', ROOK: 'r', QUEEN: 'q', KING: 'k', DUCK: 'd'
 };
 
-const VALUE = { 1: 100, 2: 320, 3: 330, 4: 500, 5: 900, 6: 20000 };
-
-const MODE_NAME = {
-  normal: "♟ Normal", blitz: "⚡ Blitz", rapid: "⏳ Rapide",
-  crazyhouse: "🏠 Crazyhouse", pawnrace: "🏃 Course des Pions",
-  koth: "⛰️ Roi de la Colline", atomic: "💥 Échecs Atomiques",
-  horde: "👹 La Horde", fog: "🌫️ Brouillard de Guerre",
-  duck: "🦆 Échecs Canard"
+const COLORS = {
+  WHITE: 'w', BLACK: 'b', NEUTRAL: 'd'
 };
 
-const DIFF = [
-  ["Facile", "♟️", "Un pion maladroit qui fait des erreurs."],
-  ["Moyen 1", "♞", "Un écuyer qui connaît les bases."],
-  ["Moyen +", "♝", "Il cherche les captures et les tactiques."],
-  ["Difficile", "♛", "Un adversaire très compétitif."],
-  ["Dark", "👁️", "Le Roi Sombre cherche les meilleurs coups."]
-];
-
-/* =========================
-   VARIABLES GLOBALES D'ÉTAT
-========================= */
-let board;
-let turn;
-let selected;
-let mode;
-let difficulty = 0;
-let gameActive = false;
-let opponentType = "ai"; // "ai" ou "pvp"
-let ep = null;
-let castle;
-let reserves;
-let duckPos = null;
-let duckPhase = false;
-let lastFrom = null;
-let lastTo = null;
-let timer = null;
-let wt = 600, bt = 600;
-let view3d = false;
-let moveHistory = [];
-let pendingPromotionMoves = [];
-let chosenMode = "normal";
-
-/* =========================
-   GESTION DES MENUS & POPUPS
-========================= */
-function openDifficulty(m) {
-  chosenMode = m;
-  document.getElementById("opponentBox").classList.add("show");
+// Deep copies a board matrix state
+function duplicateBoard(boardState) {
+  return boardState.map(row => row.map(tile => {
+    if (!tile) return null;
+    return { ...tile };
+  }));
 }
 
-function closeOpponentBox() {
-  document.getElementById("opponentBox").classList.remove("show");
-}
-
-function chooseOpponent(type) {
-  opponentType = type;
-  closeOpponentBox();
-
-  if (type === "ai") {
-    document.getElementById("difficultyBox").classList.add("show");
-    updateDifficulty(0);
-    return;
-  }
-  startGame();
-}
-
-function closeDifficulty() {
-  document.getElementById("difficultyBox").classList.remove("show");
-}
-
-function updateDifficulty(v) {
-  difficulty = Number(v);
-  document.getElementById("diffSlider").value = v;
-  document.getElementById("diffAvatar").textContent = DIFF[v][1];
-  document.getElementById("diffName").textContent = DIFF[v][0];
-  document.getElementById("diffDesc").textContent = DIFF[v][2];
-}
-
-function startGame() {
-  closeDifficulty();
-  mode = chosenMode;
-  gameActive = true;
-  selected = null; 
-  ep = null; 
-  duckPos = null; 
-  duckPhase = false;
-  lastFrom = null; 
-  lastTo = null; 
-  moveHistory = [];
-  castle = { K: true, Q: true, k: true, q: true };
-  reserves = { [W]: [], [B]: [] };
-  turn = W;
-
-  setTimes();
-  setupBoard();
-
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("game").style.display = "flex";
-
-  const opponentLabel = opponentType === "pvp" ? "👥 VS" : "🤖 AI";
-  document.getElementById("modeTitle").textContent = `${MODE_NAME[mode]} — ${opponentLabel}`;
-
-  render();
-  startTimer();
-  status(opponentType === "pvp" ? "⬜ Tour du Joueur Blanc." : "⬜ À toi de jouer.");
-}
-
-function setTimes() {
-  if (mode === "normal") { wt = 3600; bt = 3600; }
-  else if (mode === "blitz") { wt = 600; bt = 600; }
-  else if (mode === "rapid") { wt = 900; bt = 900; }
-  else { wt = 99999; bt = 99999; }
-}
-
-function goMenu() {
-  gameActive = false;
-  clearInterval(timer);
-  document.getElementById("overlay").classList.remove("show");
-  document.getElementById("game").style.display = "none";
-  document.getElementById("menu").style.display = "flex";
-}
-
-function restart() {
-  document.getElementById("overlay").classList.remove("show");
-  startGame();
-}
-
-/* =========================
-   STRUCTURE DU PLATEAU
-========================= */
-function empty() {
-  return Array.from({length: 8}, () => Array(8).fill(null));
-}
-
-function setupBoard() {
-  board = empty();
-  if (mode === "pawnrace") {
-    for (let x = 0; x < 8; x++) {
-      board[1][x] = { t: P, c: B };
-      board[6][x] = { t: P, c: W };
-    }
-    return;
-  }
-  if (mode === "horde") {
-    back(0, B); pawns(1, B);
-    for (let y = 4; y < 8; y++) {
-      for (let x = 0; x < 8; x++) board[y][x] = { t: P, c: W };
-    }
-    for (const x of [1, 3, 5, 7]) board[3][x] = { t: P, c: W };
-    return;
-  }
-  back(0, B); pawns(1, B); pawns(6, W); back(7, W);
-  if (mode === "duck") {
-    duckPos = [3, 4];
-    board[3][4] = { t: DUCK, c: -1 };
-  }
-}
-
-function back(y, c) {
-  const a = [R, N, BI, Q, K, BI, N, R];
-  for (let x = 0; x < 8; x++) board[y][x] = { t: a[x], c };
-}
-
-function pawns(y, c) {
-  for (let x = 0; x < 8; x++) board[y][x] = { t: P, c };
-}
-
-/* ==========================================
-   MOTEUR LOGIQUE ET DE DÉPLACEMENT RÉEL
-========================================== */
-function inside(r, c) {
+// Check square coordinate validity
+function isValidCoord(r, c) {
   return r >= 0 && r < 8 && c >= 0 && c < 8;
 }
 
-function clone(boardState) {
-  return boardState.map(row => row.map(p => p ? { ...p } : null));
-}
-
-function canLandOn(boardState, r, c, color) {
-  if (!inside(r, c)) return false;
-  const target = boardState[r][c];
-  if (!target) return true;
-  if (target.t === DUCK) return false;
-  return target.c !== color;
-}
-
-/* 1. COMPORTEMENT DU PION */
-function pawnMoves(boardState, r, c, color) {
-  const moves = [];
-  const direction = color === W ? -1 : 1;
-  const startingRow = color === W ? 6 : 1;
-  const promotionRow = color === W ? 0 : 7;
-  const oneForward = r + direction;
-
-  if (inside(oneForward, c) && !boardState[oneForward][c]) {
-    if (oneForward === promotionRow) {
-      [Q, R, BI, N].forEach(t => moves.push({ fr: r, fc: c, tr: oneForward, tc: c, promo: t }));
-    } else {
-      moves.push({ fr: r, fc: c, tr: oneForward, tc: c });
-    }
-
-    const twoForward = r + direction * 2;
-    if (r === startingRow && inside(twoForward, c) && !boardState[twoForward][c]) {
-      moves.push({ fr: r, fc: c, tr: twoForward, tc: c });
-    }
-  }
-
-  for (const dc of [-1, 1]) {
-    const targetRow = r + direction;
-    const targetCol = c + dc;
-    if (!inside(targetRow, targetCol)) continue;
-
-    const target = boardState[targetRow][targetCol];
-    if (target && target.c !== color && target.t !== DUCK) {
-      if (targetRow === promotionRow) {
-        [Q, R, BI, N].forEach(t => moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol, promo: t }));
-      } else {
-        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
-      }
-    }
-
-    if (ep && ep[0] === targetRow && ep[1] === targetCol) {
-      moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol, ep: true });
-    }
-  }
-  return moves;
-}
-
-/* 2. COMPORTEMENT DU CAVALIER */
-function knightMoves(boardState, r, c, color) {
-  const moves = [];
-  const jumps = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
-  for (const [dr, dc] of jumps) {
-    const targetRow = r + dr;
-    const targetCol = c + dc;
-    if (canLandOn(boardState, targetRow, targetCol, color)) {
-      moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
-    }
-  }
-  return moves;
-}
-
-/* 3. PIÈCES COULISSANTES */
-function slideMoves(boardState, r, c, color, directions) {
-  const moves = [];
-  for (const [dr, dc] of directions) {
-    let targetRow = r + dr;
-    let targetCol = c + dc;
-    while (inside(targetRow, targetCol)) {
-      const target = boardState[targetRow][targetCol];
-      if (target && target.t === DUCK) break;
-      if (!target) {
-        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
-        targetRow += dr; targetCol += dc;
-        continue;
-      }
-      if (target.c !== color) {
-        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
-      }
-      break;
-    }
-  }
-  return moves;
-}
-
-function bishopMoves(boardState, r, c, color) {
-  return slideMoves(boardState, r, c, color, [[-1, -1], [-1, 1], [1, -1], [1, 1]]);
-}
-
-function rookMoves(boardState, r, c, color) {
-  return slideMoves(boardState, r, c, color, [[-1, 0], [1, 0], [0, -1], [0, 1]]);
-}
-
-function queenMoves(boardState, r, c, color) {
-  return slideMoves(boardState, r, c, color, [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]]);
-}
-
-/* 4. COMPORTEMENT DU ROI & ROQUE */
-function kingMoves(boardState, r, c, color, attackOnly = false) {
-  const moves = [];
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue;
-      const targetRow = r + dr;
-      const targetCol = c + dc;
-      if (canLandOn(boardState, targetRow, targetCol, color)) {
-        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
-      }
-    }
-  }
-
-  if (attackOnly || mode === "duck") return moves;
-
-  const row = color === W ? 7 : 0;
-  const kingSideRight = color === W ? "K" : "k";
-  const queenSideRight = color === W ? "Q" : "q";
-
-  if (r !== row || c !== 4) return moves;
-
-  if (castle[kingSideRight] && !boardState[row][5] && !boardState[row][6]) {
-    const rook = boardState[row][7];
-    if (rook && rook.t === R && rook.c === color) {
-      const enemy = 1 - color;
-      const canCastle = mode === "fog" || (
-        !isSquareAttacked(boardState, row, 4, enemy) &&
-        !isSquareAttacked(boardState, row, 5, enemy) &&
-        !isSquareAttacked(boardState, row, 6, enemy)
-      );
-      if (canCastle) moves.push({ fr: r, fc: c, tr: row, tc: 6, castle: "K" });
-    }
-  }
-
-  if (castle[queenSideRight] && !boardState[row][1] && !boardState[row][2] && !boardState[row][3]) {
-    const rook = boardState[row][0];
-    if (rook && rook.t === R && rook.c === color) {
-      const enemy = 1 - color;
-      const canCastle = mode === "fog" || (
-        !isSquareAttacked(boardState, row, 4, enemy) &&
-        !isSquareAttacked(boardState, row, 3, enemy) &&
-        !isSquareAttacked(boardState, row, 2, enemy)
-      );
-      if (canCastle) moves.push({ fr: r, fc: c, tr: row, tc: 2, castle: "Q" });
-    }
-  }
-  return moves;
-}
-
-/* ==========================================
-   DÉTECTION DES MENACES, ÉCHECS ET PARCOURS
-========================================== */
-function pieceAttacksSquare(boardState, piece, fromR, fromC, toR, toC) {
-  const dr = toR - fromR;
-  const dc = toC - fromC;
-
-  if (piece.t === P) {
-    const direction = piece.c === W ? -1 : 1;
-    return dr === direction && Math.abs(dc) === 1;
-  }
-  if (piece.t === N) {
-    return (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
-  }
-  if (piece.t === K) {
-    return Math.abs(dr) <= 1 && Math.abs(dc) <= 1 && !(dr === 0 && dc === 0);
-  }
-  if (piece.t === BI) {
-    if (Math.abs(dr) !== Math.abs(dc) || dr === 0) return false;
-    return isPathClear(boardState, fromR, fromC, toR, toC);
-  }
-  if (piece.t === R) {
-    if (dr !== 0 && dc !== 0) return false;
-    if (dr === 0 && dc === 0) return false;
-    return isPathClear(boardState, fromR, fromC, toR, toC);
-  }
-  if (piece.t === Q) {
-    const diagonal = Math.abs(dr) === Math.abs(dc);
-    const straight = dr === 0 || dc === 0;
-    if (!diagonal && !straight) return false;
-    if (dr === 0 && dc === 0) return false;
-    return isPathClear(boardState, fromR, fromC, toR, toC);
-  }
-  return false;
-}
-
-function isPathClear(boardState, fromR, fromC, toR, toC) {
-  const stepR = Math.sign(toR - fromR);
-  const stepC = Math.sign(toC - fromC);
-  let r = fromR + stepR;
-  let c = fromC + stepC;
-  while (r !== toR || c !== toC) {
-    if (boardState[r][c]) return false;
-    r += stepR; c += stepC;
-  }
-  return true;
-}
-
-function isSquareAttacked(boardState, targetR, targetC, attackerColor) {
+// Scan and locate color's King on the board
+function locateKingSquare(board, color) {
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
-      const piece = boardState[r][c];
-      if (!piece || piece.c !== attackerColor || piece.t === DUCK) continue;
-      if (pieceAttacksSquare(boardState, piece, r, c, targetR, targetC)) return true;
-    }
-  }
-  return false;
-}
-
-function kingPos(boardState, color) {
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (boardState[r][c]?.t === K && boardState[r][c]?.c === color) return [r, c];
+      if (board[r][c] && board[r][c].type === PIECES.KING && board[r][c].color === color) {
+        return { r, c };
+      }
     }
   }
   return null;
 }
 
-function inCheck(boardState, color) {
-  const k = kingPos(boardState, color);
-  if (!k) return true;
-  return isSquareAttacked(boardState, k[0], k[1], 1 - color);
-}
+// Generate all attacking paths threatening a square coord
+function isSquareThreatened(board, targetR, targetC, threatColor) {
+  const vectors = {
+    cross: [[-1, 0], [1, 0], [0, -1], [0, 1]],
+    diagonal: [[-1, -1], [-1, 1], [1, -1], [1, 1]],
+    knight: [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]],
+    pawn: threatColor === COLORS.WHITE ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]
+  };
 
-/* ==========================================
-   ALGORITHMES DES VARIANTES & COUPS LÉGAUX
-========================================== */
-function pseudoMoves(boardState, color) {
-  const moves = [];
-  if (mode === "duck" && duckPhase) {
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        if (!boardState[r][c]) {
-          moves.push({ fr: duckPos[0], fc: duckPos[1], tr: r, tc: c, duck: true });
+  // 1. Cross (Rook, Queen)
+  for (const [dr, dc] of vectors.cross) {
+    let r = targetR + dr, c = targetC + dc;
+    while (isValidCoord(r, c)) {
+      const piece = board[r][c];
+      if (piece) {
+        if (piece.color === threatColor && (piece.type === PIECES.ROOK || piece.type === PIECES.QUEEN)) {
+          return true;
         }
+        break;
       }
-    }
-    return moves;
-  }
-
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = boardState[r][c];
-      if (!piece || piece.c !== color || piece.t === DUCK) continue;
-
-      if (piece.t === P) moves.push(...pawnMoves(boardState, r, c, color));
-      if (piece.t === N) moves.push(...knightMoves(boardState, r, c, color));
-      if (piece.t === BI) moves.push(...bishopMoves(boardState, r, c, color));
-      if (piece.t === R) moves.push(...rookMoves(boardState, r, c, color));
-      if (piece.t === Q) moves.push(...queenMoves(boardState, r, c, color));
-      if (piece.t === K) moves.push(...kingMoves(boardState, r, c, color));
+      r += dr; c += dc;
     }
   }
 
-  if (mode === "crazyhouse") {
-    for (const pieceType of reserves[color]) {
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          if (boardState[r][c]) continue;
-          if (pieceType === P && (r === 0 || r === 7)) continue;
-          moves.push({ drop: true, t: pieceType, tr: r, tc: c });
+  // 2. Diagonal (Bishop, Queen)
+  for (const [dr, dc] of vectors.diagonal) {
+    let r = targetR + dr, c = targetC + dc;
+    while (isValidCoord(r, c)) {
+      const piece = board[r][c];
+      if (piece) {
+        if (piece.color === threatColor && (piece.type === PIECES.BISHOP || piece.type === PIECES.QUEEN)) {
+          return true;
         }
+        break;
       }
-    }
-  }
-  return moves;
-}
-
-function modeUsesCheckRules(color) {
-  if (mode === "duck" || mode === "pawnrace") return false;
-  if (mode === "horde" && color === W) return false;
-  return true;
-}
-
-function legalMoves(color = turn) {
-  const moves = pseudoMoves(board, color);
-  if (!modeUsesCheckRules(color)) return moves;
-
-  if (mode === "fog") {
-    return moves.filter(move => {
-      const test = apply(board, move, color);
-      const k = kingPos(test, color);
-      if (!k) return false;
-      return !visibleEnemyAttacksKing(test, color, k[0], k[1]);
-    });
-  }
-
-  return moves.filter(m => !inCheck(apply(board, m, color), color));
-}
-
-/* ==========================================
-   BROUILLARD DE GUERRE & VISION
-========================================== */
-function isSquareVisibleBy(boardState, targetR, targetC, color) {
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = boardState[r][c];
-      if (!piece || piece.c !== color) continue;
-      if (r === targetR && c === targetC) return true;
-      if (pieceAttacksSquare(boardState, piece, r, c, targetR, targetC)) return true;
-      if (piece.t === N) {
-        const dr = Math.abs(targetR - r), dc = Math.abs(targetC - c);
-        if ((dr === 2 && dc === 1) || (dr === 1 && dc === 2)) return true;
-      }
-    }
-  }
-  return false;
-}
-
-function visibleEnemyAttacksKing(boardState, kingColor, kingR, kingC) {
-  const enemy = 1 - kingColor;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const enemyPiece = boardState[r][c];
-      if (!enemyPiece || enemyPiece.c !== enemy) continue;
-      if (!isSquareVisibleBy(boardState, r, c, kingColor)) continue;
-      if (pieceAttacksSquare(boardState, enemyPiece, r, c, kingR, kingC)) return true;
-    }
-  }
-  return false;
-}
-
-function visible(r, c) {
-  const visionColor = opponentType === "pvp" ? turn : W;
-  return isSquareVisibleBy(board, r, c, visionColor);
-}
-
-/* ==========================================
-   TRANSFORMATIONS DE COUPS ET SIMULATIONS
-========================================== */
-function apply(boardState, move, color = turn) {
-  const nextBoard = clone(boardState);
-  if (move.drop) {
-    nextBoard[move.tr][move.tc] = { t: move.t, c: color };
-    return nextBoard;
-  }
-  if (move.duck) {
-    nextBoard[move.fr][move.fc] = null;
-    nextBoard[move.tr][move.tc] = { t: DUCK, c: -1 };
-    return nextBoard;
-  }
-  const piece = nextBoard[move.fr][move.fc];
-  if (!piece) return nextBoard;
-
-  if (move.ep) nextBoard[move.fr][move.tc] = null;
-  nextBoard[move.tr][move.tc] = piece;
-  nextBoard[move.fr][move.fc] = null;
-
-  if (move.promo) piece.t = move.promo;
-  if (move.castle === "K") {
-    nextBoard[move.fr][5] = nextBoard[move.fr][7];
-    nextBoard[move.fr][7] = null;
-  }
-  if (move.castle === "Q") {
-    nextBoard[move.fr][3] = nextBoard[move.fr][0];
-    nextBoard[move.fr][0] = null;
-  }
-  return nextBoard;
-}
-
-/* ==========================================
-   EXÉCUTION DU MOUVEMENT (PLAY)
-========================================== */
-function play(m) {
-  if (!gameActive) return;
-
-  if (m.drop) {
-    reserves[turn].splice(reserves[turn].indexOf(m.t), 1);
-    board = apply(board, m);
-    finishTurn(m); return;
-  }
-  if (m.duck) {
-    board = apply(board, m);
-    duckPos = [m.tr, m.tc];
-    duckPhase = false;
-    document.getElementById("duckNotice").style.display = "none";
-    finishTurn(m); return;
-  }
-
-  const piece = board[m.fr][m.fc];
-  let captured = m.ep ? board[m.fr][m.tc] : board[m.tr][m.tc];
-
-  if (captured && captured.t !== DUCK && !m.ep && !m.drop && !m.duck) {
-    playBattleCaptureAnimation(m.fr, m.fc, m.tr, m.tc);
-  }
-
-  if (captured && captured.t !== DUCK) {
-    if (mode === "crazyhouse" && captured.t !== K) {
-      reserves[turn].push(captured.t);
+      r += dr; c += dc;
     }
   }
 
-  board = apply(board, m);
-
-  /* CAS UNIQUE : VARIANTE ATOMIQUE */
-  if (mode === "atomic" && captured && captured.t !== DUCK) {
-    const cr = m.tr, cc = m.tc;
-    board[cr][cc] = null; // Pièce attaquante volatilisée
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const r = cr + dr, c = cc + dc;
-        if (!inside(r, c)) continue;
-        const victim = board[r][c];
-        if (victim && victim.t !== P) board[r][c] = null; // Les pions résistent à l'explosion
-      }
-    }
-    if (!kingPos(board, W)) { end("💥 Le Roi blanc a explosé ! Les Noirs triomphent."); return; }
-    if (!kingPos(board, B)) { end("💥 Le Roi noir a explosé ! Tu as gagné !"); return; }
-  }
-
-  ep = null;
-  if (piece.t === P && Math.abs(m.tr - m.fr) === 2) {
-    ep = [(m.tr + m.fr) / 2, m.fc];
-  }
-
-  if (piece.t === K) {
-    if (turn === W) { castle.K = false; castle.Q = false; }
-    else { castle.k = false; castle.q = false; }
-  }
-  if (piece.t === R) {
-    if (m.fr === 7 && m.fc === 0) castle.Q = false;
-    if (m.fr === 7 && m.fc === 7) castle.K = false;
-    if (m.fr === 0 && m.fc === 0) castle.q = false;
-    if (m.fr === 0 && m.fc === 7) castle.k = false;
-  }
-
-  if (mode === "duck") {
-    duckPhase = true;
-    lastFrom = [m.fr, m.fc]; lastTo = [m.tr, m.tc];
-    document.getElementById("duckNotice").style.display = "block";
-    render();
-    status("🦆 Déplace maintenant le canard sur une case vide.");
-    return;
-  }
-
-  finishTurn(m);
-}
-
-function finishTurn(m) {
-  lastFrom = m.drop ? null : [m.fr, m.fc];
-  lastTo = [m.tr, m.tc];
-  moveHistory.push(m);
-  turn = 1 - turn;
-
-  render();
-  updateClocks();
-
-  if (variantWin() || gameEnd()) return;
-
-  if (opponentType === "ai" && turn === B) {
-    status("🤖 Le Bot Marron réfléchit...");
-    setTimeout(aiMove, 450);
-    return;
-  }
-
-  if (opponentType === "pvp") {
-    status(turn === W ? "⬜ Tour du Joueur Blanc." : "🟤 Tour du Joueur Marron.");
-    if (checkRules(turn) && inCheck(board, turn)) {
-      status(turn === W ? "⚠️ Joueur Blanc : votre Roi est en échec !" : "⚠️ Joueur Marron : votre Roi est en échec !");
-    }
-    return;
-  }
-
-  if (checkRules(W) && inCheck(board, W)) {
-    status("⚠️ Ton Roi est en échec !");
-  } else {
-    status("⬜ À toi de jouer.");
-  }
-}
-
-function variantWin() {
-  if (mode === "koth") {
-    for (const [r, c] of [[3, 3], [3, 4], [4, 3], [4, 4]]) {
-      if (board[r][c]?.t === K) {
-        end(board[r][c].c === W ? "🏔️ Roi de la Colline ! Les Blancs ont conquis le centre." : "🏔️ Le Roi noir est sur le sommet !");
+  // 3. Knight Paths
+  for (const [dr, dc] of vectors.knight) {
+    const r = targetR + dr, c = targetC + dc;
+    if (isValidCoord(r, c)) {
+      const piece = board[r][c];
+      if (piece && piece.color === threatColor && piece.type === PIECES.KNIGHT) {
         return true;
       }
     }
   }
-  if (mode === "pawnrace") {
+
+  // 4. Pawn Threats
+  for (const [dr, dc] of vectors.pawn) {
+    const r = targetR + dr, c = targetC + dc;
+    if (isValidCoord(r, c)) {
+      const piece = board[r][c];
+      if (piece && piece.color === threatColor && piece.type === PIECES.PAWN) {
+        return true;
+      }
+    }
+  }
+
+  // 5. King Threat (to prevent kings from adjacent positioning)
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const r = targetR + dr, c = targetC + dc;
+      if (isValidCoord(r, c)) {
+        const piece = board[r][c];
+        if (piece && piece.color === threatColor && piece.type === PIECES.KING) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+// Generates strict, pseudo-legal moves for a specific tile position
+function computePieceMoves(board, r, c, epSquare, castleState, variantMode) {
+  const moves = [];
+  const piece = board[r][c];
+  if (!piece) return moves;
+
+  const color = piece.color;
+  const oppColor = color === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
+
+  switch (piece.type) {
+    case PIECES.PAWN: {
+      const direction = color === COLORS.WHITE ? -1 : 1;
+      const startRank = color === COLORS.WHITE ? 6 : 1;
+
+      // 1-step forward
+      const nextR = r + direction;
+      if (isValidCoord(nextR, c) && !board[nextR][c]) {
+        moves.push({ from: { r, c }, to: { r: nextR, c } });
+        // 2-step forward
+        const doubleR = r + direction * 2;
+        if (r === startRank && !board[doubleR][c]) {
+          moves.push({ from: { r, c }, to: { r: doubleR, c } });
+        }
+      }
+
+      // Diagonal Captures
+      const capturableCols = [c - 1, c + 1];
+      for (const col of capturableCols) {
+        if (isValidCoord(nextR, col)) {
+          const target = board[nextR][col];
+          if (target && target.color === oppColor && target.type !== PIECES.DUCK) {
+            moves.push({ from: { r, c }, to: { r: nextR, c: col } });
+          }
+          // En Passant
+          if (epSquare && epSquare.r === nextR && epSquare.c === col) {
+            moves.push({ from: { r, c }, to: { r: nextR, c: col }, isEP: true });
+          }
+        }
+      }
+      break;
+    }
+
+    case PIECES.KNIGHT: {
+      const jumps = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+      for (const [dr, dc] of jumps) {
+        const targetR = r + dr, targetC = c + dc;
+        if (isValidCoord(targetR, targetC)) {
+          const t = board[targetR][targetC];
+          if (!t || (t.color !== color && t.type !== PIECES.DUCK)) {
+            moves.push({ from: { r, c }, to: { r: targetR, c: targetC } });
+          }
+        }
+      }
+      break;
+    }
+
+    case PIECES.BISHOP: {
+      const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+      for (const [dr, dc] of dirs) {
+        let nR = r + dr, nC = c + dc;
+        while (isValidCoord(nR, nC)) {
+          const t = board[nR][nC];
+          if (!t) {
+            moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+          } else {
+            if (t.color !== color && t.type !== PIECES.DUCK) {
+              moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+            }
+            break;
+          }
+          nR += dr; nC += dc;
+        }
+      }
+      break;
+    }
+
+    case PIECES.ROOK: {
+      const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+      for (const [dr, dc] of dirs) {
+        let nR = r + dr, nC = c + dc;
+        while (isValidCoord(nR, nC)) {
+          const t = board[nR][nC];
+          if (!t) {
+            moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+          } else {
+            if (t.color !== color && t.type !== PIECES.DUCK) {
+              moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+            }
+            break;
+          }
+          nR += dr; nC += dc;
+        }
+      }
+      break;
+    }
+
+    case PIECES.QUEEN: {
+      const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];
+      for (const [dr, dc] of dirs) {
+        let nR = r + dr, nC = c + dc;
+        while (isValidCoord(nR, nC)) {
+          const t = board[nR][nC];
+          if (!t) {
+            moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+          } else {
+            if (t.color !== color && t.type !== PIECES.DUCK) {
+              moves.push({ from: { r, c }, to: { r: nR, c: nC } });
+            }
+            break;
+          }
+          nR += dr; nC += dc;
+        }
+      }
+      break;
+    }
+
+    case PIECES.KING: {
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const targetR = r + dr, targetC = c + dc;
+          if (isValidCoord(targetR, targetC)) {
+            const t = board[targetR][targetC];
+            if (!t || (t.color !== color && t.type !== PIECES.DUCK)) {
+              moves.push({ from: { r, c }, to: { r: targetR, c: targetC } });
+            }
+          }
+        }
+      }
+
+      // Castling rules
+      if (variantMode !== 'duck' && variantMode !== 'pawnrace') {
+        const kingSide = color === COLORS.WHITE ? 'K' : 'k';
+        const queenSide = color === COLORS.WHITE ? 'Q' : 'q';
+        const rank = color === COLORS.WHITE ? 7 : 0;
+
+        // Petit Roque
+        if (castleState[kingSide] && !piece.hasMoved) {
+          if (!board[rank][5] && !board[rank][6]) {
+            const rook = board[rank][7];
+            if (rook && !rook.hasMoved && !isSquareThreatened(board, r, c, oppColor) && !isSquareThreatened(board, rank, 5, oppColor) && !isSquareThreatened(board, rank, 6, oppColor)) {
+              moves.push({ from: { r, c }, to: { r: rank, c: 6 }, isCastle: 'K' });
+            }
+          }
+        }
+
+        // Grand Roque
+        if (castleState[queenSide] && !piece.hasMoved) {
+          if (!board[rank][1] && !board[rank][2] && !board[rank][3]) {
+            const rook = board[rank][0];
+            if (rook && !rook.hasMoved && !isSquareThreatened(board, r, c, oppColor) && !isSquareThreatened(board, rank, 3, oppColor) && !isSquareThreatened(board, rank, 2, oppColor)) {
+              moves.push({ from: { r, c }, to: { r: rank, c: 2 }, isCastle: 'Q' });
+            }
+          }
+        }
+      }
+      break;
+    }
+  }
+
+  return moves;
+}
+
+// Filter moves that resolve checks or comply with special variants
+function fetchStrictLegalMoves(board, r, c, epSquare, castleState, variantMode) {
+  const rawMoves = computePieceMoves(board, r, c, epSquare, castleState, variantMode);
+  const piece = board[r][c];
+  if (!piece) return [];
+
+  // Exclude self-check results except in modes where check is disabled (Duck, Fog of War, Pawn Race)
+  if (variantMode === 'duck' || variantMode === 'fog' || variantMode === 'pawnrace' || (variantMode === 'horde' && piece.color === COLORS.WHITE)) {
+    return rawMoves;
+  }
+
+  return rawMoves.filter(m => {
+    const virtualBoard = duplicateBoard(board);
+    // Apply simulated move
+    const movingPiece = virtualBoard[m.from.r][m.from.c];
+    virtualBoard[m.to.r][m.to.c] = movingPiece;
+    virtualBoard[m.from.r][m.from.c] = null;
+    if (m.isEP) {
+      virtualBoard[m.from.r][m.to.c] = null;
+    }
+    const kingLoc = locateKingSquare(virtualBoard, piece.color);
+    if (!kingLoc) return false;
+    return !isSquareThreatened(virtualBoard, kingLoc.r, kingLoc.c, piece.color === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE);
+  });
+}
+</script>
+
+<script>
+/* ==========================================================================
+   GAME ENGINE STATE & STORY QUEST MODULES
+   ========================================================================== */
+const StoryQuests = {
+  activeQuestIndex: 1,
+  activeWorldIndex: 1,
+  hearts: 5,
+  stars: 0,
+  
+  worlds: {
+    1: {
+      name: "Royaume des Pions",
+      quests: {
+        1: { name: "Traversée héroïque", goal: "Atteindre la dernière rangée avec 3 pions.", desc: "Faites progresser vos forces d'infanterie." },
+        2: { name: "Garde Royale", goal: "Bloquez les forces ennemies.", desc: "Un entraînement de base pour résister à l'invasion." },
+        3: { name: "Protection VIP", goal: "Protégez le pion étoilé jusqu'à la fin de la bataille.", desc: "Ne perdez pas votre éclaireur spécial !" },
+        4: { name: "Tactique d'infanterie", goal: "Gagnez la bataille classique.", desc: "Utilisez intelligemment le roque pour sécuriser votre roi." },
+        5: { name: "Leçon de Fortification", goal: "Réalisez un roque durant le combat.", desc: "Amenez votre roi en sécurité derrière les remparts." },
+        6: { name: "Le Roi des Pions", goal: "Battez le boss des pions. Victoire par capture directe du Roi.", desc: "Il possède une garde d'infanterie renforcée." }
+      }
+    },
+    2: {
+      name: "Monastère des Fous",
+      quests: {
+        1: { name: "Lignes de Foi", goal: "Positionnez vos fous stratégiquement.", desc: "Couvrez les diagonales sacrées." },
+        2: { name: "Chasse aux Diagonales", goal: "Éliminez toutes les vagues de pions en moins de 13 coups.", desc: "Vos deux fous doivent agir rapidement." },
+        3: { name: "Sermon de Fer", goal: "Échec et mat l'adversaire.", desc: "Vos fous mènent la charge religieuse." },
+        4: { name: "Labyrinthe d'Arbres", goal: "Naviguez à travers un dédale de troncs immobiles.", desc: "Évitez les obstacles sur les diagonales." },
+        5: { name: "Conversion", goal: "Gagnez sans perdre vos fous.", desc: "Chaque clerc doit survivre." },
+        6: { name: "L'Archiduc des Couleurs", goal: "Battez l'Archiduc. Ne marchez JAMAIS sur une case blanche.", desc: "L'Archiduc contrôle exclusivement les cases noires !" }
+      }
+    },
+    3: {
+      name: "Plaines des Cavaliers",
+      quests: {
+        1: { name: "Voltige nocturne", goal: "Ramassez les 5 trésors éparpillés.", desc: "Sautez avec précision de cible en cible." },
+        2: { name: "Galop frénétique", goal: "Capturez les pièces marquées.", desc: "Contournez les fortifications adverses." },
+        3: { name: "Le Pont de Pierre", goal: "Évitez les lignes de tir des rois.", desc: "Utilisez le saut unique du cavalier." },
+        4: { name: "Étreinte Royale", goal: "Faites échec et mat.", desc: "La mobilité est votre meilleur atout." },
+        5: { name: "Le Piège de la Fourchette", goal: "Déclenchez obligatoirement une fourchette royale pour valider la quête.", desc: "Attaquez simultanément deux cibles de grande valeur." },
+        6: { name: "Le Baron Galopant", goal: "Battez le Baron et ses 4 cavaliers d'élite.", desc: "Attention aux assauts imprévisibles sur vos arrières." }
+      }
+    },
+    4: {
+      name: "Étang des Canards",
+      quests: {
+        1: { name: "Nidification", goal: "Bloquez un fou avec le canard.", desc: "Maîtrisez le bouclier jaune." },
+        2: { name: "Leurre de plumes", goal: "Capturez la dame adverse.", desc: "Perturbez la visée de l'adversaire." },
+        3: { name: "Infiltration", goal: "Infiltrez une tour au-delà du canard récurrent.", desc: "Le canard réapparaît sans cesse pour bloquer la colonne." },
+        4: { name: "Barrage de plumes", goal: "Empêchez l'échec en posant le canard.", desc: "Un bouclier mobile providentiel." },
+        5: { name: "Le Vol de l'Oie", goal: "Gagnez le match thématique.", desc: "Exploitez les angles morts du canard." },
+        6: { name: "Le Roi Canard", goal: "Battez le Roi Canard dans son arène.", desc: "Il place constamment le canard de manière agressive." }
+      }
+    },
+    5: {
+      name: "Forteresse des Tours",
+      quests: {
+        1: { name: "Balayage en chaîne", goal: "Capturez toutes les cibles en une seule série continue.", desc: "Votre tour ne doit faire aucun coup dans le vide." },
+        2: { name: "Ascension verticale", goal: "Faites mat avec deux tours.", desc: "Coincez le roi adverse contre le mur." },
+        3: { name: "Laser Mortel", goal: "Traversez le couloir de tir en restant caché.", desc: "Des rayons balaient les colonnes. Utilisez des pions comme boucliers !" },
+        4: { name: "Canonnage", goal: "Détruisez les remparts ennemis.", desc: "Ouvrez les lignes pour vos tours." },
+        5: { name: "Sacrifice du Cavalier", goal: "Gagnez après un échange tactique.", desc: "Brisez le verrou défensif." },
+        6: { name: "Le Golem de Roche", goal: "Battez le Golem. Ses tours sont invincibles !", desc: "Bloquez ses pièces indestructibles à l'aide de sacrifices." }
+      }
+    },
+    6: {
+      name: "Palais de la Reine",
+      quests: {
+        1: { name: "La garde rapprochée", goal: "Protégez la reine.", desc: "Évitez le piège du clouage." },
+        2: { name: "Survie Royale", goal: "Survivez 15 coups face à la Reine traqueuse.", desc: "Utilisez vos pions restants comme remparts physiques." },
+        3: { name: "Couronne Royale", goal: "Mat en 3 coups requis.", desc: "Trouvez la faille décisive." },
+        4: { name: "Miroir Magique", goal: "Gagnez le match miroir.", desc: "Vos mouvements sont répliqués à l'identique par l'adversaire !" },
+        5: { name: "La dernière énigme", goal: "Trouvez le coup gagnant.", desc: "Un défi tactique ultime." },
+        6: { name: "L'Impératrice de l'Ombre", goal: "Vainquez l'Impératrice de l'Ombre.", desc: "Des anomalies climatiques éclatent tous les 5 coups !" }
+      }
+    }
+  }
+};
+
+const GameSession = {
+  board: [],
+  turn: COLORS.WHITE,
+  epSquare: null,
+  castleState: { K: true, Q: true, k: true, q: true },
+  reserve: { w: [], b: [] },
+  duckPosition: { r: 3, c: 4 },
+  isDuckTurn: false,
+  mode: 'normal', // classic controls or variants
+  aiDifficulty: 1,
+  timeLimit: null, // seconds total
+  timeLeft: { w: 3600, b: 3600 },
+  moveCount: 0,
+  lossesThisMatch: 0,
+  storyHearts: 5,
+  isAdventure: false,
+  timerInterval: null,
+  selectedTile: null,
+  activeHighlights: [],
+  selectedReservePiece: null,
+  gameHistory: [] // Stack of past moves for rollback
+};
+
+// Default setup of native standard chess
+function setupClassicBoard() {
+  const matrix = Array.from({ length: 8 }, () => Array(8).fill(null));
+  
+  // Fill Pawns
+  for (let c = 0; c < 8; c++) {
+    matrix[1][c] = { type: PIECES.PAWN, color: COLORS.BLACK, hasMoved: false };
+    matrix[6][c] = { type: PIECES.PAWN, color: COLORS.WHITE, hasMoved: false };
+  }
+
+  // Rooks
+  matrix[0][0] = { type: PIECES.ROOK, color: COLORS.BLACK, hasMoved: false };
+  matrix[0][7] = { type: PIECES.ROOK, color: COLORS.BLACK, hasMoved: false };
+  matrix[7][0] = { type: PIECES.ROOK, color: COLORS.WHITE, hasMoved: false };
+  matrix[7][7] = { type: PIECES.ROOK, color: COLORS.WHITE, hasMoved: false };
+
+  // Knights
+  matrix[0][1] = { type: PIECES.KNIGHT, color: COLORS.BLACK, hasMoved: false };
+  matrix[0][6] = { type: PIECES.KNIGHT, color: COLORS.BLACK, hasMoved: false };
+  matrix[7][1] = { type: PIECES.KNIGHT, color: COLORS.WHITE, hasMoved: false };
+  matrix[7][6] = { type: PIECES.KNIGHT, color: COLORS.WHITE, hasMoved: false };
+
+  // Bishops
+  matrix[0][2] = { type: PIECES.BISHOP, color: COLORS.BLACK, hasMoved: false };
+  matrix[0][5] = { type: PIECES.BISHOP, color: COLORS.BLACK, hasMoved: false };
+  matrix[7][2] = { type: PIECES.BISHOP, color: COLORS.WHITE, hasMoved: false };
+  matrix[7][5] = { type: PIECES.BISHOP, color: COLORS.WHITE, hasMoved: false };
+
+  // Queens
+  matrix[0][3] = { type: PIECES.QUEEN, color: COLORS.BLACK, hasMoved: false };
+  matrix[7][3] = { type: PIECES.QUEEN, color: COLORS.WHITE, hasMoved: false };
+
+  // Kings
+  matrix[0][4] = { type: PIECES.KING, color: COLORS.BLACK, hasMoved: false };
+  matrix[7][4] = { type: PIECES.KING, color: COLORS.WHITE, hasMoved: false };
+
+  return matrix;
+}
+</script>
+
+<script>
+/* ==========================================================================
+   APP SHELL NAVIGATION & SAVE MANAGER
+   ========================================================================== */
+let activeSaveIndex = 1;
+let saveFiles = {
+  1: null,
+  2: null,
+  3: null
+};
+
+// Global audio voice feedback toggle state
+let isVoiceMuted = false;
+
+// Init saves from localStorage on start
+function appInitSaves() {
+  const localData = localStorage.getItem('chess_quest_saves');
+  if (localData) {
+    saveFiles = JSON.parse(localData);
+  } else {
+    saveFiles = { 1: null, 2: null, 3: null };
+  }
+}
+
+function appPersistSaves() {
+  localStorage.setItem('chess_quest_saves', JSON.stringify(saveFiles));
+}
+
+function ctrlNavigateHome() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('dashboardScreen').classList.add('active');
+  SoundSynth.playWhistle();
+}
+
+function ctrlToggleSpeaker() {
+  isVoiceMuted = !isVoiceMuted;
+  const speakerBtn = document.getElementById('speakerToggleBtn');
+  if (isVoiceMuted) {
+    speakerBtn.innerText = "🔇";
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  } else {
+    speakerBtn.innerText = "🔊";
+  }
+}
+
+function narrateStoryVoice(phrase) {
+  if (isVoiceMuted) return;
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const synth = new SpeechSynthesisUtterance(phrase);
+    synth.lang = 'fr-FR';
+    synth.pitch = 0.55; // Père Fouras mysterious low pitch
+    synth.rate = 0.8;   // Slower, wise paced voice
+    window.speechSynthesis.speak(synth);
+  }
+}
+
+// Menu Selections
+function menuSelectClassic(type) {
+  GameSession.isAdventure = false;
+  GameSession.mode = type;
+  document.getElementById('rapidClockConfigContainer').style.display = type === 'rapid' ? 'block' : 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('aiConfigScreen').classList.add('active');
+  narrateStoryVoice("Ah, le tic-tac de l'horloge... Serais-tu assez rapide pour me vaincre ?");
+}
+
+function menuSelectVariant(type) {
+  GameSession.isAdventure = false;
+  GameSession.mode = type;
+  document.getElementById('rapidClockConfigContainer').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('aiConfigScreen').classList.add('active');
+  narrateStoryVoice("Une variante amusante ! Les règles de l'échiquier se plient à notre volonté...");
+}
+
+function menuSelectAdventure() {
+  appInitSaves();
+  uiRefreshSaveSlots();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('saveSelectScreen').classList.add('active');
+  narrateStoryVoice("L'aventure t'attend ! Seras-tu le libérateur du Royaume des Rois ?");
+}
+</script>
+
+<script>
+/* ==========================================================================
+   AI PROFILE & DIFFICULTY LOGIC
+   ========================================================================== */
+function uiUpdateAIDiff(value) {
+  const avatarVisual = document.getElementById('aiAvatarVisual');
+  const avatarName = document.getElementById('aiAvatarName');
+  const avatarDesc = document.getElementById('aiAvatarDesc');
+  
+  avatarVisual.classList.remove('glowing');
+
+  switch (parseInt(value)) {
+    case 1:
+      avatarVisual.innerText = "♟️";
+      avatarVisual.style.color = "inherit";
+      avatarName.innerText = "Pion Clumsy";
+      avatarDesc.innerText = "Un pion débutant qui trébuche souvent et fait de grosses erreurs tactiques.";
+      break;
+    case 2:
+      avatarVisual.innerText = "♞";
+      avatarVisual.style.color = "inherit";
+      avatarName.innerText = "Écuyer Logique";
+      avatarDesc.innerText = "Un apprenti solide qui effectue des déplacements logiques et prévisibles.";
+      break;
+    case 3:
+      avatarVisual.innerText = "♝";
+      avatarVisual.style.color = "inherit";
+      avatarName.innerText = "Chevalier Tactique";
+      avatarDesc.innerText = "Cherche les opportunités de fourchette et défend ses pièces intelligemment.";
+      break;
+    case 4:
+      avatarVisual.innerText = "♜";
+      avatarVisual.style.color = "inherit";
+      avatarName.innerText = "Grand Maître Royal";
+      avatarDesc.innerText = "Hautement compétitif, il prévoit ses coups jusqu'à 5 étapes à l'avance.";
+      break;
+    case 5:
+      avatarVisual.innerText = "👁️‍🗨️";
+      avatarVisual.style.color = "red";
+      avatarVisual.classList.add('glowing');
+      avatarName.innerText = "Le Roi Sombre";
+      avatarDesc.innerText = "L'intelligence artificielle absolue. Il exploite la moindre faille sans aucune pitié.";
+      break;
+  }
+}
+
+function uiConfigBackToDashboard() {
+  ctrlNavigateHome();
+}
+
+function uiConfigConfirmAndPlay() {
+  const diffSlider = document.getElementById('aiDiffSlider');
+  GameSession.aiDifficulty = parseInt(diffSlider.value);
+  
+  if (GameSession.mode === 'rapid') {
+    const clockSelect = document.getElementById('rapidTimerSelect');
+    const seconds = parseInt(clockSelect.value);
+    GameSession.timeLimit = seconds;
+    GameSession.timeLeft.w = seconds;
+    GameSession.timeLeft.b = seconds;
+  } else if (GameSession.mode === 'blitz') {
+    GameSession.timeLimit = 600;
+    GameSession.timeLeft.w = 600;
+    GameSession.timeLeft.b = 600;
+  } else if (GameSession.mode === 'normal') {
+    GameSession.timeLimit = 3600;
+    GameSession.timeLeft.w = 3600;
+    GameSession.timeLeft.b = 3600;
+  } else {
+    GameSession.timeLimit = null; // No timers for standard variants
+  }
+
+  // Launch Game screen
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('activeMatchScreen').classList.add('active');
+
+  matchInitSession();
+}
+</script>
+
+<script>
+/* ==========================================================================
+   SAVE DIALOG & CAMPAIGN ENGINE
+   ========================================================================== */
+function uiRefreshSaveSlots() {
+  for (let slotId = 1; slotId <= 3; slotId++) {
+    const slotData = saveFiles[slotId];
+    const nameEl = document.getElementById(`slot${slotId}Name`);
+    const statsEl = document.getElementById(`slot${slotId}Stats`);
+    
+    if (slotData) {
+      nameEl.innerText = `🛡️ Chevalier ${slotData.name}`;
+      statsEl.innerText = `Progression: ${slotData.progression}% | ⭐ ${slotData.stars} | ❤️ ${slotData.hearts}`;
+    } else {
+      nameEl.innerText = "Vide";
+      statsEl.innerText = "Cliquez pour forger une nouvelle destinée.";
+    }
+  }
+}
+
+function uiSaveSlotClick(slotId) {
+  activeSaveIndex = slotId;
+  const slotData = saveFiles[slotId];
+  if (!slotData) {
+    // Show creation popup modal
+    document.getElementById('saveCreationOverlay').classList.add('active');
+  } else {
+    // Proceed to Adventure Map
+    uiCampaignLoadMap(slotId);
+  }
+}
+
+let activeSlotToDelete = null;
+
+function uiSaveSlotDelete(event, slotId) {
+  event.stopPropagation();
+  activeSlotToDelete = slotId;
+  if (!saveFiles[slotId]) return; // Nothing to delete
+  
+  const safetyOverlay = document.getElementById('safetyDeleteOverlay');
+  safetyOverlay.classList.add('active');
+  
+  // Set default focus to green cancel button to prevent accidental delete
+  document.getElementById('btnSafetyCancel').focus();
+}
+
+function uiSaveDeleteCancel() {
+  document.getElementById('safetyDeleteOverlay').classList.remove('active');
+  activeSlotToDelete = null;
+}
+
+function uiSaveDeleteConfirm() {
+  if (activeSlotToDelete) {
+    saveFiles[activeSlotToDelete] = null;
+    appPersistSaves();
+    uiRefreshSaveSlots();
+  }
+  document.getElementById('safetyDeleteOverlay').classList.remove('active');
+  activeSlotToDelete = null;
+  narrateStoryVoice("La mémoire de ce chevalier a été effacée par les sables du temps...");
+}
+
+function uiSaveCreationCancel() {
+  document.getElementById('saveCreationOverlay').classList.remove('active');
+}
+
+function uiSaveCreationConfirm() {
+  const nameInput = document.getElementById('newPlayerNameInput');
+  const name = nameInput.value.trim() || "Robin";
+  const diffSelect = document.getElementById('saveDifficultySelect');
+  const difficulty = diffSelect.value;
+
+  let baseHearts = 3;
+  if (difficulty === 'easy') baseHearts = 5;
+  if (difficulty === 'dark') baseHearts = 1;
+
+  saveFiles[activeSaveIndex] = {
+    name: name,
+    difficulty: difficulty,
+    progression: 0,
+    stars: 0,
+    hearts: baseHearts,
+    world: 1,
+    quest: 1,
+    unlockedQuests: ["1_1"],
+    completedQuests: {},
+    playTimeSeconds: 0
+  };
+
+  appPersistSaves();
+  document.getElementById('saveCreationOverlay').classList.remove('active');
+  nameInput.value = ""; // clear
+  uiCampaignLoadMap(activeSaveIndex);
+}
+</script>
+
+<script>
+/* ==========================================================================
+   ADVENTURE WORLD MAP PARALLAX SCREEN
+   ========================================================================== */
+const IslandCoordinates = {
+  1: { x: 15, y: 70 },
+  2: { x: 30, y: 35 },
+  3: { x: 48, y: 60 },
+  4: { x: 68, y: 30 },
+  5: { x: 80, y: 55 },
+  6: { x: 65, y: 80 }
+};
+
+let mapTimerInterval = null;
+
+function uiCampaignLoadMap(slotId) {
+  const save = saveFiles[slotId];
+  
+  // Stop existing interval
+  if (mapTimerInterval) clearInterval(mapTimerInterval);
+  
+  // Map HUD stats
+  document.getElementById('hudHearts').innerText = save.hearts;
+  document.getElementById('hudStars').innerText = `${save.stars}/18`;
+  
+  // Format map timer
+  const formatTime = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${mins.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+  
+  document.getElementById('hudPlayTime').innerText = formatTime(save.playTimeSeconds);
+  
+  // Update map gameplay timer
+  mapTimerInterval = setInterval(() => {
+    save.playTimeSeconds++;
+    document.getElementById('hudPlayTime').innerText = formatTime(save.playTimeSeconds);
+    appPersistSaves();
+  }, 1000);
+
+  // Layout map islands and railways
+  uiMapDrawPathway();
+  uiMapDrawIslands(save);
+
+  // Navigate screen
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('adventureMapScreen').classList.add('active');
+
+  // Move statue to current quest island
+  const activeIslandId = save.world;
+  uiMapAnimateStatue(activeIslandId, true);
+}
+
+function uiMapDrawPathway() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  
+  let dPath = `M ${w * (IslandCoordinates[1].x/100)} ${h * (IslandCoordinates[1].y/100)}`;
+  for (let i = 2; i <= 6; i++) {
+    dPath += ` L ${w * (IslandCoordinates[i].x/100)} ${h * (IslandCoordinates[i].y/100)}`;
+  }
+
+  document.getElementById('railLinePath').setAttribute('d', dPath);
+  document.getElementById('railTiesPath').setAttribute('d', dPath);
+}
+
+function uiMapDrawIslands(save) {
+  const container = document.getElementById('mapIslandsContainer');
+  container.innerHTML = '';
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  for (let i = 1; i <= 6; i++) {
+    const coord = IslandCoordinates[i];
+    const worldMeta = StoryQuests.worlds[i];
+    
+    const island = document.createElement('div');
+    island.className = 'island';
+    
+    // Check locked status
+    const isLocked = i > save.world;
+    if (isLocked) {
+      island.classList.add('locked');
+    }
+
+    island.style.left = `${coord.x}%`;
+    island.style.top = `${coord.y}%`;
+
+    const starsCount = save.completedQuests[i] || 0;
+
+    island.innerHTML = `
+      <div class="island-label">${worldMeta.name}</div>
+      <div class="island-body" onclick="uiMapSelectIsland(${i})">${i === 6 ? '👑' : '🏰'}</div>
+      <div class="island-stars">${'★'.repeat(starsCount)}${'☆'.repeat(3 - starsCount)}</div>
+    `;
+
+    container.appendChild(island);
+  }
+}
+
+function uiMapAnimateStatue(islandId, instant = false) {
+  const statue = document.getElementById('heroStatue');
+  const coord = IslandCoordinates[islandId];
+  if (!coord) return;
+
+  statue.style.transition = instant ? "none" : "left 1.2s ease-in-out, top 1.2s ease-in-out";
+  statue.style.left = `${coord.x}%`;
+  statue.style.top = `${coord.y}%`;
+}
+
+let pendingWorldId = 1;
+
+function uiMapSelectIsland(worldId) {
+  const save = saveFiles[activeSaveIndex];
+  if (worldId > save.world) {
+    narrateStoryVoice("Cette île céleste est encore sous l'emprise du brouillard ténébreux...");
+    return;
+  }
+
+  pendingWorldId = worldId;
+  const questMeta = StoryQuests.worlds[worldId].quests[save.quest];
+  
+  // Show Dialogue intro box
+  const introModal = document.getElementById('questIntroModal');
+  document.getElementById('dialogSpeaker').innerText = `Monde ${worldId} : ${StoryQuests.worlds[worldId].name}`;
+  document.getElementById('dialogSpeech').innerText = `"${questMeta.desc}"`;
+  document.getElementById('questObjectiveText').innerText = questMeta.goal;
+  
+  introModal.classList.add('active');
+  
+  uiMapAnimateStatue(worldId);
+  narrateStoryVoice(questMeta.desc);
+}
+
+function uiQuestCloseIntro() {
+  document.getElementById('questIntroModal').classList.remove('active');
+}
+
+function uiQuestLaunchMatch() {
+  document.getElementById('questIntroModal').classList.remove('active');
+  
+  // Set Game Session state based on active story quest
+  const save = saveFiles[activeSaveIndex];
+  GameSession.isAdventure = true;
+  GameSession.storyHearts = save.hearts;
+  GameSession.moveCount = 0;
+  GameSession.lossesThisMatch = 0;
+  
+  // Load specialized gameplay environments depending on the World selected
+  if (save.world === 1) GameSession.mode = 'normal';
+  if (save.world === 2) GameSession.mode = 'normal'; // Fous wave
+  if (save.world === 3) GameSession.mode = 'normal'; // Knight Fork
+  if (save.world === 4) GameSession.mode = 'duck';
+  if (save.world === 5) GameSession.mode = 'normal'; // Laser path
+  if (save.world === 6) {
+    if (save.quest === 4) GameSession.mode = 'normal'; // Mirror match
+    else GameSession.mode = 'normal';
+  }
+
+  // Adjust timers based on Campaign Difficulty selected
+  if (save.difficulty === 'hard') {
+    GameSession.timeLimit = 60; // 60s move timer
+  } else if (save.difficulty === 'dark') {
+    GameSession.timeLimit = 30; // 30s move timer
+    GameSession.mode = 'fog'; // Dark forced fog
+  } else {
+    GameSession.timeLimit = null; // No timer pressures for easy/medium
+  }
+
+  // Navigate screen
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('activeMatchScreen').classList.add('active');
+
+  matchInitSession();
+}
+</script>
+
+<script>
+/* ==========================================================================
+   BATTLE CHESS 3D VIEW TOGGLE
+   ========================================================================== */
+function matchToggleView() {
+  const container = document.getElementById('boardTransformer');
+  const btn = document.getElementById('viewBtn');
+  view3d = !view3d;
+
+  if (view3d) {
+    container.classList.add('view-3d');
+    btn.innerText = "⚔️ BATTLE CHESS";
+    narrateStoryVoice("Le champ de bataille s'incline ! Prépare-toi à des affrontements mémorables !");
+  } else {
+    container.classList.remove('view-3d');
+    btn.innerText = "♟ 2D";
+    narrateStoryVoice("Retour à la sérénité bidimensionnelle de l'esprit.");
+  }
+}
+</script>
+
+<script>
+/* ==========================================================================
+   ACTIVE CHESS MATCH ORCHESTRATION
+   ========================================================================== */
+function matchInitSession() {
+  // Clear any existing active ticker
+  if (GameSession.timerInterval) clearInterval(GameSession.timerInterval);
+
+  GameSession.board = setupClassicBoard();
+  GameSession.turn = COLORS.WHITE;
+  GameSession.epSquare = null;
+  GameSession.castleState = { K: true, Q: true, k: true, q: true };
+  GameSession.reserve = { w: [], b: [] };
+  GameSession.duckPosition = { r: 3, c: 4 };
+  GameSession.isDuckTurn = false;
+  GameSession.gameHistory = [];
+  GameSession.selectedTile = null;
+  GameSession.selectedReservePiece = null;
+  GameSession.activeHighlights = [];
+
+  // Hide or Show reserve trays based on Crazyhouse mode
+  const whiteReserveTray = document.getElementById('reservePlayer');
+  const blackReserveTray = document.getElementById('reserveOpponent');
+  
+  if (GameSession.mode === 'crazyhouse') {
+    whiteReserveTray.style.display = 'flex';
+    blackReserveTray.style.display = 'flex';
+  } else {
+    whiteReserveTray.style.display = 'none';
+    blackReserveTray.style.display = 'none';
+  }
+
+  // Hide the Undo Joker button in non-easy difficulty Campaign matches
+  const undoBtn = document.getElementById('btnUndoMoveJoker');
+  if (GameSession.isAdventure) {
+    const save = saveFiles[activeSaveIndex];
+    undoBtn.style.display = save.difficulty === 'easy' ? 'block' : 'none';
+  } else {
+    undoBtn.style.display = 'block'; // Always available for classic sandbox matches
+  }
+
+  // Setup specialized layouts for unique variants
+  if (GameSession.mode === 'pawnrace') {
+    // Clear major pieces
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (r !== 1 && r !== 6) GameSession.board[r][c] = null;
+      }
+    }
+  } else if (GameSession.mode === 'horde') {
+    // White massive horde army of 36 pawns
+    for (let r = 2; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (r >= 4) {
+          GameSession.board[r][c] = { type: PIECES.PAWN, color: COLORS.WHITE, hasMoved: true };
+        } else if (r === 3 && (c % 2 === 1)) {
+          GameSession.board[r][c] = { type: PIECES.PAWN, color: COLORS.WHITE, hasMoved: true };
+        } else {
+          if (r !== 3) GameSession.board[r][c] = null;
+        }
+      }
+    }
+  }
+
+  // Render initial frame
+  matchRenderBoard();
+  matchRenderReserves();
+  matchStartTimers();
+  
+  document.getElementById('matchFeedbackText').innerText = "À vous de jouer.";
+}
+
+function matchStartTimers() {
+  if (GameSession.timeLimit) {
+    // Standard game timer limit setup
+    GameSession.timeLeft.w = GameSession.timeLimit;
+    GameSession.timeLeft.b = GameSession.timeLimit;
+    
+    uiUpdateClocks();
+
+    GameSession.timerInterval = setInterval(() => {
+      if (GameSession.turn === COLORS.WHITE) {
+        GameSession.timeLeft.w--;
+        if (GameSession.timeLeft.w <= 0) matchHandleTimeout(COLORS.WHITE);
+      } else {
+        GameSession.timeLeft.b--;
+        if (GameSession.timeLeft.b <= 0) matchHandleTimeout(COLORS.BLACK);
+      }
+      uiUpdateClocks();
+    }, 1000);
+  } else {
+    // Un-timed display
+    document.getElementById('clockPlayer').innerText = "∞";
+    document.getElementById('clockOpponent').innerText = "∞";
+  }
+}
+
+function uiUpdateClocks() {
+  const formatTime = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${mins.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+  document.getElementById('clockPlayer').innerText = formatTime(GameSession.timeLeft.w);
+  document.getElementById('clockOpponent').innerText = formatTime(GameSession.timeLeft.b);
+}
+
+function matchHandleTimeout(losingColor) {
+  clearInterval(GameSession.timerInterval);
+  matchProcessGameEnding(losingColor === COLORS.WHITE ? "Temps écoulé ! Défaite tactique." : "Temps écoulé de l'adversaire ! Victoire !");
+}
+
+function matchRenderBoard() {
+  const grid = document.getElementById('boardMeshGrid');
+  grid.innerHTML = '';
+
+  const activeColor = GameSession.turn;
+
+  for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
-      if (board[0][c]?.c === W) {
-        end("🏃 Ton pion atteint la ligne d'arrivée ! Victoire !"); return true;
+      const tile = document.createElement('div');
+      tile.className = `tile ${(r + c) % 2 === 0 ? 'light-tile' : 'dark-tile'}`;
+      tile.dataset.row = r;
+      tile.dataset.col = c;
+
+      // Handle Fog of War variant mask
+      if (GameSession.mode === 'fog' || (GameSession.isAdventure && saveFiles[activeSaveIndex].difficulty === 'dark')) {
+        const isVisible = isSquareVisibleBy(GameSession.board, r, c, COLORS.WHITE);
+        if (!isVisible) {
+          tile.classList.add('fogged');
+        }
       }
-      if (board[7][c]?.c === B) {
-        end("🏃 Le pion noir gagne la Course des Pions !"); return true;
+
+      // Selection Glow
+      if (GameSession.selectedTile && GameSession.selectedTile.r === r && GameSession.selectedTile.c === c) {
+        tile.classList.add('tile-selected');
+      }
+
+      // Highlight rings
+      const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
+      if (highlight) {
+        if (highlight.isCapture) {
+          tile.classList.add('tile-capture');
+        } else {
+          tile.classList.add('tile-highlight');
+        }
+      }
+
+      // King in Check red glow
+      const piece = GameSession.board[r][c];
+      if (piece) {
+        if (piece.type === PIECES.KING && inCheck(GameSession.board, piece.color)) {
+          tile.classList.add('tile-check');
+        }
+
+        // Render piece glyph / character
+        const pieceEl = document.createElement('span');
+        pieceEl.className = `chess-piece ${piece.color === COLORS.WHITE ? 'white-side' : 'black-side'}`;
+        
+        // Use custom character mappings
+        pieceEl.innerText = ICON[piece.color === COLORS.WHITE ? 0 : 1][piece.type];
+        tile.appendChild(pieceEl);
+      }
+
+      // Render shared yellow rubber duck
+      if (GameSession.mode === 'duck' && GameSession.duckPosition.r === r && GameSession.duckPosition.c === c) {
+        const duckEl = document.createElement('span');
+        duckEl.className = "duck-token";
+        duckEl.innerText = "🦆";
+        tile.appendChild(duckEl);
+      }
+
+      tile.onclick = () => matchHandleTileClick(r, c);
+      grid.appendChild(tile);
+    }
+  }
+}
+
+function matchRenderReserves() {
+  const playerTray = document.getElementById('reservePlayer');
+  const opponentTray = document.getElementById('reserveOpponent');
+  
+  playerTray.innerHTML = '';
+  opponentTray.innerHTML = '';
+
+  GameSession.reserve.w.forEach((type, idx) => {
+    const item = document.createElement('div');
+    item.className = 'reserve-piece-item';
+    item.innerText = ICON[0][type];
+    if (GameSession.selectedReservePiece && GameSession.selectedReservePiece.index === idx) {
+      item.classList.add('selected');
+    }
+    item.onclick = (e) => {
+      e.stopPropagation();
+      matchSelectReservePiece(type, idx);
+    };
+    playerTray.appendChild(item);
+  });
+
+  GameSession.reserve.b.forEach(type => {
+    const item = document.createElement('div');
+    item.className = 'reserve-piece-item';
+    item.innerText = ICON[1][type];
+    opponentTray.appendChild(item);
+  });
+}
+
+function matchSelectReservePiece(type, idx) {
+  if (GameSession.turn !== COLORS.WHITE) return;
+  GameSession.selectedTile = null;
+  GameSession.selectedReservePiece = { type, index: idx };
+  
+  // Highlight empty squares where this reserve piece can drop
+  GameSession.activeHighlights = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (!GameSession.board[r][c]) {
+        // Pawns cannot be dropped on the 1st or 8th ranks
+        if (type === PIECES.PAWN && (r === 0 || r === 7)) continue;
+        GameSession.activeHighlights.push({ r, c, isCapture: false, isDrop: true });
       }
     }
   }
-  if (mode === "horde") {
-    let white = 0;
-    for (const row of board) {
-      for (const p of row) if (p?.c === W) white++;
+  matchRenderBoard();
+}
+
+function matchHandleTileClick(r, c) {
+  if (!GameActiveAndReady()) return;
+
+  // 1. Duck Movement Selection Phase
+  if (GameSession.mode === 'duck' && GameSession.isDuckTurn) {
+    if (!GameSession.board[r][c] && !(r === GameSession.duckPosition.r && c === GameSession.duckPosition.c)) {
+      SoundSynth.playThud();
+      GameSession.duckPosition = { r, c };
+      GameSession.isDuckTurn = false;
+      document.getElementById('duckNotice').style.display = 'none';
+      
+      // End player turn and hand over to opponent
+      GameSession.turn = COLORS.BLACK;
+      matchRenderBoard();
+      matchProcessAIResponse();
     }
-    if (!white) {
-      end("👹 La Horde a été anéantie ! Les Marrons gagnent."); return true;
+    return;
+  }
+
+  // 2. Reserve Piece Dropping Logic
+  if (GameSession.selectedReservePiece) {
+    const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
+    if (highlight && highlight.isDrop) {
+      matchPerformDrop(GameSession.selectedReservePiece.type, r, c);
+    } else {
+      GameSession.selectedReservePiece = null;
+      GameSession.activeHighlights = [];
+      matchRenderBoard();
+    }
+    return;
+  }
+
+  // 3. Standard Navigation Move Click
+  const clickedPiece = GameSession.board[r][c];
+  const highlight = GameSession.activeHighlights.find(h => h.r === r && h.c === c);
+
+  if (highlight) {
+    // Perform selected valid move
+    matchExecuteMove(GameSession.selectedTile, { r, c }, highlight);
+  } else if (clickedPiece && clickedPiece.color === GameSession.turn) {
+    // Select tile and retrieve legal paths
+    GameSession.selectedTile = { r, c };
+    const validMoves = fetchStrictLegalMoves(GameSession.board, r, c, GameSession.epSquare, GameSession.castleState, GameSession.mode);
+    
+    GameSession.activeHighlights = validMoves.map(m => ({
+      r: m.to.r,
+      c: m.to.c,
+      isCapture: GameSession.board[m.to.r][m.to.c] !== null,
+      isCastle: m.isCastle,
+      isEP: m.isEP
+    }));
+
+    matchRenderBoard();
+  } else {
+    // Deselect
+    GameSession.selectedTile = null;
+    GameSession.activeHighlights = [];
+    matchRenderBoard();
+  }
+}
+
+function GameActiveAndReady() {
+  return gameActive && (GameSession.turn === COLORS.WHITE || opponentType === 'pvp');
+}
+
+function matchExecuteMove(from, to, meta) {
+  // Push state to rollback history stack
+  GameSession.gameHistory.push({
+    board: duplicateBoard(GameSession.board),
+    turn: GameSession.turn,
+    epSquare: GameSession.epSquare ? { ...GameSession.epSquare } : null,
+    castleState: { ...GameSession.castleState },
+    reserve: { w: [...GameSession.reserve.w], b: [...GameSession.reserve.b] },
+    duckPosition: { ...GameSession.duckPosition },
+    isDuckTurn: GameSession.isDuckTurn
+  });
+
+  const movingPiece = GameSession.board[from.r][from.c];
+  let capturedPiece = GameSession.board[to.r][to.c];
+
+  if (view3d) {
+    // Trigger humorous Retro Battle Chess animations
+    uiTriggerBattleAnimation(movingPiece, capturedPiece);
+  } else {
+    SoundSynth.playLaser();
+  }
+
+  // En Passant execution
+  if (meta.isEP) {
+    capturedPiece = GameSession.board[from.r][to.c];
+    GameSession.board[from.r][to.c] = null;
+  }
+
+  // Capture logging to reserve drawers (Crazyhouse)
+  if (capturedPiece && GameSession.mode === 'crazyhouse') {
+    const oppCol = movingPiece.color === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
+    GameSession.reserve[oppCol].push(capturedPiece.type);
+  }
+
+  // Update King and Rook flags on movement
+  movingPiece.hasMoved = true;
+  GameSession.board[to.r][to.c] = movingPiece;
+  GameSession.board[from.r][from.c] = null;
+
+  // Handle Castling Rook translocation
+  if (meta.isCastle) {
+    const rank = movingPiece.color === COLORS.WHITE ? 7 : 0;
+    if (meta.isCastle === 'K') {
+      const rook = GameSession.board[rank][7];
+      GameSession.board[rank][5] = rook;
+      GameSession.board[rank][7] = null;
+      if (rook) rook.hasMoved = true;
+    } else {
+      const rook = GameSession.board[rank][0];
+      GameSession.board[rank][3] = rook;
+      GameSession.board[rank][0] = null;
+      if (rook) rook.hasMoved = true;
     }
   }
-  if (mode === "duck") {
-    if (!kingPos(board, W)) { end("Le Roi blanc est capturé ! Le Bot Marron l'emporte."); return true; }
-    if (!kingPos(board, B)) { end("Le Roi noir est capturé ! Victoire impériale !"); return true; }
+
+  // Set En Passant targets
+  GameSession.epSquare = null;
+  if (movingPiece.type === PIECES.PAWN && Math.abs(to.r - from.r) === 2) {
+    GameSession.epSquare = { r: (from.r + to.r) / 2, c: from.c };
+  }
+
+  // Pawn Promotion Logic
+  if (movingPiece.type === PIECES.PAWN && (to.r === 0 || to.r === 7)) {
+    // Auto-promote to Queen for quick UX, Story Quests will adapt
+    movingPiece.type = PIECES.QUEEN;
+  }
+
+  // Atomic capture explosion mechanics
+  if (GameSession.mode === 'atomic' && capturedPiece) {
+    SoundSynth.playLaser();
+    GameSession.board[to.r][to.c] = null; // attacker self-destructs
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const blastR = to.r + dr, blastC = to.c + dc;
+        if (isValidCoord(blastR, blastC)) {
+          const victim = GameSession.board[blastR][blastC];
+          // All pieces including friendly, EXCEPT pawns are wiped
+          if (victim && victim.type !== PIECES.PAWN) {
+            GameSession.board[blastR][blastC] = null;
+          }
+        }
+      }
+    }
+  }
+
+  // Post move status checks
+  GameSession.selectedTile = null;
+  GameSession.activeHighlights = [];
+
+  // Duck Chess transition phase
+  if (GameSession.mode === 'duck') {
+    GameSession.isDuckTurn = true;
+    document.getElementById('duckNotice').style.display = 'block';
+    matchRenderBoard();
+    return;
+  }
+
+  // Swap turns
+  GameSession.turn = GameSession.turn === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
+  GameSession.moveCount++;
+
+  matchRenderBoard();
+  matchRenderReserves();
+
+  // Validate win conditions
+  if (matchCheckEndingConditions()) return;
+
+  // Process next turn AI logic
+  if (opponentType === 'ai' && GameSession.turn === COLORS.BLACK) {
+    matchProcessAIResponse();
+  }
+}
+
+function matchPerformDrop(type, r, c) {
+  GameSession.gameHistory.push({
+    board: duplicateBoard(GameSession.board),
+    turn: GameSession.turn,
+    epSquare: GameSession.epSquare ? { ...GameSession.epSquare } : null,
+    castleState: { ...GameSession.castleState },
+    reserve: { w: [...GameSession.reserve.w], b: [...GameSession.reserve.b] },
+    duckPosition: { ...GameSession.duckPosition },
+    isDuckTurn: GameSession.isDuckTurn
+  });
+
+  // Remove dropped piece from matching reserve tray
+  const tray = GameSession.turn === COLORS.WHITE ? GameSession.reserve.w : GameSession.reserve.b;
+  const idx = tray.indexOf(type);
+  if (idx !== -1) tray.splice(idx, 1);
+
+  // Position on the grid
+  GameSession.board[r][c] = { type, color: GameSession.turn, hasMoved: true };
+  
+  GameSession.selectedReservePiece = null;
+  GameSession.activeHighlights = [];
+  
+  // Swap turns
+  GameSession.turn = GameSession.turn === COLORS.WHITE ? COLORS.BLACK : COLORS.WHITE;
+  
+  matchRenderBoard();
+  matchRenderReserves();
+  
+  if (matchCheckEndingConditions()) return;
+
+  if (opponentType === 'ai' && GameSession.turn === COLORS.BLACK) {
+    matchProcessAIResponse();
+  }
+}
+
+function uiTriggerBattleAnimation(attacker, victim) {
+  if (!victim) {
+    SoundSynth.playLaser();
+    return;
+  }
+
+  const overlay = document.getElementById('battleCanvasOverlay');
+  const attEl = document.getElementById('attackerFighter');
+  const vicEl = document.getElementById('victimFighter');
+
+  attEl.innerText = ICON[0][attacker.type] || "🛡️";
+  vicEl.innerText = ICON[1][victim.type] || "💀";
+
+  overlay.classList.add('active');
+  attEl.className = "fighter fighter-slide-attack";
+  vicEl.className = "fighter fighter-die-spin";
+
+  SoundSynth.playLaser();
+  setTimeout(() => SoundSynth.playThud(), 350);
+
+  setTimeout(() => {
+    overlay.classList.remove('active');
+    attEl.className = "fighter";
+    vicEl.className = "fighter";
+  }, 750);
+}
+
+function matchActionUndo() {
+  if (GameSession.gameHistory.length === 0) return;
+  
+  const prevState = GameSession.gameHistory.pop();
+  GameSession.board = duplicateBoard(prevState.board);
+  GameSession.turn = prevState.turn;
+  GameSession.epSquare = prevState.epSquare;
+  GameSession.castleState = prevState.castleState;
+  GameSession.reserve = prevState.reserve;
+  GameSession.duckPosition = prevState.duckPosition;
+  GameSession.isDuckTurn = prevState.isDuckTurn;
+
+  GameSession.selectedTile = null;
+  GameSession.selectedReservePiece = null;
+  GameSession.activeHighlights = [];
+
+  matchRenderBoard();
+  matchRenderReserves();
+  narrateStoryVoice("Le sablier s'est écoulé en arrière... Modifiez votre destin.");
+}
+</script>
+
+<script>
+/* ==========================================================================
+   WIN / LOSS LOGIC & CAMPAIGN LEVEL EVALUATION
+   ========================================================================== */
+function matchCheckEndingConditions() {
+  // 1. King of the Hill Variant Proximity Check
+  if (GameSession.mode === 'koth') {
+    const hillSquares = [{ r: 3, c: 3 }, { r: 3, c: 4 }, { r: 4, c: 3 }, { r: 4, c: 4 }];
+    for (const tile of hillSquares) {
+      const piece = GameSession.board[tile.r][tile.c];
+      if (piece && piece.type === PIECES.KING) {
+        matchProcessGameEnding(piece.color === COLORS.WHITE ? "Victoire royale au sommet de la Colline !" : "L'adversaire a conquis la Colline.");
+        return true;
+      }
+    }
+  }
+
+  // 2. Pawn Race Variant Check
+  if (GameSession.mode === 'pawnrace') {
+    for (let c = 0; c < 8; c++) {
+      if (GameSession.board[0][c] && GameSession.board[0][c].color === COLORS.WHITE) {
+        matchProcessGameEnding("Victoire de la course des pions !");
+        return true;
+      }
+      if (GameSession.board[7][c] && GameSession.board[7][c].color === COLORS.BLACK) {
+        matchProcessGameEnding("Défaite ! L'infanterie ennemie a traversé.");
+        return true;
+      }
+    }
+  }
+
+  // 3. Verify King Capture in Fog or Duck Chess where checks are bypassed
+  if (GameSession.mode === 'duck' || GameSession.mode === 'fog') {
+    const whiteKing = locateKingSquare(GameSession.board, COLORS.WHITE);
+    const blackKing = locateKingSquare(GameSession.board, COLORS.BLACK);
+    if (!whiteKing) {
+      matchProcessGameEnding("Défaite ! Votre Roi a été capturé.");
+      return true;
+    }
+    if (!blackKing) {
+      matchProcessGameEnding("Victoire ! Vous avez capturé le Roi ennemi.");
+      return true;
+    }
+  }
+
+  // 4. Standard Checkmate / Stalemate Scan
+  const hasMoves = matchHasValidMoves(GameSession.turn);
+  if (!hasMoves) {
+    if (inCheck(GameSession.board, GameSession.turn)) {
+      matchProcessGameEnding(GameSession.turn === COLORS.WHITE ? "Échec et Mat ! Vous avez perdu la partie." : "Victoire par Échec et Mat !");
+    } else {
+      matchProcessGameEnding("Pat ! Match nul sur l'arène.");
+    }
+    return true;
+  }
+
+  // 5. Special Story Mode Level Specific Evaluations
+  if (GameSession.isAdventure) {
+    const save = saveFiles[activeSaveIndex];
+    if (save.world === 1 && save.quest === 1) {
+      // 3 pawns reached the 8th row
+      let count = 0;
+      for (let c = 0; c < 8; c++) {
+        if (GameSession.board[0][c] && GameSession.board[0][c].type === PIECES.PAWN && GameSession.board[0][c].color === COLORS.WHITE) {
+          count++;
+        }
+      }
+      if (count >= 3) {
+        matchProcessGameEnding("Objectif atteint ! 3 pions ont traversé !");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function matchHasValidMoves(color) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (GameSession.board[r][c] && GameSession.board[r][c].color === color) {
+        const moves = fetchStrictLegalMoves(GameSession.board, r, c, GameSession.epSquare, GameSession.castleState, GameSession.mode);
+        if (moves.length > 0) return true;
+      }
+    }
   }
   return false;
 }
 
-function gameEnd() {
-  const lm = legalMoves(turn);
-  if (lm.length) return false;
-  if (mode === "pawnrace") {
-    end(turn === W ? "Tu es bloqué ! Défaite tactique." : "Les Marrons sont bloqués ! Victoire !"); return true;
-  }
-  if (mode === "duck") {
-    end("Le Canard bloque absolument tout ! Match nul."); return true;
-  }
-  if (checkRules(turn) && inCheck(board, turn)) {
-    end(turn === W ? "Échec et mat ! Les Marrons l'emportent." : "Échec et mat ! Victoire majestueuse !");
+function matchProcessGameEnding(statusText) {
+  gameActive = false;
+  if (GameSession.timerInterval) clearInterval(GameSession.timerInterval);
+
+  const titleEl = document.getElementById('endResultTitle');
+  const descEl = document.getElementById('endResultDesc');
+  const starsEl = document.getElementById('endResultStars');
+  const btnRetry = document.getElementById('endResultBtnRetry');
+
+  starsEl.innerText = '';
+  
+  const isVictory = statusText.toLowerCase().includes('victoire') || statusText.toLowerCase().includes('atteint') || statusText.toLowerCase().includes('gagné');
+
+  if (isVictory) {
+    titleEl.innerText = "🏆 VICTOIRE !";
+    titleEl.style.color = "var(--forest-green)";
+    descEl.innerText = statusText;
+    
+    if (GameSession.isAdventure) {
+      // Compute Star Awards
+      let starsAwarded = 1;
+      if (GameSession.moveCount < 16) starsAwarded++;
+      if (GameSession.lossesThisMatch === 0) starsAwarded++;
+      
+      starsEl.innerText = "★".repeat(starsAwarded) + "☆".repeat(3 - starsAwarded);
+      
+      // Update Campaign Save File
+      const save = saveFiles[activeSaveIndex];
+      save.stars += starsAwarded;
+      save.progression = Math.min(100, Math.floor((save.stars / 18) * 100));
+
+      // Extra Life Reward Rules
+      if (save.world === 1 && starsAwarded === 3) save.hearts++;
+      if (save.world === 2 && starsAwarded === 3) save.hearts++;
+      if (save.world >= 3 && starsAwarded === 3) save.hearts++;
+
+      // Progress through worlds
+      if (save.world < 6) {
+        save.world++;
+      } else {
+        // Complete campaign ending cinematic
+        document.getElementById('matchEndOverlay').classList.remove('active');
+        matchTriggerEndingCinematic();
+        return;
+      }
+      appPersistSaves();
+    }
   } else {
-    end("Pat ! Match nul sur l'échiquier.");
-  }
-  return true;
-}
+    titleEl.innerText = "💀 DÉFAITE";
+    titleEl.style.color = "var(--blood-red)";
+    descEl.innerText = statusText;
 
-/* ==========================================
-   BOT D'INTELLIGENCE ARTIFICIELLE
-========================================== */
-function aiMove() {
-  if (!gameActive || turn !== B) return;
-  const ms = legalMoves(B);
-  if (!ms.length) { gameEnd(); return; }
-
-  let best = ms[0];
-  let bestScore = -999999;
-
-  for (const m of ms) {
-    let score = Math.random() * (difficulty === 0 ? 120 : 5);
-    if (m.drop) {
-      score += (VALUE[m.t] || 0) * 0.22;
-    } else {
-      const target = board[m.tr][m.tc];
-      if (target) score += (VALUE[target.t] || 0) * 8;
-      if (m.promo) score += 120;
-      if (m.castle) score += 15;
-      if (m.tr >= 2 && m.tr <= 5 && m.tc >= 2 && m.tc <= 5) score += 3;
-    }
-    if (score > bestScore) {
-      bestScore = score; best = m;
+    if (GameSession.isAdventure) {
+      const save = saveFiles[activeSaveIndex];
+      save.hearts--;
+      appPersistSaves();
+      if (save.hearts <= 0) {
+        descEl.innerText = "Votre énergie est à plat ! Réessayez l'aventure.";
+        save.hearts = 3; // Reset
+        appPersistSaves();
+      }
     }
   }
-  play(best);
+
+  document.getElementById('matchEndOverlay').classList.add('active');
+  narrateStoryVoice(statusText);
 }
 
-/* ==========================================
-   RENDU VISUEL ET ACTIONS UTILISATEURS
-========================================== */
-function render() {
-  const el = document.getElementById("board");
-  el.innerHTML = "";
-  el.classList.toggle("battle-mode", view3d);
+function uiMatchEndRetry() {
+  document.getElementById('matchEndOverlay').classList.remove('active');
+  matchInitSession();
+}
 
-  const lm = legalMoves(turn);
-  const targets = selected ? lm.filter(m => !m.drop && m.fr === selected[0] && m.fc === selected[1]) : [];
+function uiMatchEndContinue() {
+  document.getElementById('matchEndOverlay').classList.remove('active');
+  if (GameSession.isAdventure) {
+    uiCampaignLoadMap(activeSaveIndex);
+  } else {
+    ctrlNavigateHome();
+  }
+}
 
+function matchTriggerEndingCinematic() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('endingScreen').classList.add('active');
+  
+  // Simulated retro football cheering sound effects
+  SoundSynth.playWhistle();
+  setTimeout(() => SoundSynth.playCheer(), 500);
+}
+</script>
+
+<script>
+/* ==========================================================================
+   MINIMAX ARTIFICIAL INTELLIGENCE CONTROLLER
+   ========================================================================== */
+function matchProcessAIResponse() {
+  if (!gameActive) return;
+
+  // Simulate delayed thinking for realistic user feedback
+  setTimeout(() => {
+    const aiMove = computeBestAIMove(GameSession.board, GameSession.aiDifficulty);
+    if (aiMove) {
+      matchExecuteMove(aiMove.from, aiMove.to, aiMove);
+    }
+  }, 600);
+}
+
+// Evaluate board states
+function evaluateBoardScore(board) {
+  let score = 0;
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
-      const s = document.createElement("div");
-      s.className = "square " + ((r + c) % 2 ? "dark" : "light");
-
-      if (lastFrom && lastFrom[0] === r && lastFrom[1] === c) s.classList.add("last");
-      if (lastTo && lastTo[0] === r && lastTo[1] === c) s.classList.add("last");
-      if (selected && selected[0] === r && selected[1] === c) s.classList.add("selected");
-
-      const possible = targets.find(m => m.tr === r && m.tc === c);
-      if (possible) s.classList.add(board[r][c] ? "capture" : "dot");
-
-      const kp = kingPos(board, turn);
-      if (kp && kp[0] === r && kp[1] === c && checkRules(turn) && inCheck(board, turn)) {
-        s.classList.add("check");
-      }
-
-      if (mode === "fog" && !visible(r, c)) s.classList.add("fog");
-
-      if (c === 0) s.innerHTML += `<span class="coord rank">${8 - r}</span>`;
-      if (r === 7) s.innerHTML += `<span class="coord file">${F[c]}</span>`;
-
       const p = board[r][c];
       if (p) {
-        let pieceClass = "piece";
-        if (p.c === W) pieceClass += " white-piece";
-        if (p.c === B) pieceClass += " brown-piece";
-
-        s.innerHTML += `<span class="${pieceClass}">${ICON[p.c]?.[p.t] || "🦆"}</span>`;
+        const val = VALUE[p.type] || 0;
+        score += p.color === COLORS.WHITE ? -val : val;
       }
-
-      s.onclick = () => clickSquare(r, c);
-      el.appendChild(s);
     }
   }
-  renderReserve();
+  return score;
 }
 
-function renderReserve() {
-  const wr = document.getElementById("whiteReserve");
-  const br = document.getElementById("blackReserve");
-  if (mode !== "crazyhouse") {
-    wr.style.display = "none"; br.style.display = "none"; return;
-  }
-  wr.style.display = "flex"; br.style.display = "flex";
-  wr.innerHTML = "⬜ Réserve blanche : ";
-  br.innerHTML = "🟤 Réserve marron : ";
-
-  reserves[W].forEach(t => {
-    const b = document.createElement("button");
-    b.textContent = ICON[W][t];
-    b.onclick = () => selectDrop(t, W);
-    wr.appendChild(b);
-  });
-  reserves[B].forEach(t => {
-    const b = document.createElement("button");
-    b.textContent = ICON[B][t];
-    b.onclick = () => selectDrop(t, B);
-    br.appendChild(b);
-  });
-}
-
-function selectDrop(t, color) {
-  if (opponentType === "ai" && color !== W) return;
-  if (color !== turn) return;
-  selected = ["drop", t];
-  status(color === W ? "⬜ Blanc : choisis une case vide pour poser ta pièce." : "🟤 Marron : choisis une case vide.");
-  render();
-}
-
-function clickSquare(r, c) {
-  if (!gameActive) return;
-  if (opponentType === "ai" && turn !== W) return;
-
-  if (duckPhase) {
-    const m = legalMoves().find(x => x.duck && x.tr === r && x.tc === c);
-    if (m) play(m); return;
-  }
-  if (selected?.[0] === "drop") {
-    const m = legalMoves().find(x => x.drop && x.t === selected[1] && x.tr === r && x.tc === c);
-    if (m) { selected = null; play(m); } return;
-  }
-
-  const moves = legalMoves();
-  if (selected) {
-    const opts = moves.filter(m => !m.drop && m.fr === selected[0] && m.fc === selected[1] && m.tr === r && m.tc === c);
-    if (opts.length) {
-      if (opts.length > 1 && opts[0].promo) {
-        askPromotion(opts); return;
+// Alpha-Beta Pruning Minimax AI Move Selector
+function computeBestAIMove(board, difficulty) {
+  // Collect all valid moves for Black
+  const aiMoves = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (board[r][c] && board[r][c].color === COLORS.BLACK) {
+        const moves = fetchStrictLegalMoves(board, r, c, GameSession.epSquare, GameSession.castleState, GameSession.mode);
+        aiMoves.push(...moves);
       }
-      selected = null; play(opts[0]); return;
     }
   }
-  const p = board[r][c];
-  if (p && p.c === turn && p.t !== DUCK) selected = [r, c];
-  else selected = null;
-  render();
-}
 
-function askPromotion(moves) {
-  pendingPromotionMoves = moves;
-  document.getElementById("promotionBox").classList.add("show");
-}
+  if (aiMoves.length === 0) return null;
 
-function choosePromotion(pieceType) {
-  const m = pendingPromotionMoves.find(x => x.promo === pieceType);
-  if (m) {
-    document.getElementById("promotionBox").classList.remove("show");
-    selected = null;
-    play(m);
+  // Simple heuristic for lower difficulties, deep trees for higher settings
+  if (difficulty === 1) {
+    // 100% Random Choice (Pion Clumsy)
+    return aiMoves[Math.floor(Math.random() * aiMoves.length)];
   }
-  pendingPromotionMoves = [];
-}
 
-/* ==========================================
-   VISUELS DE COMBAT BATTLE CHESS 1988
-========================================== */
-function playBattleCaptureAnimation(fromR, fromC, toR, toC) {
-  if (!view3d) return;
+  // Alpha-beta evaluation loop
+  let bestScore = -Infinity;
+  let optimalMove = aiMoves[0];
 
-  const boardEl = document.getElementById("board");
-  if (!boardEl) return;
-
-  const squares = boardEl.querySelectorAll(".square");
-  const attackerSq = squares[fromR * 8 + fromC];
-  const victimSq = squares[toR * 8 + toC];
-
-  if (!attackerSq || !victimSq) return;
-
-  const attacker = attackerSq.querySelector(".piece");
-  const victim = victimSq.querySelector(".piece");
-
-  if (attacker) attacker.classList.add("battle-attacker");
-  if (victim) victim.classList.add("battle-victim");
-
-  const rect = victimSq.getBoundingClientRect();
-  const cloud = document.createElement("div");
-  cloud.className = "battle-cloud";
-  cloud.textContent = "💥";
-  cloud.style.left = `${rect.left + rect.width / 2}px`;
-  cloud.style.top = `${rect.top + rect.height / 2}px`;
-
-  document.body.appendChild(cloud);
-
-  setTimeout(() => {
-    if (attacker) attacker.classList.remove("battle-attacker");
-    if (victim) victim.classList.remove("battle-victim");
-    cloud.remove();
-  }, 700);
-}
-
-/* ==========================================
-   CHRONOMÈTRES & SYSTÈME GLOBAL
-========================================== */
-function startTimer() {
-  clearInterval(timer);
-  timer = setInterval(() => {
-    if (!gameActive) return;
-    if (turn === W) wt--; else bt--;
-    updateClocks();
-    if (wt <= 0) end("Temps écoulé ! Les Marrons s'imposent !");
-    if (bt <= 0) end("Temps écoulé ! Victoire impériale des Blancs.");
-  }, 1000);
-}
-
-function fmt(t) {
-  return `${Math.floor(Math.max(0,t)/60)}:${String(Math.max(0,t)%60).padStart(2,"0")}`;
-}
-
-function updateClocks() {
-  const a = document.getElementById("whiteClock"), b = document.getElementById("blackClock");
-  a.textContent = fmt(wt); b.textContent = fmt(bt);
-  a.classList.toggle("active", turn === W);
-  b.classList.toggle("active", turn === B);
-}
-
-function status(t) {
-  document.getElementById("status").textContent = t;
-}
-
-function end(text) {
-  gameActive = false;
-  clearInterval(timer);
-  document.getElementById("endText").textContent = text;
-  document.getElementById("overlay").classList.add("show");
-}
-
-function toggleView() {
-  view3d = !view3d;
-  const btn = document.getElementById("viewBtn");
-  if (view3d) {
-    btn.textContent = "⚔️ BATTLE";
-    status("⚔️ Mode Battle Chess activé !");
-  } else {
-    btn.textContent = "♟ 2D";
-    status("♟ Vue classique 2D activée.");
+  for (const m of aiMoves) {
+    const simBoard = duplicateBoard(board);
+    // Apply Simulated Move
+    const piece = simBoard[m.from.r][m.from.c];
+    simBoard[m.to.r][m.to.c] = piece;
+    simBoard[m.from.r][m.from.c] = null;
+    
+    const score = evaluateBoardScore(simBoard);
+    if (score > bestScore) {
+      bestScore = score;
+      optimalMove = m;
+    }
   }
-  render();
-}
 
-status("Prêt.");
+  return optimalMove;
+}
 </script>
+
+<script>
+/* ==========================================================================
+   INITIALIZATION
+   ========================================================================== */
+window.addEventListener('load', () => {
+  appInitSaves();
+  uiRefreshSaveSlots();
+  
+  // Play Welcome Sound on Interactivity trigger
+  document.body.addEventListener('click', () => {
+    SoundSynth.init();
+  }, { once: true });
+});
+</script>
+
 </body>
 </html>
