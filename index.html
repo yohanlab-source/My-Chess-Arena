@@ -1,301 +1,769 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Quest : Le Royaume des Rois</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #1a0f0a; color: #f4e4c1; overflow: hidden; height: 100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chess Quest - Royaume des Rois</title>
 
-        /* ÉCRAN DE SAUVEGARDE */
-        #save-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://unsplash.com') center/cover; }
-        .title { font-size: 2.5rem; color: #ffd700; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); margin-bottom: 20px; text-align: center; }
-        <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Quest : Le Royaume des Rois</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #1a0f0a; color: #f4e4c1; overflow: hidden; height: 100vh; }
+<style>
+:root{
+  --wood:#3b2113;
+  --wood2:#714225;
+  --gold:#ffd45b;
+  --paper:#f2ddb0;
+  --paper2:#cfad72;
+  --red:#8b1111;
+  --green:#196d31;
+  --dark:#15100d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0; min-height:100vh; overflow-x:hidden;
+  font-family:Georgia,serif; color:#2b170b;
+  background:
+    radial-gradient(circle at top,#704321,#1b100b 70%);
+}
+button,select{font-family:Georgia,serif;cursor:pointer}
+.hidden{display:none!important}
 
-        /* ÉCRAN DE SAUVEGARDE */
-        #save-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://unsplash.com') center/cover; }
-        .title { font-size: 2.5rem; color: #ffd700; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); margin-bottom: 20px; text-align: center; }
-        
-        /* BOUTON FORCE INSTAL */
-        #force-install-btn { background: #ffd700; color: #1a0f0a; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(255,215,0,0.4); display: block; }
-        #force-install-btn:hover { background: #fff; }
+/* MENU */
+#menu{
+  min-height:100vh; padding:25px 12px;
+  display:flex; flex-direction:column; align-items:center;
+}
+h1{
+  color:var(--gold); text-shadow:3px 3px 0 #000,0 0 18px #e8a90a;
+  text-align:center; margin:5px 0; font-size:clamp(30px,7vw,52px);
+}
+.subtitle{color:#ffe8aa;text-align:center;margin-bottom:15px;font-style:italic}
+.panel{
+  width:min(96vw,560px); padding:18px;
+  border:5px solid var(--wood); border-radius:14px;
+  background:linear-gradient(135deg,var(--paper),var(--paper2),var(--paper));
+  box-shadow:0 10px 30px #0009,inset 0 0 35px #8d5e243b;
+}
+.category{
+  color:var(--red); border-bottom:2px solid #8d5e24;
+  margin:13px 0 8px; padding-bottom:5px; font-weight:bold;
+}
+.mode{
+  width:100%; text-align:left; margin:5px 0; padding:11px;
+  color:#31190a; font-size:16px; font-weight:bold;
+  border:2px solid var(--wood2); border-radius:8px;
+  background:linear-gradient(#fff0c7,#d9b879);
+}
+.mode:active{transform:scale(.98);background:var(--gold)}
+.mode small{display:block;color:#654529;font-style:italic;margin-top:3px}
 
-        .slots-container { display: flex; gap: 20px; width: 90%; max-width: 1000px; }
-        .slot { flex: 1; background: rgba(44, 24, 16, 0.9); border: 3px solid #5c3a1e; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .slot:hover { border-color: #ffd700; transform: translateY(-5px); }
-        .slot h2 { color: #ffd700; margin-bottom: 15px; border-bottom: 2px solid #5c3a1e; padding-bottom: 5px; }
-        .slot p { margin: 8px 0; font-size: 1.1rem; }
-        .delete-btn { background: #8b0000; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
-        .delete-btn:hover { background: #ff0000; }
+/* DIFFICULTY */
+#difficultyBox{
+  position:fixed; inset:0; z-index:20; display:none;
+  background:#000b; align-items:center; justify-content:center; padding:15px;
+}
+#difficultyBox.show{display:flex}
+#difficultyBox .panel{text-align:center}
+#diffAvatar{font-size:58px;margin:5px}
+#diffName{font-size:22px;color:var(--red);font-weight:bold}
+input[type=range]{width:100%;accent-color:#c68b00}
+.action{
+  border:2px solid var(--wood); border-radius:8px; padding:10px 14px;
+  font-size:16px; font-weight:bold; margin:4px;
+}
+.gold{background:var(--gold);color:#251400}
+.red{background:var(--red);color:white}
+.green{background:var(--green);color:white}
 
-        /* POPUP SECURITE */
-        #security-popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
-        .popup-box { background: #2c1810; border: 4px solid #8b0000; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
-        .popup-box p { font-size: 1.2rem; margin-bottom: 20px; }
-        .popup-btns { display: flex; gap: 15px; justify-content: center; }
-        .popup-btn { padding: 10px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn-no { background: #228b22; color: white; }
-        .btn-yes { background: #8b0000; color: white; }
+/* GAME */
+#game{
+  min-height:100vh; display:none; flex-direction:column;
+  align-items:center; padding:5px 8px 18px; color:#fff2c9;
+}
+.top{
+  width:min(96vw,620px); display:flex; justify-content:space-between;
+  align-items:center; gap:5px; padding:5px;
+}
+.top button{
+  border:2px solid var(--gold); background:#24140c; color:var(--gold);
+  padding:7px;border-radius:7px;
+}
+#modeTitle{font-size:14px;text-align:center;color:var(--gold)}
+.playerbar{
+  width:min(96vw,620px); display:flex; justify-content:space-between;
+  align-items:center; padding:5px 8px; color:#fff3c9;
+}
+.clock{
+  font-size:20px; padding:4px 10px; min-width:70px; text-align:center;
+  border:2px solid #a77a34; border-radius:6px; background:#2b190d;
+}
+.active{background:var(--gold);color:#211000;box-shadow:0 0 12px var(--gold)}
+.reserve{
+  width:min(96vw,620px); min-height:34px; padding:4px 8px;
+  background:#180f0a99; border:1px solid #a77a34; border-radius:7px;
+  color:var(--gold); display:none;
+}
+.reserve button{
+  font-size:25px;border:0;background:transparent;cursor:pointer;
+}
+#boardWrap{position:relative;width:min(96vw,620px)}
+#board{
+  width:100%; aspect-ratio:1;
+  display:grid; grid-template-columns:repeat(8,1fr);
+  border:5px solid #321a0d; box-shadow:0 8px 25px #000b;
+}
+.square{
+  position:relative; display:flex; justify-content:center; align-items:center;
+  font-size:clamp(28px,8.5vw,58px); user-select:none;
+}
+.light{background:#f0d9b5}
+.dark{background:#a96f4a}
+.selected{background:#f6db4a!important}
+.last{background:#b8c957!important}
+.dot:after{
+  content:"";width:24%;height:24%;border-radius:50%;
+  position:absolute;background:#1117;
+}
+.capture{box-shadow:inset 0 0 0 5px #b40000aa}
+.check{background:#e61e1e!important}
+.fog{background:#111!important;color:transparent!important}
+.coord{position:absolute;font-size:10px;font-weight:bold;opacity:.65}
+.rank{top:1px;left:3px}.file{bottom:1px;right:3px}
+.light .coord{color:#9d6748}.dark .coord{color:#f2dcb9}
+.piece{filter:drop-shadow(2px 3px 2px #0008)}
+#duckNotice{
+  display:none; position:absolute; top:-35px; left:50%; transform:translateX(-50%);
+  padding:5px 12px; background:var(--gold); color:#241400;
+  border-radius:12px; font-weight:bold; z-index:3;
+}
+#status{min-height:30px;padding:8px;text-align:center;color:var(--gold)}
+.battle{
+  transform:perspective(700px) rotateX(18deg);
+  transform-origin:center bottom; margin-top:30px;
+}
+.battle .piece{filter:drop-shadow(3px 7px 4px #000);transform:translateY(-3px)}
 
-        /* INTERFACE CARTE JEU JEU VIDEO */
-        #map-screen { display: none; height: 100vh; position: relative; background: #2b5c8f; }
-        .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 60px; background: rgba(44, 24, 16, 0.9); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 3px solid #5c3a1e; z-index: 100; }
-        .hud-item { font-size: 1.2rem; font-weight: bold; color: #ffd700; display: flex; align-items: center; gap: 8px; }
-        .mute-btn { background: none; border: 2px solid #ffd700; color: #ffd700; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        /* LA MAP ISO-STYLE AVEC ILES FLOTTANTES */
-        .world-map { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        svg.rails-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
-        .rail-line { fill: none; stroke: #ffd700; stroke-width: 6; stroke-dasharray: 10, 5; opacity: 0.6; stroke-linecap: round; }
-
-        /* Îles flottantes */
-        .island { position: absolute; width: 180px; height: 120px; border-radius: 50% / 40%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 20px 0 #3a2312, 0 30px 20px rgba(0,0,0,0.6); transition: 0.3s; cursor: pointer; border: 3px dashed transparent; }
-        .island:hover { transform: translateY(-5px); border-color: #ffd700; }
-        .island-name { font-weight: bold; text-shadow: 2px 2px 4px #000; font-size: 1.1rem; text-align: center; pointer-events: none; }
-        
-        /* Thèmes des îles */
-        .island-1 { background: #32cd32; top: 70%; left: 15%; }
-        .island-2 { background: #8a2be2; top: 50%; left: 40%; }
-        .island-3 { background: #cd853f; top: 25%; left: 25%; }
-        .island-4 { background: #4682b4; top: 20%; left: 65%; }
-        .island-5 { background: #708090; top: 45%; left: 75%; }
-        .island-6 { background: #ffd700; top: 70%; left: 55%; color: #000; box-shadow: 0 20px 0 #b8860b, 0 30px 20px rgba(0,0,0,0.6); }
-
-        /* HERO STATUE */
-        #hero-statue { width: 45px; height: 45px; background: #006400; border: 3px solid #ffd700; border-radius: 50%; position: absolute; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 5px 10px rgba(0,0,0,0.5); transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; }
-        
-        #hero-statue.bolt-pose { animation: boltAnimation 1.5s ease-in-out infinite alternate; background: #ffd700 !important; }
-        @keyframes boltAnimation {
-            0% { transform: scale(1.2) rotate(-15deg); box-shadow: 0 0 20px #ffd700; }
-            100% { transform: scale(1.2) rotate(15deg); box-shadow: 0 0 40px #ffd700; }
-        }
-    </style>
+/* OVERLAY */
+#overlay{
+  position:fixed;inset:0;z-index:30;background:#000c;
+  display:none;align-items:center;justify-content:center;padding:15px;
+}
+#overlay.show{display:flex}
+#overlay .panel{text-align:center}
+#overlay h2{color:var(--red)}
+#narrator{
+  position:fixed;z-index:40;bottom:10px;left:10px;right:10px;
+  display:none;max-width:580px;margin:auto;padding:10px;
+  color:#fff0c4;background:#21130ddd;border:2px solid var(--gold);
+  border-radius:10px;text-align:center;font-style:italic;
+}
+</style>
 </head>
+
 <body>
 
-    <!-- ÉCRAN DE SAUVEGARDE DE DEPART -->
-    <div id="save-screen">
-        <h1 class="title">CHESS QUEST : LE ROYAUME DES ROIS</h1>
-        
-        <!-- Nouveau bouton magique qui force le système Android de raccourci -->
-        <button id="force-install-btn" onclick="forceAndroidShortcut()">📲 INSTALLER SUR L'ÉCRAN D'ACCUEIL</button>
+<section id="menu">
+  <h1>♚ Chess Quest ♔</h1>
+  <div class="subtitle">Le Royaume des Rois — Version sans aventure</div>
 
-        <div class="slots-container">
-            <div class="slot" onclick="loadGame('Fichier A', 'Facile', 45, 28, '12h 34m')">
-                <h2>Fichier A</h2>
-                <p>🟢 Difficulté : <b>Facile</b></p>
-                <p>🗺️ Progression : <b>Monde 3 (45%)</b></p>
-                <p>⭐ Étoiles : <b>28 ★</b></p>
-                <p>⏱️ Temps de jeu : <b>12 h 34 min</b></p>
-                <button class="delete-btn" onclick="triggerDelete(event, 'A')">🗑️ Effacer la partie</button>
-            </div>
-            <div class="slot" onclick="loadGame('Fichier B', 'Difficile', 15, 5, '01h 12m')">
-                <h2>Fichier B</h2>
-                <p>🔴 Difficulté : <b>Difficile</b></p>
-                <p>🗺️ Progression : <b>Monde 1 (15%)</b></p>
-                <p>⭐ Étoiles : <b>5 ★</b></p>
-                <p>⏱️ Temps de jeu : <b>01 h 12 min</b></p>
-                <button class="delete-btn" onclick="triggerDelete(event, 'B')">🗑️ Effacer la partie</button>
-            </div>
-            <div class="slot" onclick="loadGame('Fichier C', 'Vide', 0, 0, '00h 00m')">
-                <h2>Fichier C</h2>
-                <p style="color: gray; font-style: italic;">Emplacement Vide</p>
-                <p>Créer une nouvelle aventure...</p>
-            </div>
-        </div>
+  <div class="panel">
+    <div class="category">⏱️ ÉCHECS CLASSIQUES</div>
+
+    <button class="mode" onclick="openDifficulty('normal')">
+      ♟ Normal
+      <small>Partie classique : 1 heure par joueur.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('blitz')">
+      ⚡ Blitz
+      <small>10 minutes par joueur.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('rapid')">
+      ⏳ Rapide
+      <small>15 minutes par joueur.</small>
+    </button>
+
+    <div class="category">🎲 VARIANTES & FUN</div>
+
+    <button class="mode" onclick="openDifficulty('crazyhouse')">
+      🏠 Crazyhouse
+      <small>Les pièces capturées deviennent des renforts.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('pawnrace')">
+      🏃 Course des Pions
+      <small>Promouvoir un pion ou bloquer l'adversaire.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('koth')">
+      ⛰️ Roi de la Colline
+      <small>Amène ton Roi au centre de l'échiquier.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('atomic')">
+      💥 Échecs Atomiques
+      <small>Chaque capture provoque une explosion.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('horde')">
+      👹 La Horde
+      <small>36 pions blancs contre l'armée noire.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('fog')">
+      🌫️ Brouillard de Guerre
+      <small>Les ennemis cachés restent dans le brouillard.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('duck')">
+      🦆 Échecs Canard
+      <small>Déplace le canard après chaque coup.</small>
+    </button>
+  </div>
+</section>
+
+<section id="difficultyBox">
+  <div class="panel">
+    <h2>Choisis ton adversaire</h2>
+    <div id="diffAvatar">♟️</div>
+    <div id="diffName">Facile</div>
+    <p id="diffDesc">Un pion maladroit qui fait des erreurs.</p>
+
+    <input id="diffSlider" type="range" min="0" max="4" value="0"
+      oninput="updateDifficulty(this.value)">
+
+    <div style="display:flex;justify-content:space-between;font-size:12px">
+      <span>Facile</span><span>Dark</span>
     </div>
 
-    <!-- POPUP DE CONFIRMATION -->
-    <div id="security-popup">
-        <div class="popup-box">
-            <p>⚠️ <b>Êtes-vous certain de vouloir supprimer cette sauvegarde ?</b></p>
-            <div class="popup-btns">
-                <button class="popup-btn btn-no" id="default-focus-no" onclick="closePopup()">NON, RETOUR</button>
-                <button class="popup-btn btn-yes" onclick="confirmDelete()">OUI, SUPPRIMER</button>
-            </div>
-        </div>
+    <br>
+    <button class="action gold" onclick="startGame()">⚔️ Jouer</button>
+    <button class="action red" onclick="closeDifficulty()">Retour</button>
+  </div>
+</section>
+
+<section id="game">
+  <div class="top">
+    <button onclick="goMenu()">🏠</button>
+    <strong id="modeTitle"></strong>
+    <div>
+      <button id="soundBtn" onclick="toggleSound()">🔊</button>
+      <button id="viewBtn" onclick="toggleView()">2D</button>
     </div>
+  </div>
 
-    <!-- ÉCRAN DE LA CARTE -->
-    <div id="map-screen">
-        <div class="top-bar">
-            <div class="hud-item" id="hud-name">👤 Joueur</div>
-            <div class="hud-item" id="hud-stars">⭐ 0 ★</div>
-            <div class="hud-item" id="hud-time">⏱️ Temps : 00h 00m</div>
-            <button class="mute-btn" id="mute-toggle" onclick="toggleMute()">🔊 NARRATEUR</button>
-        </div>
+  <div class="playerbar">
+    <div>⬛ IA</div>
+    <div id="blackClock" class="clock">10:00</div>
+  </div>
 
-        <div class="world-map">
-            <svg class="rails-layer"><path id="rail-path" class="rail-line" d="M 0 0"/></svg>
-            <div id="hero-statue">🏹</div>
-            <div class="island island-1" onclick="moveHeroToIsland(1)"><span class="island-name">🟢 Monde 1<br>Pions</span></div>
-            <div class="island island-2" onclick="moveHeroToIsland(2)"><span class="island-name">🔵 Monde 2<br>Fous</span></div>
-            <div class="island island-3" onclick="moveHeroToIsland(3)"><span class="island-name">🔴 Monde 3<br>Cavaliers</span></div>
-            <div class="island island-4" onclick="moveHeroToIsland(4)"><span class="island-name">🟣 Monde 4<br>Canard</span></div>
-            <div class="island island-5" onclick="moveHeroToIsland(5)"><span class="island-name">🟤 Monde 5<br>Tours</span></div>
-            <div class="island island-6" onclick="moveHeroToIsland(6)"><span class="island-name">👑 Monde 6<br>Reine</span></div>
-        </div>
-    </div>
+  <div id="blackReserve" class="reserve"></div>
 
-    <script>
-        let currentSlotToDelete = null;
-        let isMuted = false;
+  <div id="boardWrap">
+    <div id="duckNotice">🦆 Déplace le canard !</div>
+    <div id="board"></div>
+  </div>
 
-        const islandPositions = { 1: { x: 23, y: 78 }, 2: { x: 48, y: 58 }, 3: { x: 33, y: 33 }, 4: { x: 73, y: 28 }, 5: { x: 83, y: 53 }, 6: { x: 63, y: 78 } };
+  <div id="whiteReserve" class="reserve"></div>
 
-        function drawRails() {
-            const w = window.innerWidth; const h = window.innerHeight;
-            let dPath = `M ${w*(islandPositions[1].x/100)} ${h*(islandPositions[1].y/100)}`;
-            for(let i=2; i<=6; i++) { dPath += ` L ${w*(islandPositions[i].x/100)} ${h*(islandPositions[i].y/100)}`; }
-            document.getElementById('rail-path').setAttribute('d', dPath);
-        }
-        window.addEventListener('resize', drawRails);
+  <div class="playerbar">
+    <div>⬜ Toi</div>
+    <div id="whiteClock" class="clock active">10:00</div>
+  </div>
 
-        // Force l'apparition du menu natif de raccourci Android
+  <div id="status">À toi de jouer.</div>
+</section>
 
-        /* BOUTON FORCE INSTAL */
-        #force-install-btn { background: #ffd700; color: #1a0f0a; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(255,215,0,0.4); display: block; }
-        #force-install-btn:hover { background: #fff; }
+<section id="overlay">
+  <div class="panel">
+    <h2 id="endTitle">Partie terminée</h2>
+    <p id="endText"></p>
+    <button class="action gold" onclick="restart()">🔄 Rejouer</button>
+    <button class="action red" onclick="goMenu()">🏠 Menu</button>
+  </div>
+</section>
 
-        .slots-container { display: flex; gap: 20px; width: 90%; max-width: 1000px; }
-        .slot { flex: 1; background: rgba(44, 24, 16, 0.9); border: 3px solid #5c3a1e; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .slot:hover { border-color: #ffd700; transform: translateY(-5px); }
-        .slot h2 { color: #ffd700; margin-bottom: 15px; border-bottom: 2px solid #5c3a1e; padding-bottom: 5px; }
-        .slot p { margin: 8px 0; font-size: 1.1rem; }
-        .delete-btn { background: #8b0000; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
-        .delete-btn:hover { background: #ff0000; }
+<div id="narrator"></div>
 
-        /* POPUP SECURITE */
-        #security-popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
-        .popup-box { background: #2c1810; border: 4px solid #8b0000; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
-        .popup-box p { font-size: 1.2rem; margin-bottom: 20px; }
-        .popup-btns { display: flex; gap: 15px; justify-content: center; }
-        .popup-btn { padding: 10px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn-no { background: #228b22; color: white; }
-        .btn-yes { background: #8b0000; color: white; }
+<script>
+"use strict";
 
-        /* INTERFACE CARTE JEU JEU VIDEO */
-        #map-screen { display: none; height: 100vh; position: relative; background: #2b5c8f; }
-        .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 60px; background: rgba(44, 24, 16, 0.9); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 3px solid #5c3a1e; z-index: 100; }
-        .hud-item { font-size: 1.2rem; font-weight: bold; color: #ffd700; display: flex; align-items: center; gap: 8px; }
-        .mute-btn { background: none; border: 2px solid #ffd700; color: #ffd700; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+/* =========================
+   CONSTANTES
+========================= */
+const W=0, B=1;
+const P=1, N=2, BI=3, R=4, Q=5, K=6, DUCK=7;
+const F="abcdefgh";
+const ICON={
+  0:{1:"♙",2:"♘",3:"♗",4:"♖",5:"♕",6:"♔",7:"🦆"},
+  1:{1:"♟",2:"♞",3:"♝",4:"♜",5:"♛",6:"♚",7:"🦆"}
+};
+const VALUE={1:1,2:3,3:3,4:5,5:9,6:100};
+const MODE_NAME={
+  normal:"♟ Normal", blitz:"⚡ Blitz", rapid:"⏳ Rapide",
+  crazyhouse:"🏠 Crazyhouse", pawnrace:"🏃 Course des Pions",
+  koth:"⛰️ Roi de la Colline", atomic:"💥 Échecs Atomiques",
+  horde:"👹 La Horde", fog:"🌫️ Brouillard de Guerre",
+  duck:"🦆 Échecs Canard"
+};
+const DIFF=[
+  ["Facile","♟️","Un pion maladroit qui fait des erreurs."],
+  ["Moyen 1","♞","Un écuyer qui connaît les bases."],
+  ["Moyen +","♝","Il cherche les captures et les tactiques."],
+  ["Difficile","♛","Un adversaire très compétitif."],
+  ["Dark","👁️","Le Roi Sombre cherche les meilleurs coups."]
+];
 
-        /* LA MAP ISO-STYLE AVEC ILES FLOTTANTES */
-        .world-map { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        svg.rails-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
-        .rail-line { fill: none; stroke: #ffd700; stroke-width: 6; stroke-dasharray: 10, 5; opacity: 0.6; stroke-linecap: round; }
+/* =========================
+   ÉTAT DU JEU
+========================= */
+let board,turn,selected,mode,difficulty=0,gameActive=false;
+let ep=null,castle,reserves,duckPos=null,duckPhase=false;
+let lastFrom=null,lastTo=null,timer=null,wt=600,bt=600;
+let narration=true,view3d=false,moveHistory=[];
 
-        /* Îles flottantes */
-        .island { position: absolute; width: 180px; height: 120px; border-radius: 50% / 40%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 20px 0 #3a2312, 0 30px 20px rgba(0,0,0,0.6); transition: 0.3s; cursor: pointer; border: 3px dashed transparent; }
-        .island:hover { transform: translateY(-5px); border-color: #ffd700; }
-        .island-name { font-weight: bold; text-shadow: 2px 2px 4px #000; font-size: 1.1rem; text-align: center; pointer-events: none; }
-        
-        /* Thèmes des îles */
-        .island-1 { background: #32cd32; top: 70%; left: 15%; }
-        .island-2 { background: #8a2be2; top: 50%; left: 40%; }
-        .island-3 { background: #cd853f; top: 25%; left: 25%; }
-        .island-4 { background: #4682b4; top: 20%; left: 65%; }
-        .island-5 { background: #708090; top: 45%; left: 75%; }
-        .island-6 { background: #ffd700; top: 70%; left: 55%; color: #000; box-shadow: 0 20px 0 #b8860b, 0 30px 20px rgba(0,0,0,0.6); }
+/* =========================
+   MENU
+========================= */
+let chosenMode="normal";
 
-        /* HERO STATUE */
-        #hero-statue { width: 45px; height: 45px; background: #006400; border: 3px solid #ffd700; border-radius: 50%; position: absolute; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 5px 10px rgba(0,0,0,0.5); transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; }
-        
-        #hero-statue.bolt-pose { animation: boltAnimation 1.5s ease-in-out infinite alternate; background: #ffd700 !important; }
-        @keyframes boltAnimation {
-            0% { transform: scale(1.2) rotate(-15deg); box-shadow: 0 0 20px #ffd700; }
-            100% { transform: scale(1.2) rotate(15deg); box-shadow: 0 0 40px #ffd700; }
-        }
-    </style>
-</head>
-<body>
+function openDifficulty(m){
+  chosenMode=m;
+  document.getElementById("difficultyBox").classList.add("show");
+  updateDifficulty(0);
+}
+function closeDifficulty(){
+  document.getElementById("difficultyBox").classList.remove("show");
+}
+function updateDifficulty(v){
+  difficulty=Number(v);
+  document.getElementById("diffSlider").value=v;
+  document.getElementById("diffAvatar").textContent=DIFF[v][1];
+  document.getElementById("diffName").textContent=DIFF[v][0];
+  document.getElementById("diffDesc").textContent=DIFF[v][2];
+}
+function startGame(){
+  closeDifficulty();
+  mode=chosenMode;
+  gameActive=true;
+  selected=null; ep=null; duckPos=null; duckPhase=false;
+  lastFrom=null;lastTo=null;moveHistory=[];
+  castle={K:true,Q:true,k:true,q:true};
+  reserves={[W]:[],[B]:[]};
+  turn=W;
+  setTimes();
+  setupBoard();
+  document.getElementById("menu").style.display="none";
+  document.getElementById("game").style.display="flex";
+  document.getElementById("modeTitle").textContent=MODE_NAME[mode];
+  narrate("La bataille commence, jeune chevalier !");
+  render();
+  startTimer();
+}
+function setTimes(){
+  if(mode==="normal"){wt=3600;bt=3600}
+  else if(mode==="blitz"){wt=600;bt=600}
+  else if(mode==="rapid"){wt=900;bt=900}
+  else{wt=99999;bt=99999}
+}
+function goMenu(){
+  gameActive=false;clearInterval(timer);
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById("game").style.display="none";
+  document.getElementById("menu").style.display="flex";
+}
+function restart(){document.getElementById("overlay").classList.remove("show");startGame()}
 
-    <!-- ÉCRAN DE SAUVEGARDE DE DEPART -->
-    <div id="save-screen">
-        <h1 class="title">CHESS QUEST : LE ROYAUME DES ROIS</h1>
-        
-        <!-- Nouveau bouton magique qui force le système Android de raccourci -->
-        <button id="force-install-btn" onclick="forceAndroidShortcut()">📲 INSTALLER SUR L'ÉCRAN D'ACCUEIL</button>
+/* =========================
+   PLATEAU
+========================= */
+function empty(){return Array.from({length:8},()=>Array(8).fill(null))}
+function setupBoard(){
+  board=empty();
+  if(mode==="pawnrace"){
+    for(let x=0;x<8;x++){board[1][x]={t:P,c:B};board[6][x]={t:P,c:W}}
+    return;
+  }
+  if(mode==="horde"){
+    back(0,B);pawns(1,B);
+    for(let y=4;y<8;y++)for(let x=0;x<8;x++)board[y][x]={t:P,c:W};
+    for(const x of [1,3,5,7])board[3][x]={t:P,c:W};
+    return;
+  }
+  back(0,B);pawns(1,B);pawns(6,W);back(7,W);
+  if(mode==="duck"){
+    duckPos=[3,4];
+    board[3][4]={t:DUCK,c:-1};
+  }
+}
+function back(y,c){
+  const a=[R,N,BI,Q,K,BI,N,R];
+  for(let x=0;x<8;x++)board[y][x]={t:a[x],c};
+}
+function pawns(y,c){for(let x=0;x<8;x++)board[y][x]={t:P,c}}
+function inside(r,c){return r>=0&&r<8&&c>=0&&c<8}
+function clone(b){return b.map(row=>row.map(p=>p?{...p}:null))}
 
-        <div class="slots-container">
-            <div class="slot" onclick="loadGame('Fichier A', 'Facile', 45, 28, '12h 34m')">
-                <h2>Fichier A</h2>
-                <p>🟢 Difficulté : <b>Facile</b></p>
-                <p>🗺️ Progression : <b>Monde 3 (45%)</b></p>
-                <p>⭐ Étoiles : <b>28 ★</b></p>
-                <p>⏱️ Temps de jeu : <b>12 h 34 min</b></p>
-                <button class="delete-btn" onclick="triggerDelete(event, 'A')">🗑️ Effacer la partie</button>
-            </div>
-            <div class="slot" onclick="loadGame('Fichier B', 'Difficile', 15, 5, '01h 12m')">
-                <h2>Fichier B</h2>
-                <p>🔴 Difficulté : <b>Difficile</b></p>
-                <p>🗺️ Progression : <b>Monde 1 (15%)</b></p>
-                <p>⭐ Étoiles : <b>5 ★</b></p>
-                <p>⏱️ Temps de jeu : <b>01 h 12 min</b></p>
-                <button class="delete-btn" onclick="triggerDelete(event, 'B')">🗑️ Effacer la partie</button>
-            </div>
-            <div class="slot" onclick="loadGame('Fichier C', 'Vide', 0, 0, '00h 00m')">
-                <h2>Fichier C</h2>
-                <p style="color: gray; font-style: italic;">Emplacement Vide</p>
-                <p>Créer une nouvelle aventure...</p>
-            </div>
-        </div>
-    </div>
+/* =========================
+   COUPS
+========================= */
+function checkRules(color){
+  if(mode==="duck"||mode==="pawnrace")return false;
+  if(mode==="horde"&&color===W)return false;
+  return true;
+}
+function movesFor(b,color,forAttack=false){
+  let out=[];
+  if(duckPhase&&!forAttack){
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++)
+      if(!b[r][c])out.push({fr:duckPos[0],fc:duckPos[1],tr:r,tc:c,duck:true});
+    return out;
+  }
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=b[r][c]; if(!p||p.c!==color||p.t===DUCK)continue;
+    if(p.t===P)out.push(...pawnMoves(b,r,c,color));
+    if(p.t===N)out.push(...knightMoves(b,r,c,color));
+    if(p.t===BI)out.push(...slide(b,r,c,color,[[-1,-1],[-1,1],[1,-1],[1,1]]));
+    if(p.t===R)out.push(...slide(b,r,c,color,[[-1,0],[1,0],[0,-1],[0,1]]));
+    if(p.t===Q)out.push(...slide(b,r,c,color,[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]));
+    if(p.t===K)out.push(...kingMoves(b,r,c,color,forAttack));
+  }
+  if(mode==="crazyhouse"&&!forAttack){
+    for(const t of reserves[color])for(let r=0;r<8;r++)for(let c=0;c<8;c++)
+      if(!b[r][c]&&!(t===P&&(r===0||r===7)))out.push({drop:true,t,tr:r,tc:c});
+  }
+  return out;
+}
+function pawnMoves(b,r,c,col){
+  const a=[],d=col===W?-1:1,start=col===W?6:1,last=col===W?0:7;
+  if(inside(r+d,c)&&!b[r+d][c]){
+    if(r+d===last)[Q,R,BI,N].forEach(t=>a.push({fr:r,fc:c,tr:r+d,tc:c,promo:t}));
+    else a.push({fr:r,fc:c,tr:r+d,tc:c});
+    if(r===start&&!b[r+2*d][c])a.push({fr:r,fc:c,tr:r+2*d,tc:c});
+  }
+  for(const dc of [-1,1]){
+    const nr=r+d,nc=c+dc;if(!inside(nr,nc))continue;
+    if(b[nr][nc]&&b[nr][nc].c!==col&&b[nr][nc].t!==DUCK){
+      if(nr===last)[Q,R,BI,N].forEach(t=>a.push({fr:r,fc:c,tr:nr,tc:nc,promo:t}));
+      else a.push({fr:r,fc:c,tr:nr,tc:nc});
+    }
+    if(ep&&ep[0]===nr&&ep[1]===nc)a.push({fr:r,fc:c,tr:nr,tc:nc,ep:true});
+  }
+  return a;
+}
+function knightMoves(b,r,c,col){
+  const a=[];for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){
+    const nr=r+dr,nc=c+dc;if(inside(nr,nc)&&(!b[nr][nc]||b[nr][nc].c!==col))a.push({fr:r,fc:c,tr:nr,tc:nc});
+  }return a;
+}
+function slide(b,r,c,col,dirs){
+  const a=[];for(const [dr,dc] of dirs){let nr=r+dr,nc=c+dc;
+    while(inside(nr,nc)){const q=b[nr][nc];if(q){if(q.c!==col&&q.t!==DUCK)a.push({fr:r,fc:c,tr:nr,tc:nc});break}
+      a.push({fr:r,fc:c,tr:nr,tc:nc});nr+=dr;nc+=dc;
+    }}return a;
+}
+function kingMoves(b,r,c,col,attack){
+  const a=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    if(!dr&&!dc)continue;const nr=r+dr,nc=c+dc;
+    if(inside(nr,nc)&&(!b[nr][nc]||b[nr][nc].c!==col))a.push({fr:r,fc:c,tr:nr,tc:nc});
+  }
+  if(attack||mode==="duck")return a;
+  const row=col===W?7:0, ks=col===W?"K":"k",qs=col===W?"Q":"q";
+  if(r===row&&c===4&&!attacked(b,row,4,1-col)){
+    if(castle[ks]&&!b[row][5]&&!b[row][6]&&b[row][7]?.t===R&&!attacked(b,row,5,1-col)&&!attacked(b,row,6,1-col))
+      a.push({fr:r,fc:c,tr:row,tc:6,castle:"K"});
+    if(castle[qs]&&!b[row][3]&&!b[row][2]&&!b[row][1]&&b[row][0]?.t===R&&!attacked(b,row,3,1-col)&&!attacked(b,row,2,1-col))
+      a.push({fr:r,fc:c,tr:row,tc:2,castle:"Q"});
+  }
+  return a;
+}
+function attacked(b,r,c,by){
+  for(const m of movesFor(b,by,true))if(m.tr===r&&m.tc===c)return true;
+  return false;
+}
+function kingPos(b,col){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]?.t===K&&b[r][c]?.c===col)return[r,c];
+  return null;
+}
+function inCheck(b,col){
+  const k=kingPos(b,col);return k?attacked(b,k[0],k[1],1-col):true;
+}
+function apply(b,m,col=turn){
+  const n=clone(b);
+  if(m.drop){n[m.tr][m.tc]={t:m.t,c:col};return n}
+  if(m.duck){n[m.fr][m.fc]=null;n[m.tr][m.tc]={t:DUCK,c:-1};return n}
+  const p=n[m.fr][m.fc];if(!p)return n;
+  if(m.ep)n[m.fr][m.tc]=null;
+  n[m.tr][m.tc]=p;n[m.fr][m.fc]=null;
+  if(m.promo)p.t=m.promo;
+  if(m.castle==="K"){n[m.fr][5]=n[m.fr][7];n[m.fr][7]=null}
+  if(m.castle==="Q"){n[m.fr][3]=n[m.fr][0];n[m.fr][0]=null}
+  return n;
+}
+function legalMoves(color=turn){
+  const raw=movesFor(board,color);
+  if(!checkRules(color))return raw;
+  return raw.filter(m=>!inCheck(apply(board,m,color),color));
+}
 
-    <!-- POPUP DE CONFIRMATION -->
-    <div id="security-popup">
-        <div class="popup-box">
-            <p>⚠️ <b>Êtes-vous certain de vouloir supprimer cette sauvegarde ?</b></p>
-            <div class="popup-btns">
-                <button class="popup-btn btn-no" id="default-focus-no" onclick="closePopup()">NON, RETOUR</button>
-                <button class="popup-btn btn-yes" onclick="confirmDelete()">OUI, SUPPRIMER</button>
-            </div>
-        </div>
-    </div>
+/* =========================
+   JOUER UN COUP
+========================= */
+function play(m){
+  if(!gameActive)return;
 
-    <!-- ÉCRAN DE LA CARTE -->
-    <div id="map-screen">
-        <div class="top-bar">
-            <div class="hud-item" id="hud-name">👤 Joueur</div>
-            <div class="hud-item" id="hud-stars">⭐ 0 ★</div>
-            <div class="hud-item" id="hud-time">⏱️ Temps : 00h 00m</div>
-            <button class="mute-btn" id="mute-toggle" onclick="toggleMute()">🔊 NARRATEUR</button>
-        </div>
+  if(m.drop){
+    reserves[turn].splice(reserves[turn].indexOf(m.t),1);
+    board=apply(board,m);finishTurn(m);return;
+  }
+  if(m.duck){
+    board=apply(board,m);duckPos=[m.tr,m.tc];duckPhase=false;
+    document.getElementById("duckNotice").style.display="none";
+    finishTurn(m);return;
+  }
 
-        <div class="world-map">
-            <svg class="rails-layer"><path id="rail-path" class="rail-line" d="M 0 0"/></svg>
-            <div id="hero-statue">🏹</div>
-            <div class="island island-1" onclick="moveHeroToIsland(1)"><span class="island-name">🟢 Monde 1<br>Pions</span></div>
-            <div class="island island-2" onclick="moveHeroToIsland(2)"><span class="island-name">🔵 Monde 2<br>Fous</span></div>
-            <div class="island island-3" onclick="moveHeroToIsland(3)"><span class="island-name">🔴 Monde 3<br>Cavaliers</span></div>
-            <div class="island island-4" onclick="moveHeroToIsland(4)"><span class="island-name">🟣 Monde 4<br>Canard</span></div>
-            <div class="island island-5" onclick="moveHeroToIsland(5)"><span class="island-name">🟤 Monde 5<br>Tours</span></div>
-            <div class="island island-6" onclick="moveHeroToIsland(6)"><span class="island-name">👑 Monde 6<br>Reine</span></div>
-        </div>
-    </div>
+  const piece=board[m.fr][m.fc];
+  let captured=m.ep?board[m.fr][m.tc]:board[m.tr][m.tc];
 
-    <script>
-        let currentSlotToDelete = null;
-        let isMuted = false;
+  if(captured&&captured.t!==DUCK){
+    if(mode==="crazyhouse"&&captured.t!==K)reserves[turn].push(captured.t);
+    narrate("Belle capture !");
+  }
 
-        const islandPositions = { 1: { x: 23, y: 78 }, 2: { x: 48, y: 58 }, 3: { x: 33, y: 33 }, 4: { x: 73, y: 28 }, 5: { x: 83, y: 53 }, 6: { x: 63, y: 78 } };
+  board=apply(board,m);
 
-        function drawRails() {
-            const w = window.innerWidth; const h = window.innerHeight;
-            let dPath = `M ${w*(islandPositions[1].x/100)} ${h*(islandPositions[1].y/100)}`;
-            for(let i=2; i<=6; i++) { dPath += ` L ${w*(islandPositions[i].x/100)} ${h*(islandPositions[i].y/100)}`; }
-            document.getElementById('rail-path').setAttribute('d', dPath);
-        }
-        window.addEventListener('resize', drawRails);
+  /* ÉCHECS ATOMIQUES :
+     - pièce capturée détruite ;
+     - pièce capturante détruite ;
+     - pièces voisines détruites ;
+     - pions voisins résistants. */
+  if(mode==="atomic"&&captured&&captured.t!==DUCK){
+    narrate("💥 BOOM ! Explosion atomique !");
+    const cr=m.tr,cc=m.tc;
+    board[cr][cc]=null; /* capturante détruite */
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(dr===0&&dc===0)continue;
+      const r=cr+dr,c=cc+dc;if(!inside(r,c))continue;
+      const victim=board[r][c];
+      if(victim&&victim.t!==P)board[r][c]=null;
+    }
+    if(!kingPos(board,W)){end("💥 Le Roi blanc a explosé ! Les Noirs gagnent !");return}
+    if(!kingPos(board,B)){end("💥 Le Roi noir a explosé ! Les Blancs gagnent !");return}
+  }
 
-        // Force l'apparition du menu natif de raccourci Android
-Utilisez le code avec précaution.function forceAndroidShortcut() {alert("👉 Cliquez maintenant sur les 3 petits points en haut à droite de Chrome, puis choisissez 'Installer et créer un raccourci' ou 'Ajouter à l'écran d'accueil'.");}function loadGame(name, diff, prog, stars, time) {if (currentSlotToDelete) return;document.getElementById('save-screen').style.display = 'none';document.getElementById('map-screen').style.display = 'block';document.getElementById('hud-name').innerText = 👤 ${name} (${diff});document.getElementById('hud-stars').innerText = ⭐ ${stars} ★;document.getElementById('hud-time').innerText = ⏱️ ${time};drawRails();moveHeroToIsland(1, true);}function moveHeroToIsland(id, instant = false) {const hero = document.getElementById('hero-statue');const pos = islandPositions[id];hero.style.transition = instant ? 'none' : 'all 1.2s cubic-bezier(0.25, 1, 0.5, 1)';hero.style.left = calc(${pos.x}% - 22px);hero.style.top = calc(${pos.y}% - 22px);if(id === 6 && !instant) {setTimeout(() => { hero.classList.add('bolt-pose'); }, 1200);} else { hero.classList.remove('bolt-pose'); }}function triggerDelete(event, slot) { event.stopPropagation(); currentSlotToDelete = slot; document.getElementById('security-popup').style.display = 'flex'; document.getElementById('default-focus-no').focus(); }function closePopup() { document.getElementById('security-popup').style.display = 'none'; currentSlotToDelete = null; }function confirmDelete() { closePopup(); location.reload(); }function toggleMute() { isMuted = !isMuted; const btn = document.getElementById('mute-toggle'); btn.innerText = isMuted ? "🔇 MUTED" : "🔊 NARRATEUR"; btn.style.borderColor = isMuted ? "#8b0000" : "#ffd700"; btn.style.color = isMuted ? "#8b0000" : "#ffd700"; }
+  ep=null;
+  if(piece.t===P&&Math.abs(m.tr-m.fr)===2)ep=[(m.tr+m.fr)/2,m.fc];
+
+  if(piece.t===K){
+    if(turn===W){castle.K=false;castle.Q=false}else{castle.k=false;castle.q=false}
+  }
+  if(piece.t===R){
+    if(m.fr===7&&m.fc===0)castle.Q=false;
+    if(m.fr===7&&m.fc===7)castle.K=false;
+    if(m.fr===0&&m.fc===0)castle.q=false;
+    if(m.fr===0&&m.fc===7)castle.k=false;
+  }
+
+  if(mode==="duck"){
+    duckPhase=true;lastFrom=[m.fr,m.fc];lastTo=[m.tr,m.tc];
+    document.getElementById("duckNotice").style.display="block";
+    render();status("🦆 Déplace maintenant le canard !");
+    return;
+  }
+  finishTurn(m);
+}
+function finishTurn(m){
+  lastFrom=m.drop?null:[m.fr,m.fc];lastTo=[m.tr,m.tc];
+  moveHistory.push(m);turn=1-turn;
+  render();updateClocks();
+  if(variantWin()||gameEnd())return;
+  if(turn===B){status("L'IA réfléchit...");setTimeout(aiMove,400)}
+  else status(inCheck(board,W)&&checkRules(W)?"⚠️ Ton Roi est en échec !":"À toi de jouer.");
+}
+function variantWin(){
+  if(mode==="koth"){
+    for(const [r,c] of [[3,3],[3,4],[4,3],[4,4]]){
+      if(board[r][c]?.t===K){end(board[r][c].c===W?"🏔️ Roi de la Colline ! Tu gagnes !":"🏔️ Le Roi noir atteint la colline !");return true}
+    }
+  }
+  if(mode==="pawnrace"){
+    for(let c=0;c<8;c++){
+      if(board[0][c]?.c===W){end("🏃 Ton pion atteint la dernière ligne ! Victoire !");return true}
+      if(board[7][c]?.c===B){end("🏃 Le pion noir gagne la course !");return true}
+    }
+  }
+  if(mode==="horde"){
+    let white=0;for(const row of board)for(const p of row)if(p?.c===W)white++;
+    if(!white){end("La Horde est détruite ! Les Noirs gagnent.");return true}
+  }
+  if(mode==="duck"){
+    if(!kingPos(board,W)){end("Le Roi blanc est capturé ! Les Noirs gagnent.");return true}
+    if(!kingPos(board,B)){end("Le Roi noir est capturé ! Tu gagnes !");return true}
+  }
+  return false;
+}
+function gameEnd(){
+  const lm=legalMoves(turn);if(lm.length)return false;
+  if(mode==="pawnrace"){end(turn===W?"Tu es bloqué : défaite.":"Les Noirs sont bloqués : victoire !");return true}
+  if(mode==="duck"){end("Le canard bloque tout : match nul.");return true}
+  if(checkRules(turn)&&inCheck(board,turn)){
+    end(turn===W?"Échec et mat ! Les Noirs gagnent.":"Échec et mat ! Tu gagnes !");
+  }else end("Pat ! Match nul.");
+  return true;
+}
+
+/* =========================
+   IA SIMPLE
+========================= */
+function aiMove(){
+  if(!gameActive||turn!==B)return;
+  const ms=legalMoves(B);if(!ms.length){gameEnd();return}
+  let best=ms[0],bestScore=-999;
+  for(const m of ms){
+    let score=Math.random()*(difficulty===0?20:3);
+    if(m.drop)score+=(VALUE[m.t]||0)*.2;
+    else{
+      const target=board[m.tr][m.tc];
+      if(target)score+=(VALUE[target.t]||0)*10;
+      if(m.promo)score+=8;
+      if(m.castle)score+=1;
+      if(m.tr>=2&&m.tr<=5&&m.tc>=2&&m.tc<=5)score+=.5;
+    }
+    if(score>bestScore){bestScore=score;best=m}
+  }
+  play(best);
+}
+
+/* =========================
+   AFFICHAGE
+========================= */
+function render(){
+  const el=document.getElementById("board");el.innerHTML="";
+  el.classList.toggle("battle",view3d);
+  const lm=legalMoves(turn);
+  const targets=selected?lm.filter(m=>!m.drop&&m.fr===selected[0]&&m.fc===selected[1]):[];
+
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const s=document.createElement("div");
+    s.className="square "+((r+c)%2?"dark":"light");
+
+    if(lastFrom&&lastFrom[0]===r&&lastFrom[1]===c)s.classList.add("last");
+    if(lastTo&&lastTo[0]===r&&lastTo[1]===c)s.classList.add("last");
+    if(selected&&selected[0]===r&&selected[1]===c)s.classList.add("selected");
+
+    const possible=targets.find(m=>m.tr===r&&m.tc===c);
+    if(possible)s.classList.add(board[r][c]?"capture":"dot");
+
+    const kp=kingPos(board,turn);
+    if(kp&&kp[0]===r&&kp[1]===c&&checkRules(turn)&&inCheck(board,turn))s.classList.add("check");
+
+    if(mode==="fog"&&turn===W&&!visible(r,c))s.classList.add("fog");
+
+    if(c===0)s.innerHTML+=`<span class="coord rank">${8-r}</span>`;
+    if(r===7)s.innerHTML+=`<span class="coord file">${F[c]}</span>`;
+
+    const p=board[r][c];
+    if(p)s.innerHTML+=`<span class="piece">${ICON[p.c]?.[p.t]||"🦆"}</span>`;
+
+    s.onclick=()=>clickSquare(r,c);
+    el.appendChild(s);
+  }
+  renderReserve();
+}
+function visible(r,c){
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const p=board[y][x];
+    if(p?.c===W&&Math.abs(y-r)<=2&&Math.abs(x-c)<=2)return true;
+  }
+  return false;
+}
+function renderReserve(){
+  const wr=document.getElementById("whiteReserve"),br=document.getElementById("blackReserve");
+  if(mode!=="crazyhouse"){wr.style.display="none";br.style.display="none";return}
+  wr.style.display="block";br.style.display="block";
+  wr.innerHTML="Réserve blanche : ";
+  br.innerHTML="Réserve noire : ";
+  reserves[W].forEach((t,i)=>{
+    const b=document.createElement("button");b.textContent=ICON[W][t];
+    b.onclick=()=>selectDrop(t);wr.appendChild(b);
+  });
+  reserves[B].forEach(t=>br.innerHTML+=ICON[B][t]);
+}
+function selectDrop(t){
+  if(turn!==W)return;
+  selected=["drop",t];
+  status("Choisis une case vide pour déposer ta pièce.");
+  render();
+}
+function clickSquare(r,c){
+  if(!gameActive||turn!==W)return;
+  if(duckPhase){
+    const m=legalMoves().find(x=>x.duck&&x.tr===r&&x.tc===c);
+    if(m)play(m);return;
+  }
+  if(selected?.[0]==="drop"){
+    const m=legalMoves().find(x=>x.drop&&x.t===selected[1]&&x.tr===r&&x.tc===c);
+    if(m){selected=null;play(m)}return;
+  }
+  const moves=legalMoves();
+  if(selected){
+    const opts=moves.filter(m=>m.fr===selected[0]&&m.fc===selected[1]&&m.tr===r&&m.tc===c);
+    if(opts.length){
+      const queen=opts.find(m=>m.promo===Q)||opts[0];
+      selected=null;play(queen);return;
+    }
+  }
+  if(board[r][c]?.c===W&&board[r][c].t!==DUCK)selected=[r,c];
+  else selected=null;
+  render();
+}
+
+/* =========================
+   TIMER, AUDIO, FIN
+========================= */
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    if(!gameActive)return;
+    if(turn===W)wt--;else bt--;
+    updateClocks();
+    if(wt<=0)end("Temps écoulé ! Les Noirs gagnent.");
+    if(bt<=0)end("Temps écoulé ! Tu gagnes au temps !");
+  },1000);
+}
+function fmt(t){return `${Math.floor(Math.max(0,t)/60)}:${String(Math.max(0,t)%60).padStart(2,"0")}`}
+function updateClocks(){
+  const a=document.getElementById("whiteClock"),b=document.getElementById("blackClock");
+  a.textContent=fmt(wt);b.textContent=fmt(bt);
+  a.classList.toggle("active",turn===W);b.classList.toggle("active",turn===B);
+}
+function status(t){document.getElementById("status").textContent=t}
+function end(text){
+  gameActive=false;clearInterval(timer);
+  document.getElementById("endText").textContent=text;
+  document.getElementById("overlay").classList.add("show");
+  narrate(text);
+}
+function toggleView(){
+  view3d=!view3d;
+  document.getElementById("viewBtn").textContent=view3d?"3D":"2D";
+  render();
+}
+function toggleSound(){
+  narration=!narration;
+  document.getElementById("soundBtn").textContent=narration?"🔊":"🔇";
+  if(!narration&&"speechSynthesis"in window)speechSynthesis.cancel();
+}
+function narrate(text){
+  const n=document.getElementById("narrator");
+  n.textContent="🧙‍♂️ "+text;n.style.display="block";
+  setTimeout(()=>n.style.display="none",3500);
+  if(narration&&"speechSynthesis"in window){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="fr-FR";u.rate=.86;u.pitch=.65;
+    speechSynthesis.speak(u);
+  }
+}
+</script>
+</body>
+</html>
