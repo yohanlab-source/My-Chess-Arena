@@ -3,202 +3,588 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Chess Quest - Royaume des Rois</title>
+<title>Chess Quest - Le Royaume des Rois</title>
 
 <style>
-:root{
-  --wood:#3b2113;--wood2:#714225;--gold:#ffd45b;
-  --paper:#f2ddb0;--paper2:#cfad72;--red:#8b1111;
-  --green:#196d31;--dark:#15100d;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
-  margin:0;min-height:100vh;overflow-x:hidden;
-  font-family:Georgia,serif;color:#2b170b;
-  background:radial-gradient(circle at top,#704321,#1b100b 70%);
-}
-button,select{font-family:Georgia,serif;cursor:pointer}
-.hidden{display:none!important}
-
-/* MENU */
-#menu{min-height:100vh;padding:25px 12px;display:flex;flex-direction:column;align-items:center}
-h1{color:var(--gold);text-shadow:3px 3px 0 #000,0 0 18px #e8a90a;text-align:center;margin:5px 0;font-size:clamp(30px,7vw,52px)}
-.subtitle{color:#ffe8aa;text-align:center;margin-bottom:15px;font-style:italic}
-.panel{
-  width:min(96vw,560px);padding:18px;
-  border:5px solid var(--wood);border-radius:14px;
-  background:linear-gradient(135deg,var(--paper),var(--paper2),var(--paper));
-  box-shadow:0 10px 30px #0009,inset 0 0 35px #8d5e243b;
-}
-.category{color:var(--red);border-bottom:2px solid #8d5e24;margin:13px 0 8px;padding-bottom:5px;font-weight:bold}
-.mode{
-  width:100%;text-align:left;margin:5px 0;padding:11px;
-  color:#31190a;font-size:16px;font-weight:bold;
-  border:2px solid var(--wood2);border-radius:8px;
-  background:linear-gradient(#fff0c7,#d9b879);
-}
-.mode:active{transform:scale(.98);background:var(--gold)}
-.mode small{display:block;color:#654529;font-style:italic;margin-top:3px}
-
-/* CHOIX VS / AI */
-#opponentBox{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:15px;background:rgba(0,0,0,.78)}
-#opponentBox.show{display:flex}
-.opponent-panel{text-align:center}
-.opponent-panel h2{color:#7b1b12;margin-top:0}
-.opponent-btn{
-  width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;
-  margin:12px 0;padding:15px;border:3px solid #3b2113;border-radius:12px;
-  font-family:Georgia,serif;color:#2b170b;transition:transform .15s,filter .15s;
-}
-.opponent-btn:active{transform:scale(.97);filter:brightness(1.12)}
-.opponent-btn strong{font-size:27px}
-.opponent-btn small{font-size:14px;font-style:italic}
-.big-icon{font-size:38px}
-.vs-btn{background:linear-gradient(135deg,#f7e2a8,#c89b58)}
-.ai-btn{background:linear-gradient(135deg,#ded4d1,#927567)}
-
-/* DIFFICULTÉ */
-#difficultyBox{position:fixed;inset:0;z-index:20;display:none;background:#000b;align-items:center;justify-content:center;padding:15px}
-#difficultyBox.show{display:flex}
-#difficultyBox .panel{text-align:center}
-#diffAvatar{font-size:58px;margin:5px}
-#diffName{font-size:22px;color:var(--red);font-weight:bold}
-input[type=range]{width:100%;accent-color:#c68b00}
-.action{border:2px solid var(--wood);border-radius:8px;padding:10px 14px;font-size:16px;font-weight:bold;margin:4px}
-.gold{background:var(--gold);color:#251400}
-.red{background:var(--red);color:white}
-.green{background:var(--green);color:white}
-
-/* GAME */
-#game{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:5px 8px 18px;color:#fff2c9}
-.top{width:min(96vw,620px);display:flex;justify-content:space-between;align-items:center;gap:5px;padding:5px}
-.top button{border:2px solid var(--gold);background:#24140c;color:var(--gold);padding:7px;border-radius:7px}
-#modeTitle{font-size:14px;text-align:center;color:var(--gold)}
-.playerbar{width:min(96vw,620px);display:flex;justify-content:space-between;align-items:center;padding:5px 8px;color:#fff3c9}
-.clock{font-size:20px;padding:4px 10px;min-width:70px;text-align:center;border:2px solid #a77a34;border-radius:6px;background:#2b190d}
-.active{background:var(--gold);color:#211000;box-shadow:0 0 12px var(--gold)}
-.reserve{width:min(96vw,620px);min-height:34px;padding:4px 8px;background:#180f0a99;border:1px solid #a77a34;border-radius:7px;color:var(--gold);display:none}
-.reserve button{font-size:25px;border:0;background:transparent;cursor:pointer}
-#boardWrap{position:relative;width:min(96vw,620px)}
-#board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);border:5px solid #321a0d;box-shadow:0 8px 25px #000b}
-.square{position:relative;display:flex;justify-content:center;align-items:center;font-size:clamp(28px,8.5vw,58px);user-select:none}
-.light{background:#f0d9b5}
-.dark{background:#a96f4a}
-.selected{background:#f6db4a!important}
-.last{background:#b8c957!important}
-.dot:after{content:"";width:24%;height:24%;border-radius:50%;position:absolute;background:#1117}
-.capture{box-shadow:inset 0 0 0 5px #b40000aa}
-.check{background:#e61e1e!important}
-.fog{background:#111!important;color:transparent!important}
-.coord{position:absolute;font-size:10px;font-weight:bold;opacity:.65}
-.rank{top:1px;left:3px}.file{bottom:1px;right:3px}
-.light .coord{color:#9d6748}.dark .coord{color:#f2dcb9}
-.piece{filter:drop-shadow(2px 3px 2px #0008)}
-
-/* PIECES BLANCHES ET MARRON */
-.piece.white-piece{color:#fff9df;text-shadow:1px 1px 0 #5a381b,2px 2px 3px rgba(0,0,0,.65)}
-.piece.brown-piece{color:#512b16;text-shadow:1px 1px 0 #d09b61,2px 2px 3px rgba(0,0,0,.85)}
-
-#duckNotice{display:none;position:absolute;top:-35px;left:50%;transform:translateX(-50%);padding:5px 12px;background:var(--gold);color:#241400;border-radius:12px;font-weight:bold;z-index:3}
-#status{min-height:30px;padding:8px;text-align:center;color:var(--gold)}
-
-/* MODE BATTLE CHESS */
-#board.battle-mode{transform:perspective(800px) rotateX(27deg);transform-origin:center bottom;margin-top:45px;border-width:7px;border-color:#24130a;box-shadow:0 32px 45px rgba(0,0,0,.85),inset 0 0 18px #000}
-#board.battle-mode .square{border:1px solid rgba(0,0,0,.16)}
-#board.battle-mode .piece{transform:translateY(-7px) scale(1.10);filter:drop-shadow(4px 8px 3px rgba(0,0,0,.8))}
-.battle-attacker{z-index:20;animation:battleAttack .65s ease-in-out}
-.battle-victim{z-index:19;animation:battleVictim .65s ease-in forwards}
-@keyframes battleAttack{
-  0%{transform:translateY(-7px) scale(1.1)}
-  40%{transform:translateY(-35px) scale(1.48) rotate(-12deg)}
-  65%{transform:translateY(-14px) scale(1.28) rotate(9deg)}
-  100%{transform:translateY(-7px) scale(1.1)}
-}
-@keyframes battleVictim{
-  0%{transform:translateY(-7px) scale(1.1);opacity:1}
-  50%{transform:translateY(4px) scale(.78) rotate(35deg)}
-  100%{transform:translateY(25px) scale(.2) rotate(120deg);opacity:0}
-}
-.battle-cloud{position:absolute;z-index:50;display:flex;align-items:center;justify-content:center;width:68px;height:68px;margin-left:-34px;margin-top:-34px;border-radius:50%;font-size:30px;pointer-events:none;background:radial-gradient(circle,#fff4c8 0%,#ba7a32 38%,#4f250f 70%,transparent 72%);animation:battleCloud .7s ease-out forwards}
-@keyframes battleCloud{
-  0%{transform:scale(.2) rotate(0deg);opacity:0}
-  25%{transform:scale(1.35) rotate(20deg);opacity:1}
-  100%{transform:scale(2) rotate(100deg);opacity:0}
+:root {
+  --wood: #3b2113;
+  --wood2: #714225;
+  --gold: #ffd45b;
+  --paper: #f2ddb0;
+  --paper2: #cfad72;
+  --red: #8b1111;
+  --green: #196d31;
+  --dark: #15100d;
 }
 
-/* OVERLAY */
-#overlay{position:fixed;inset:0;z-index:30;background:#000c;display:none;align-items:center;justify-content:center;padding:15px}
-#overlay.show{display:flex}
-#overlay .panel{text-align:center}
-#overlay h2{color:var(--red)}
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
-/* PROMOTION */
-#promotionBox{position:fixed;z-index:80;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75)}
-#promotionBox.hidden{display:none}
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: Georgia, serif;
+  color: #2b170b;
+  background: radial-gradient(circle at top, #704321, #1b100b 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button, select {
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================
+   INTERFACES MENUS & PARCHEMINS
+========================================== */
+#menu {
+  min-height: 100vh;
+  padding: 25px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+h1 {
+  color: var(--gold);
+  text-shadow: 3px 3px 0 #000, 0 0 18px #e8a90a;
+  text-align: center;
+  margin: 5px 0;
+  font-size: clamp(30px, 7vw, 52px);
+}
+
+.subtitle {
+  color: #ffe8aa;
+  text-align: center;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.panel {
+  width: min(96vw, 560px);
+  padding: 18px;
+  border: 5px solid var(--wood);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--paper), var(--paper2), var(--paper));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 35px rgba(141,94,36,0.23);
+}
+
+.category {
+  color: var(--red);
+  border-bottom: 2px solid #8d5e24;
+  margin: 13px 0 8px;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+
+.mode {
+  width: 100%;
+  text-align: left;
+  margin: 5px 0;
+  padding: 11px;
+  color: #31190a;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid var(--wood2);
+  border-radius: 8px;
+  background: linear-gradient(#fff0c7, #d9b879);
+}
+
+.mode:active {
+  transform: scale(.98);
+  background: var(--gold);
+}
+
+.mode small {
+  display: block;
+  color: #654529;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+/* FENÊTRES MODALES ET POPUPS */
+#opponentBox, #difficultyBox, #promotionBox, #overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  background: rgba(0,0,0,0.8);
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+#opponentBox.show, #difficultyBox.show, #promotionBox.show, #overlay.show {
+  display: flex;
+}
+
+.opponent-panel, .panel {
+  text-align: center;
+}
+
+.opponent-btn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 0;
+  padding: 15px;
+  border: 3px solid #3b2113;
+  border-radius: 12px;
+  color: #2b170b;
+}
+
+.opponent-btn:active {
+  transform: scale(0.97);
+}
+
+.opponent-btn strong {
+  font-size: 27px;
+}
+
+.opponent-btn small {
+  font-size: 14px;
+  font-style: italic;
+}
+
+.big-icon {
+  font-size: 38px;
+}
+
+.vs-btn {
+  background: linear-gradient(135deg, #f7e2a8, #c89b58);
+}
+
+.ai-btn {
+  background: linear-gradient(135deg, #ded4d1, #927567);
+}
+
+#diffAvatar {
+  font-size: 58px;
+  margin: 5px;
+}
+
+#diffName {
+  font-size: 22px;
+  color: var(--red);
+  font-weight: bold;
+}
+
+input[type=range] {
+  width: 100%;
+  accent-color: #c68b00;
+}
+
+.action {
+  border: 2px solid var(--wood);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 4px;
+}
+
+.gold { background: var(--gold); color: #251400; }
+.red { background: var(--red); color: white; }
+.green { background: var(--green); color: white; }
+
+/* ==========================================
+   ZONE DE JEU & HUD
+========================================== */
+#game {
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 8px 18px;
+  color: #fff2c9;
+  width: 100%;
+}
+
+.top {
+  width: min(96vw, 620px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+}
+
+.top button {
+  border: 2px solid var(--gold);
+  background: #24140c;
+  color: var(--gold);
+  padding: 7px;
+  border-radius: 7px;
+  font-weight: bold;
+}
+
+#modeTitle {
+  font-size: 14px;
+  text-align: center;
+  color: var(--gold);
+}
+
+.playerbar {
+  width: min(96vw, 620px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  color: #fff3c9;
+}
+
+.clock {
+  font-size: 20px;
+  padding: 4px 10px;
+  min-width: 70px;
+  text-align: center;
+  border: 2px solid #a77a34;
+  border-radius: 6px;
+  background: #2b190d;
+}
+
+.clock.active {
+  background: var(--gold);
+  color: #211000;
+  box-shadow: 0 0 12px var(--gold);
+}
+
+.reserve {
+  width: min(96vw, 620px);
+  min-height: 40px;
+  padding: 4px 8px;
+  background: #180f0a99;
+  border: 1px solid #a77a34;
+  border-radius: 7px;
+  color: var(--gold);
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.reserve button {
+  font-size: 28px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ==========================================
+   ÉCHIQUIER ET PIÈCES
+========================================== */
+#boardWrap {
+  position: relative;
+  width: min(96vw, 620px);
+}
+
+#board {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 5px solid #321a0d;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+  transition: transform 0.5s ease;
+}
+
+.square {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(28px, 8.5vw, 58px);
+  user-select: none;
+}
+
+.light { background: #f0d9b5; }
+.dark { background: #a96f4a; }
+.selected { background: #f6db4a !important; }
+.last { background: rgba(184, 201, 87, 0.7) !important; }
+
+.dot:after {
+  content: "";
+  width: 24%;
+  height: 24%;
+  border-radius: 50%;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.capture {
+  box-shadow: inset 0 0 0 5px rgba(180, 0, 0, 0.67);
+}
+
+.check {
+  background: #e61e1e !important;
+}
+
+.fog {
+  background: #111 !important;
+  color: transparent !important;
+}
+
+.coord {
+  position: absolute;
+  font-size: 10px;
+  font-weight: bold;
+  opacity: .65;
+}
+
+.rank { top: 1px; left: 3px; }
+.file { bottom: 1px; right: 3px; }
+.light .coord { color: #9d6748; }
+.dark .coord { color: #f2dcb9; }
+
+.piece {
+  filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.5));
+  transition: transform 0.15s, filter 0.15s;
+  z-index: 5;
+}
+
+/* ==========================================
+   COULEURS SPÉCIFIQUES DES PIÈCES (BLANC / MARRON)
+========================================== */
+.piece.white-piece {
+  color: #fff9df;
+  text-shadow: 1px 1px 0 #5a381b, 2px 2px 3px rgba(0,0,0,.65);
+}
+
+.piece.brown-piece {
+  color: #512b16;
+  text-shadow: 1px 1px 0 #d09b61, 2px 2px 3px rgba(0,0,0,.85);
+}
+
+#duckNotice {
+  display: none;
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  background: var(--gold);
+  color: #241400;
+  border-radius: 12px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+#status {
+  min-height: 30px;
+  padding: 8px;
+  text-align: center;
+  color: var(--gold);
+}
+
+/* ==========================================
+   STYLE BATTLE CHESS (RENDU & ANIMATIONS)
+========================================== */
+#board.battle-mode {
+  transform: perspective(800px) rotateX(27deg);
+  transform-origin: center bottom;
+  margin-top: 30px;
+  border-width: 7px;
+  border-color: #24130a;
+  box-shadow: 0 32px 45px rgba(0,0,0,.85), inset 0 0 18px #000;
+}
+
+#board.battle-mode .square {
+  border: 1px solid rgba(0,0,0,.16);
+}
+
+#board.battle-mode .piece {
+  transform: translateY(-7px) scale(1.10);
+  filter: drop-shadow(4px 8px 3px rgba(0,0,0,.8));
+}
+
+.battle-attacker {
+  z-index: 20;
+  animation: battleAttack .65s ease-in-out;
+}
+
+.battle-victim {
+  z-index: 19;
+  animation: battleVictim .65s ease-in forwards;
+}
+
+@keyframes battleAttack {
+  0% { transform: translateY(-7px) scale(1.1); }
+  40% { transform: translateY(-35px) scale(1.48) rotate(-12deg); }
+  65% { transform: translateY(-14px) scale(1.28) rotate(9deg); }
+  100% { transform: translateY(-7px) scale(1.1); }
+}
+
+@keyframes battleVictim {
+  0% { transform: translateY(-7px) scale(1.1); opacity: 1; }
+  50% { transform: translateY(4px) scale(.78) rotate(35deg); }
+  100% { transform: translateY(25px) scale(.2) rotate(120deg); opacity: 0; }
+}
+
+.battle-cloud {
+  position: absolute;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  margin-left: -34px;
+  margin-top: -34px;
+  border-radius: 50%;
+  font-size: 30px;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff4c8 0%, #ba7a32 38%, #4f250f 70%, transparent 72%);
+  animation: battleCloud .7s ease-out forwards;
+}
+
+@keyframes battleCloud {
+  0% { transform: scale(.2) rotate(0deg); opacity: 0; }
+  25% { transform: scale(1.35) rotate(20deg); opacity: 1; }
+  100% { transform: scale(2) rotate(100deg); opacity: 0; }
+}
 </style>
 </head>
 
 <body>
 
+<!-- ==========================================
+     ÉCRAN : MENU PRINCIPAL
+========================================== -->
 <section id="menu">
   <h1>♚ Chess Quest ♔</h1>
   <div class="subtitle">Le Royaume des Rois</div>
 
   <div class="panel">
     <div class="category">⏱️ ÉCHECS CLASSIQUES</div>
-    <button class="mode" onclick="openDifficulty('normal')">♟ Normal<small>Partie classique : 1 heure par joueur.</small></button>
-    <button class="mode" onclick="openDifficulty('blitz')">⚡ Blitz<small>10 minutes par joueur.</small></button>
-    <button class="mode" onclick="openDifficulty('rapid')">⏳ Rapide<small>15 minutes par joueur.</small></button>
+
+    <button class="mode" onclick="openDifficulty('normal')">
+      ♟ Normal
+      <small>Partie classique : 1 heure par joueur.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('blitz')">
+      ⚡ Blitz
+      <small>10 minutes par joueur.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('rapid')">
+      ⏳ Rapide
+      <small>15 minutes par joueur.</small>
+    </button>
 
     <div class="category">🎲 VARIANTES & FUN</div>
-    <button class="mode" onclick="openDifficulty('crazyhouse')">🏠 Crazyhouse<small>Les pièces capturées deviennent des renforts.</small></button>
-    <button class="mode" onclick="openDifficulty('pawnrace')">🏃 Course des Pions<small>Promouvoir un pion ou bloquer l'adversaire.</small></button>
-    <button class="mode" onclick="openDifficulty('koth')">⛰️ Roi de la Colline<small>Amène ton Roi au centre de l'échiquier.</small></button>
-    <button class="mode" onclick="openDifficulty('atomic')">💥 Échecs Atomiques<small>Chaque capture provoque une explosion.</small></button>
-    <button class="mode" onclick="openDifficulty('horde')">👹 La Horde<small>36 pions blancs contre l'armée noire.</small></button>
-    <button class="mode" onclick="openDifficulty('fog')">🌫️ Brouillard de Guerre<small>Les ennemis cachés restent dans le brouillard.</small></button>
-    <button class="mode" onclick="openDifficulty('duck')">🦆 Échecs Canard<small>Déplace le canard après chaque coup.</small></button>
+
+    <button class="mode" onclick="openDifficulty('crazyhouse')">
+      🏠 Crazyhouse
+      <small>Les pièces capturées deviennent des renforts.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('pawnrace')">
+      🏃 Course des Pions
+      <small>Promouvoir un pion ou bloquer l'adversaire.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('koth')">
+      ⛰️ Roi de la Colline
+      <small>Amène ton Roi au centre de l'échiquier.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('atomic')">
+      💥 Échecs Atomiques
+      <small>Chaque capture provoque une explosion.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('horde')">
+      👹 La Horde
+      <small>36 pions blancs contre l'armée noire.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('fog')">
+      🌫️ Brouillard de Guerre
+      <small>Les ennemis cachés restent dans le brouillard.</small>
+    </button>
+
+    <button class="mode" onclick="openDifficulty('duck')">
+      🦆 Échecs Canard
+      <small>Déplace le canard après chaque coup.</small>
+    </button>
   </div>
 </section>
 
+<!-- ==========================================
+     MODALE : TYPE D'AFFRONTEMENT (VS / AI)
+========================================== -->
 <section id="opponentBox">
   <div class="panel opponent-panel">
     <h2>Choisis ton affrontement</h2>
-    <p>Veux-tu affronter un autre joueur ou le Bot du Royaume ?</p>
+    <p style="color:#5c3e1e; font-style:italic">Affronte un ami sur le même écran ou mesure-toi à l'ordinateur.</p>
+
     <button class="opponent-btn vs-btn" onclick="chooseOpponent('pvp')">
-      <span class="big-icon">⚔️</span><strong>VS</strong>
+      <span class="big-icon">⚔️</span>
+      <strong>VS</strong>
       <small>Joueur Blanc contre Joueur Marron</small>
     </button>
+
     <button class="opponent-btn ai-btn" onclick="chooseOpponent('ai')">
-      <span class="big-icon">🤖</span><strong>AI</strong>
+      <span class="big-icon">🤖</span>
+      <strong>AI</strong>
       <small>Joueur Blanc contre Bot Marron</small>
     </button>
+
     <button class="action red" onclick="closeOpponentBox()">← Retour</button>
   </div>
 </section>
 
+<!-- ==========================================
+     MODALE : DIFFICULTÉ DE L'AI
+========================================== -->
 <section id="difficultyBox">
   <div class="panel">
-    <h2>Choisis ton adversaire</h2>
+    <h2>Force de l'adversaire</h2>
     <div id="diffAvatar">♟️</div>
     <div id="diffName">Facile</div>
     <p id="diffDesc">Un pion maladroit qui fait des erreurs.</p>
+
     <input id="diffSlider" type="range" min="0" max="4" value="0" oninput="updateDifficulty(this.value)">
-    <div style="display:flex;justify-content:space-between;font-size:12px"><span>Facile</span><span>Dark</span></div>
+
+    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-top:5px">
+      <span>Facile</span><span>Dark</span>
+    </div>
+
     <br>
-    <button class="action gold" onclick="startGame()">⚔️ Jouer</button>
+    <button class="action gold" onclick="startGame()">⚔️ Lancer la bataille</button>
     <button class="action red" onclick="closeDifficulty()">Retour</button>
   </div>
 </section>
 
+<!-- ==========================================
+     ÉCRAN : PARTIE DE JEU
+========================================== -->
 <section id="game">
   <div class="top">
     <button onclick="goMenu()">🏠</button>
     <strong id="modeTitle"></strong>
-    <div><button id="viewBtn" onclick="toggleView()">♟ 2D</button></div>
+    <div>
+      <button id="viewBtn" onclick="toggleView()">♟ 2D</button>
+    </div>
   </div>
 
-  <div class="playerbar"><div id="blackLabel">🟤 Marron</div><div id="blackClock" class="clock">10:00</div></div>
+  <div class="playerbar">
+    <div style="font-weight:bold">🟤 Joueur Marron / Bot</div>
+    <div id="blackClock" class="clock">10:00</div>
+  </div>
+
   <div id="blackReserve" class="reserve"></div>
 
   <div id="boardWrap">
@@ -207,687 +593,1002 @@ input[type=range]{width:100%;accent-color:#c68b00}
   </div>
 
   <div id="whiteReserve" class="reserve"></div>
-  <div class="playerbar"><div id="whiteLabel">⬜ Blanc</div><div id="whiteClock" class="clock active">10:00</div></div>
-  <div id="status">À toi de jouer.</div>
+
+  <div class="playerbar">
+    <div style="font-weight:bold">⬜ Joueur Blanc</div>
+    <div id="whiteClock" class="clock active">10:00</div>
+  </div>
+
+  <div id="status">Chargement...</div>
 </section>
 
+<!-- ==========================================
+     MODALE : PROMOTION DU PION
+========================================== -->
+<section id="promotionBox">
+  <div class="panel">
+    <h2>Promotion d'un pion !</h2>
+    <p style="color:#5c3e1e; font-style:italic">Sélectionnez la pièce dans laquelle vous souhaitez muter votre pion.</p>
+    <div style="display:flex; justify-content:center; gap:10px">
+      <button class="action gold" onclick="choosePromotion(5)" style="font-size:35px; width:70px">♕</button>
+      <button class="action gold" onclick="choosePromotion(4)" style="font-size:35px; width:70px">♖</button>
+      <button class="action gold" onclick="choosePromotion(3)" style="font-size:35px; width:70px">♗</button>
+      <button class="action gold" onclick="choosePromotion(2)" style="font-size:35px; width:70px">♘</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     MODALE : FIN DE PARTIE
+========================================== -->
 <section id="overlay">
   <div class="panel">
     <h2 id="endTitle">Partie terminée</h2>
-    <p id="endText"></p>
-    <button class="action gold" onclick="restart()">🔄 Rejouer</button>
+    <p id="endText" style="font-size:18px; color:#5c3e1e"></p>
+    <button class="action gold" onclick="restart()">🔄 Recommencer</button>
     <button class="action red" onclick="goMenu()">🏠 Menu</button>
   </div>
 </section>
 
-<div id="promotionBox" class="hidden">
-  <div class="panel" style="text-align:center">
-    <h2>Promotion du pion !</h2>
-    <p>Choisis la nouvelle pièce :</p>
-    <button class="action gold" onclick="choosePromotion(5)">♕ Dame</button>
-    <button class="action gold" onclick="choosePromotion(4)">♖ Tour</button>
-    <button class="action gold" onclick="choosePromotion(3)">♗ Fou</button>
-    <button class="action gold" onclick="choosePromotion(2)">♘ Cavalier</button>
-  </div>
-</div>
-
+<!-- ==========================================
+     SCRIPTS & MOTEUR DE JEU
+========================================== -->
 <script>
 "use strict";
 
-/* ===== CONSTANTES ===== */
-const W=0, B=1;
-const P=1, N=2, BI=3, R=4, Q=5, K=6, DUCK=7;
-const F="abcdefgh";
-const ICON={
-  0:{1:"♙",2:"♘",3:"♗",4:"♖",5:"♕",6:"♔",7:"🦆"},
-  1:{1:"♟",2:"♞",3:"♝",4:"♜",5:"♛",6:"♚",7:"🦆"}
+/* =========================
+   CONSTANTES & DICTIONNAIRES
+========================= */
+const W = 0, B = 1;
+const P = 1, N = 2, BI = 3, R = 4, Q = 5, K = 6, DUCK = 7;
+const F = "abcdefgh";
+
+const ICON = {
+  0: { 1: "♙", 2: "♘", 3: "♗", 4: "♖", 5: "♕", 6: "♔", 7: "🦆" },
+  1: { 1: "♟", 2: "♞", 3: "♝", 4: "♜", 5: "♛", 6: "♚", 7: "🦆" }
 };
-const VALUE={1:1,2:3,3:3,4:5,5:9,6:100};
-const MODE_NAME={
-  normal:"♟ Normal",blitz:"⚡ Blitz",rapid:"⏳ Rapide",
-  crazyhouse:"🏠 Crazyhouse",pawnrace:"🏃 Course des Pions",
-  koth:"⛰️ Roi de la Colline",atomic:"💥 Atomiques",
-  horde:"👹 La Horde",fog:"🌫️ Brouillard",duck:"🦆 Canard"
+
+const VALUE = { 1: 100, 2: 320, 3: 330, 4: 500, 5: 900, 6: 20000 };
+
+const MODE_NAME = {
+  normal: "♟ Normal", blitz: "⚡ Blitz", rapid: "⏳ Rapide",
+  crazyhouse: "🏠 Crazyhouse", pawnrace: "🏃 Course des Pions",
+  koth: "⛰️ Roi de la Colline", atomic: "💥 Échecs Atomiques",
+  horde: "👹 La Horde", fog: "🌫️ Brouillard de Guerre",
+  duck: "🦆 Échecs Canard"
 };
-const DIFF=[
-  ["Facile","♟️","Un pion maladroit qui fait des erreurs."],
-  ["Moyen 1","♞","Un écuyer qui connaît les bases."],
-  ["Moyen +","♝","Il cherche les captures et tactiques."],
-  ["Difficile","♛","Un adversaire très compétitif."],
-  ["Dark","👁️","Le Roi Sombre cherche les meilleurs coups."]
+
+const DIFF = [
+  ["Facile", "♟️", "Un pion maladroit qui fait des erreurs."],
+  ["Moyen 1", "♞", "Un écuyer qui connaît les bases."],
+  ["Moyen +", "♝", "Il cherche les captures et les tactiques."],
+  ["Difficile", "♛", "Un adversaire très compétitif."],
+  ["Dark", "👁️", "Le Roi Sombre cherche les meilleurs coups."]
 ];
 
-/* ===== ÉTAT ===== */
-let board, turn, selected, mode, difficulty=0, gameActive=false;
-let opponentType="ai";
-let ep=null, castle, reserves, duckPos=null, duckPhase=false;
-let lastFrom=null, lastTo=null, timer=null, wt=600, bt=600;
-let view3d=false, moveHistory=[], chosenMode="normal";
-let pendingPromotionMoves=[];
+/* =========================
+   VARIABLES GLOBALES D'ÉTAT
+========================= */
+let board;
+let turn;
+let selected;
+let mode;
+let difficulty = 0;
+let gameActive = false;
+let opponentType = "ai"; // "ai" ou "pvp"
+let ep = null;
+let castle;
+let reserves;
+let duckPos = null;
+let duckPhase = false;
+let lastFrom = null;
+let lastTo = null;
+let timer = null;
+let wt = 600, bt = 600;
+let view3d = false;
+let moveHistory = [];
+let pendingPromotionMoves = [];
+let chosenMode = "normal";
 
-/* ===== MENU ===== */
-function openDifficulty(m){
-  chosenMode=m;
+/* =========================
+   GESTION DES MENUS & POPUPS
+========================= */
+function openDifficulty(m) {
+  chosenMode = m;
   document.getElementById("opponentBox").classList.add("show");
 }
-function closeOpponentBox(){document.getElementById("opponentBox").classList.remove("show")}
-function chooseOpponent(type){
-  opponentType=type;
+
+function closeOpponentBox() {
+  document.getElementById("opponentBox").classList.remove("show");
+}
+
+function chooseOpponent(type) {
+  opponentType = type;
   closeOpponentBox();
-  if(type==="ai"){
+
+  if (type === "ai") {
     document.getElementById("difficultyBox").classList.add("show");
     updateDifficulty(0);
     return;
   }
   startGame();
 }
-function closeDifficulty(){document.getElementById("difficultyBox").classList.remove("show")}
-function updateDifficulty(v){
-  difficulty=Number(v);
-  document.getElementById("diffSlider").value=v;
-  document.getElementById("diffAvatar").textContent=DIFF[v][1];
-  document.getElementById("diffName").textContent=DIFF[v][0];
-  document.getElementById("diffDesc").textContent=DIFF[v][2];
+
+function closeDifficulty() {
+  document.getElementById("difficultyBox").classList.remove("show");
 }
-function startGame(){
+
+function updateDifficulty(v) {
+  difficulty = Number(v);
+  document.getElementById("diffSlider").value = v;
+  document.getElementById("diffAvatar").textContent = DIFF[v][1];
+  document.getElementById("diffName").textContent = DIFF[v][0];
+  document.getElementById("diffDesc").textContent = DIFF[v][2];
+}
+
+function startGame() {
   closeDifficulty();
-  mode=chosenMode;
-  gameActive=true;
-  selected=null;ep=null;duckPos=null;duckPhase=false;
-  lastFrom=null;lastTo=null;moveHistory=[];
-  castle={K:true,Q:true,k:true,q:true};
-  reserves={[W]:[],[B]:[]};
-  turn=W;
+  mode = chosenMode;
+  gameActive = true;
+  selected = null; 
+  ep = null; 
+  duckPos = null; 
+  duckPhase = false;
+  lastFrom = null; 
+  lastTo = null; 
+  moveHistory = [];
+  castle = { K: true, Q: true, k: true, q: true };
+  reserves = { [W]: [], [B]: [] };
+  turn = W;
+
   setTimes();
   setupBoard();
-  document.getElementById("menu").style.display="none";
-  document.getElementById("game").style.display="flex";
-  const opponentLabel=opponentType==="pvp"?"⚔️ VS":"🤖 AI";
-  document.getElementById("modeTitle").textContent=`${MODE_NAME[mode]} — ${opponentLabel}`;
-  document.getElementById("blackLabel").textContent=opponentType==="pvp"?"🟤 Joueur Marron":"🤖 Bot Marron";
+
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("game").style.display = "flex";
+
+  const opponentLabel = opponentType === "pvp" ? "👥 VS" : "🤖 AI";
+  document.getElementById("modeTitle").textContent = `${MODE_NAME[mode]} — ${opponentLabel}`;
+
   render();
   startTimer();
-  status(opponentType==="pvp"?"⬜ Tour du Joueur Blanc.":"⬜ À toi de jouer.");
+  status(opponentType === "pvp" ? "⬜ Tour du Joueur Blanc." : "⬜ À toi de jouer.");
 }
-function setTimes(){
-  if(mode==="normal"){wt=3600;bt=3600}
-  else if(mode==="blitz"){wt=600;bt=600}
-  else if(mode==="rapid"){wt=900;bt=900}
-  else{wt=99999;bt=99999}
+
+function setTimes() {
+  if (mode === "normal") { wt = 3600; bt = 3600; }
+  else if (mode === "blitz") { wt = 600; bt = 600; }
+  else if (mode === "rapid") { wt = 900; bt = 900; }
+  else { wt = 99999; bt = 99999; }
 }
-function goMenu(){
-  gameActive=false;clearInterval(timer);
+
+function goMenu() {
+  gameActive = false;
+  clearInterval(timer);
   document.getElementById("overlay").classList.remove("show");
-  document.getElementById("game").style.display="none";
-  document.getElementById("menu").style.display="flex";
-}
-function restart(){document.getElementById("overlay").classList.remove("show");startGame()}
-
-/* ===== PLATEAU ===== */
-function empty(){return Array.from({length:8},()=>Array(8).fill(null))}
-function inside(r,c){return r>=0&&r<8&&c>=0&&c<8}
-function clone(b){return b.map(row=>row.map(p=>p?{...p}:null))}
-function setupBoard(){
-  board=empty();
-  if(mode==="pawnrace"){
-    for(let x=0;x<8;x++){board[1][x]={t:P,c:B};board[6][x]={t:P,c:W}}
-    return;
-  }
-  if(mode==="horde"){
-    back(0,B);pawns(1,B);
-    for(let y=4;y<8;y++)for(let x=0;x<8;x++)board[y][x]={t:P,c:W};
-    for(const x of [1,3,5,7])board[3][x]={t:P,c:W};
-    return;
-  }
-  back(0,B);pawns(1,B);pawns(6,W);back(7,W);
-  if(mode==="duck"){duckPos=[3,4];board[3][4]={t:DUCK,c:-1}}
-}
-function back(y,c){const a=[R,N,BI,Q,K,BI,N,R];for(let x=0;x<8;x++)board[y][x]={t:a[x],c}}
-function pawns(y,c){for(let x=0;x<8;x++)board[y][x]={t:P,c}}
-function canLandOn(b,r,c,color){
-  if(!inside(r,c))return false;
-  const t=b[r][c];
-  if(!t)return true;
-  if(t.t===DUCK)return false;
-  return t.c!==color;
+  document.getElementById("game").style.display = "none";
+  document.getElementById("menu").style.display = "flex";
 }
 
-/* ===== MOUVEMENTS RÉELS ===== */
-function pawnMoves(b,r,c,color){
-  const moves=[];
-  const dir=color===W?-1:1;
-  const start=color===W?6:1;
-  const promo=color===W?0:7;
-  const one=r+dir;
-  if(inside(one,c)&&!b[one][c]){
-    if(one===promo){
-      [Q,R,BI,N].forEach(pt=>moves.push({fr:r,fc:c,tr:one,tc:c,promo:pt}));
-    }else moves.push({fr:r,fc:c,tr:one,tc:c});
-    const two=r+dir*2;
-    if(r===start&&inside(two,c)&&!b[two][c])moves.push({fr:r,fc:c,tr:two,tc:c});
-  }
-  for(const dc of [-1,1]){
-    const tr=r+dir,tc=c+dc;
-    if(!inside(tr,tc))continue;
-    const t=b[tr][tc];
-    if(t&&t.c!==color&&t.t!==DUCK){
-      if(tr===promo)[Q,R,BI,N].forEach(pt=>moves.push({fr:r,fc:c,tr,tc,promo:pt}));
-      else moves.push({fr:r,fc:c,tr,tc});
+function restart() {
+  document.getElementById("overlay").classList.remove("show");
+  startGame();
+}
+
+/* =========================
+   STRUCTURE DU PLATEAU
+========================= */
+function empty() {
+  return Array.from({length: 8}, () => Array(8).fill(null));
+}
+
+function setupBoard() {
+  board = empty();
+  if (mode === "pawnrace") {
+    for (let x = 0; x < 8; x++) {
+      board[1][x] = { t: P, c: B };
+      board[6][x] = { t: P, c: W };
     }
-    if(ep&&ep[0]===tr&&ep[1]===tc)moves.push({fr:r,fc:c,tr,tc,ep:true});
+    return;
+  }
+  if (mode === "horde") {
+    back(0, B); pawns(1, B);
+    for (let y = 4; y < 8; y++) {
+      for (let x = 0; x < 8; x++) board[y][x] = { t: P, c: W };
+    }
+    for (const x of [1, 3, 5, 7]) board[3][x] = { t: P, c: W };
+    return;
+  }
+  back(0, B); pawns(1, B); pawns(6, W); back(7, W);
+  if (mode === "duck") {
+    duckPos = [3, 4];
+    board[3][4] = { t: DUCK, c: -1 };
+  }
+}
+
+function back(y, c) {
+  const a = [R, N, BI, Q, K, BI, N, R];
+  for (let x = 0; x < 8; x++) board[y][x] = { t: a[x], c };
+}
+
+function pawns(y, c) {
+  for (let x = 0; x < 8; x++) board[y][x] = { t: P, c };
+}
+
+/* ==========================================
+   MOTEUR LOGIQUE ET DE DÉPLACEMENT RÉEL
+========================================== */
+function inside(r, c) {
+  return r >= 0 && r < 8 && c >= 0 && c < 8;
+}
+
+function clone(boardState) {
+  return boardState.map(row => row.map(p => p ? { ...p } : null));
+}
+
+function canLandOn(boardState, r, c, color) {
+  if (!inside(r, c)) return false;
+  const target = boardState[r][c];
+  if (!target) return true;
+  if (target.t === DUCK) return false;
+  return target.c !== color;
+}
+
+/* 1. COMPORTEMENT DU PION */
+function pawnMoves(boardState, r, c, color) {
+  const moves = [];
+  const direction = color === W ? -1 : 1;
+  const startingRow = color === W ? 6 : 1;
+  const promotionRow = color === W ? 0 : 7;
+  const oneForward = r + direction;
+
+  if (inside(oneForward, c) && !boardState[oneForward][c]) {
+    if (oneForward === promotionRow) {
+      [Q, R, BI, N].forEach(t => moves.push({ fr: r, fc: c, tr: oneForward, tc: c, promo: t }));
+    } else {
+      moves.push({ fr: r, fc: c, tr: oneForward, tc: c });
+    }
+
+    const twoForward = r + direction * 2;
+    if (r === startingRow && inside(twoForward, c) && !boardState[twoForward][c]) {
+      moves.push({ fr: r, fc: c, tr: twoForward, tc: c });
+    }
+  }
+
+  for (const dc of [-1, 1]) {
+    const targetRow = r + direction;
+    const targetCol = c + dc;
+    if (!inside(targetRow, targetCol)) continue;
+
+    const target = boardState[targetRow][targetCol];
+    if (target && target.c !== color && target.t !== DUCK) {
+      if (targetRow === promotionRow) {
+        [Q, R, BI, N].forEach(t => moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol, promo: t }));
+      } else {
+        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
+      }
+    }
+
+    if (ep && ep[0] === targetRow && ep[1] === targetCol) {
+      moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol, ep: true });
+    }
   }
   return moves;
 }
-function knightMoves(b,r,c,color){
-  const moves=[];
-  for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){
-    const tr=r+dr,tc=c+dc;
-    if(canLandOn(b,tr,tc,color))moves.push({fr:r,fc:c,tr,tc});
+
+/* 2. COMPORTEMENT DU CAVALIER */
+function knightMoves(boardState, r, c, color) {
+  const moves = [];
+  const jumps = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+  for (const [dr, dc] of jumps) {
+    const targetRow = r + dr;
+    const targetCol = c + dc;
+    if (canLandOn(boardState, targetRow, targetCol, color)) {
+      moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
+    }
   }
   return moves;
 }
-function slideMoves(b,r,c,color,dirs){
-  const moves=[];
-  for(const [dr,dc] of dirs){
-    let tr=r+dr,tc=c+dc;
-    while(inside(tr,tc)){
-      const t=b[tr][tc];
-      if(t&&t.t===DUCK)break;
-      if(!t){moves.push({fr:r,fc:c,tr,tc});tr+=dr;tc+=dc;continue}
-      if(t.c!==color)moves.push({fr:r,fc:c,tr,tc});
+
+/* 3. PIÈCES COULISSANTES */
+function slideMoves(boardState, r, c, color, directions) {
+  const moves = [];
+  for (const [dr, dc] of directions) {
+    let targetRow = r + dr;
+    let targetCol = c + dc;
+    while (inside(targetRow, targetCol)) {
+      const target = boardState[targetRow][targetCol];
+      if (target && target.t === DUCK) break;
+      if (!target) {
+        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
+        targetRow += dr; targetCol += dc;
+        continue;
+      }
+      if (target.c !== color) {
+        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
+      }
       break;
     }
   }
   return moves;
 }
-function bishopMoves(b,r,c,color){return slideMoves(b,r,c,color,[[-1,-1],[-1,1],[1,-1],[1,1]])}
-function rookMoves(b,r,c,color){return slideMoves(b,r,c,color,[[-1,0],[1,0],[0,-1],[0,1]])}
-function queenMoves(b,r,c,color){return slideMoves(b,r,c,color,[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]])}
-function kingMoves(b,r,c,color,attackOnly=false){
-  const moves=[];
-  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-    if(dr===0&&dc===0)continue;
-    const tr=r+dr,tc=c+dc;
-    if(canLandOn(b,tr,tc,color))moves.push({fr:r,fc:c,tr,tc});
-  }
-  if(attackOnly||mode==="duck")return moves;
-  const row=color===W?7:0;
-  const ks=color===W?"K":"k", qs=color===W?"Q":"q";
-  if(r!==row||c!==4)return moves;
-  const enemy=1-color;
-  if(castle[ks]&&!b[row][5]&&!b[row][6]){
-    const rook=b[row][7];
-    if(rook&&rook.t===R&&rook.c===color){
-      const ok=mode==="fog"||(!isSquareAttacked(b,row,4,enemy)&&!isSquareAttacked(b,row,5,enemy)&&!isSquareAttacked(b,row,6,enemy));
-      if(ok)moves.push({fr:r,fc:c,tr:row,tc:6,castle:"K"});
+
+function bishopMoves(boardState, r, c, color) {
+  return slideMoves(boardState, r, c, color, [[-1, -1], [-1, 1], [1, -1], [1, 1]]);
+}
+
+function rookMoves(boardState, r, c, color) {
+  return slideMoves(boardState, r, c, color, [[-1, 0], [1, 0], [0, -1], [0, 1]]);
+}
+
+function queenMoves(boardState, r, c, color) {
+  return slideMoves(boardState, r, c, color, [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]]);
+}
+
+/* 4. COMPORTEMENT DU ROI & ROQUE */
+function kingMoves(boardState, r, c, color, attackOnly = false) {
+  const moves = [];
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const targetRow = r + dr;
+      const targetCol = c + dc;
+      if (canLandOn(boardState, targetRow, targetCol, color)) {
+        moves.push({ fr: r, fc: c, tr: targetRow, tc: targetCol });
+      }
     }
   }
-  if(castle[qs]&&!b[row][1]&&!b[row][2]&&!b[row][3]){
-    const rook=b[row][0];
-    if(rook&&rook.t===R&&rook.c===color){
-      const ok=mode==="fog"||(!isSquareAttacked(b,row,4,enemy)&&!isSquareAttacked(b,row,3,enemy)&&!isSquareAttacked(b,row,2,enemy));
-      if(ok)moves.push({fr:r,fc:c,tr:row,tc:2,castle:"Q"});
+
+  if (attackOnly || mode === "duck") return moves;
+
+  const row = color === W ? 7 : 0;
+  const kingSideRight = color === W ? "K" : "k";
+  const queenSideRight = color === W ? "Q" : "q";
+
+  if (r !== row || c !== 4) return moves;
+
+  if (castle[kingSideRight] && !boardState[row][5] && !boardState[row][6]) {
+    const rook = boardState[row][7];
+    if (rook && rook.t === R && rook.c === color) {
+      const enemy = 1 - color;
+      const canCastle = mode === "fog" || (
+        !isSquareAttacked(boardState, row, 4, enemy) &&
+        !isSquareAttacked(boardState, row, 5, enemy) &&
+        !isSquareAttacked(boardState, row, 6, enemy)
+      );
+      if (canCastle) moves.push({ fr: r, fc: c, tr: row, tc: 6, castle: "K" });
+    }
+  }
+
+  if (castle[queenSideRight] && !boardState[row][1] && !boardState[row][2] && !boardState[row][3]) {
+    const rook = boardState[row][0];
+    if (rook && rook.t === R && rook.c === color) {
+      const enemy = 1 - color;
+      const canCastle = mode === "fog" || (
+        !isSquareAttacked(boardState, row, 4, enemy) &&
+        !isSquareAttacked(boardState, row, 3, enemy) &&
+        !isSquareAttacked(boardState, row, 2, enemy)
+      );
+      if (canCastle) moves.push({ fr: r, fc: c, tr: row, tc: 2, castle: "Q" });
     }
   }
   return moves;
 }
 
-/* ===== ATTAQUES ===== */
-function pieceAttacksSquare(b,piece,fr,fc,tr,tc){
-  const dr=tr-fr, dc=tc-fc;
-  if(piece.t===P){
-    const dir=piece.c===W?-1:1;
-    return dr===dir&&Math.abs(dc)===1;
+/* ==========================================
+   DÉTECTION DES MENACES, ÉCHECS ET PARCOURS
+========================================== */
+function pieceAttacksSquare(boardState, piece, fromR, fromC, toR, toC) {
+  const dr = toR - fromR;
+  const dc = toC - fromC;
+
+  if (piece.t === P) {
+    const direction = piece.c === W ? -1 : 1;
+    return dr === direction && Math.abs(dc) === 1;
   }
-  if(piece.t===N){
-    return (Math.abs(dr)===2&&Math.abs(dc)===1)||(Math.abs(dr)===1&&Math.abs(dc)===2);
+  if (piece.t === N) {
+    return (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
   }
-  if(piece.t===K){
-    return Math.abs(dr)<=1&&Math.abs(dc)<=1&&!(dr===0&&dc===0);
+  if (piece.t === K) {
+    return Math.abs(dr) <= 1 && Math.abs(dc) <= 1 && !(dr === 0 && dc === 0);
   }
-  if(piece.t===BI){
-    if(Math.abs(dr)!==Math.abs(dc)||dr===0)return false;
-    return isPathClear(b,fr,fc,tr,tc);
+  if (piece.t === BI) {
+    if (Math.abs(dr) !== Math.abs(dc) || dr === 0) return false;
+    return isPathClear(boardState, fromR, fromC, toR, toC);
   }
-  if(piece.t===R){
-    if(dr!==0&&dc!==0)return false;
-    if(dr===0&&dc===0)return false;
-    return isPathClear(b,fr,fc,tr,tc);
+  if (piece.t === R) {
+    if (dr !== 0 && dc !== 0) return false;
+    if (dr === 0 && dc === 0) return false;
+    return isPathClear(boardState, fromR, fromC, toR, toC);
   }
-  if(piece.t===Q){
-    const diag=Math.abs(dr)===Math.abs(dc);
-    const straight=dr===0||dc===0;
-    if(!diag&&!straight)return false;
-    if(dr===0&&dc===0)return false;
-    return isPathClear(b,fr,fc,tr,tc);
+  if (piece.t === Q) {
+    const diagonal = Math.abs(dr) === Math.abs(dc);
+    const straight = dr === 0 || dc === 0;
+    if (!diagonal && !straight) return false;
+    if (dr === 0 && dc === 0) return false;
+    return isPathClear(boardState, fromR, fromC, toR, toC);
   }
   return false;
 }
-function isPathClear(b,fr,fc,tr,tc){
-  const sr=Math.sign(tr-fr), sc=Math.sign(tc-fc);
-  let r=fr+sr, c=fc+sc;
-  while(r!==tr||c!==tc){
-    if(b[r][c])return false;
-    r+=sr;c+=sc;
+
+function isPathClear(boardState, fromR, fromC, toR, toC) {
+  const stepR = Math.sign(toR - fromR);
+  const stepC = Math.sign(toC - fromC);
+  let r = fromR + stepR;
+  let c = fromC + stepC;
+  while (r !== toR || c !== toC) {
+    if (boardState[r][c]) return false;
+    r += stepR; c += stepC;
   }
   return true;
 }
-function isSquareAttacked(b,tr,tc,attacker){
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const p=b[r][c];
-    if(!p||p.c!==attacker||p.t===DUCK)continue;
-    if(pieceAttacksSquare(b,p,r,c,tr,tc))return true;
+
+function isSquareAttacked(boardState, targetR, targetC, attackerColor) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const piece = boardState[r][c];
+      if (!piece || piece.c !== attackerColor || piece.t === DUCK) continue;
+      if (pieceAttacksSquare(boardState, piece, r, c, targetR, targetC)) return true;
+    }
   }
   return false;
 }
-function kingPos(b,color){
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++)
-    if(b[r][c]&&b[r][c].t===K&&b[r][c].c===color)return [r,c];
+
+function kingPos(boardState, color) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (boardState[r][c]?.t === K && boardState[r][c]?.c === color) return [r, c];
+    }
+  }
   return null;
 }
-function inCheck(b,color){
-  const k=kingPos(b,color);
-  if(!k)return true;
-  return isSquareAttacked(b,k[0],k[1],1-color);
+
+function inCheck(boardState, color) {
+  const k = kingPos(boardState, color);
+  if (!k) return true;
+  return isSquareAttacked(boardState, k[0], k[1], 1 - color);
 }
 
-/* ===== COUPS LEGAUX ===== */
-function pseudoMoves(b,color){
-  const moves=[];
-  if(mode==="duck"&&duckPhase){
-    for(let r=0;r<8;r++)for(let c=0;c<8;c++)
-      if(!b[r][c])moves.push({fr:duckPos[0],fc:duckPos[1],tr:r,tc:c,duck:true});
+/* ==========================================
+   ALGORITHMES DES VARIANTES & COUPS LÉGAUX
+========================================== */
+function pseudoMoves(boardState, color) {
+  const moves = [];
+  if (mode === "duck" && duckPhase) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (!boardState[r][c]) {
+          moves.push({ fr: duckPos[0], fc: duckPos[1], tr: r, tc: c, duck: true });
+        }
+      }
+    }
     return moves;
   }
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const p=b[r][c];
-    if(!p||p.c!==color||p.t===DUCK)continue;
-    if(p.t===P)moves.push(...pawnMoves(b,r,c,color));
-    if(p.t===N)moves.push(...knightMoves(b,r,c,color));
-    if(p.t===BI)moves.push(...bishopMoves(b,r,c,color));
-    if(p.t===R)moves.push(...rookMoves(b,r,c,color));
-    if(p.t===Q)moves.push(...queenMoves(b,r,c,color));
-    if(p.t===K)moves.push(...kingMoves(b,r,c,color));
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const piece = boardState[r][c];
+      if (!piece || piece.c !== color || piece.t === DUCK) continue;
+
+      if (piece.t === P) moves.push(...pawnMoves(boardState, r, c, color));
+      if (piece.t === N) moves.push(...knightMoves(boardState, r, c, color));
+      if (piece.t === BI) moves.push(...bishopMoves(boardState, r, c, color));
+      if (piece.t === R) moves.push(...rookMoves(boardState, r, c, color));
+      if (piece.t === Q) moves.push(...queenMoves(boardState, r, c, color));
+      if (piece.t === K) moves.push(...kingMoves(boardState, r, c, color));
+    }
   }
-  if(mode==="crazyhouse"){
-    for(const pt of reserves[color])for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-      if(b[r][c])continue;
-      if(pt===P&&(r===0||r===7))continue;
-      moves.push({drop:true,t:pt,tr:r,tc:c});
+
+  if (mode === "crazyhouse") {
+    for (const pieceType of reserves[color]) {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (boardState[r][c]) continue;
+          if (pieceType === P && (r === 0 || r === 7)) continue;
+          moves.push({ drop: true, t: pieceType, tr: r, tc: c });
+        }
+      }
     }
   }
   return moves;
 }
-function modeUsesCheckRules(color){
-  if(mode==="duck")return false;
-  if(mode==="pawnrace")return false;
-  if(mode==="horde"&&color===W)return false;
+
+function modeUsesCheckRules(color) {
+  if (mode === "duck" || mode === "pawnrace") return false;
+  if (mode === "horde" && color === W) return false;
   return true;
 }
-function legalMoves(color=turn){
-  const moves=pseudoMoves(board,color);
-  if(!modeUsesCheckRules(color))return moves;
-  if(mode==="fog"){
-    return moves.filter(m=>{
-      const test=apply(board,m,color);
-      const k=kingPos(test,color);
-      if(!k)return false;
-      return !visibleEnemyAttacksKing(test,color,k[0],k[1]);
+
+function legalMoves(color = turn) {
+  const moves = pseudoMoves(board, color);
+  if (!modeUsesCheckRules(color)) return moves;
+
+  if (mode === "fog") {
+    return moves.filter(move => {
+      const test = apply(board, move, color);
+      const k = kingPos(test, color);
+      if (!k) return false;
+      return !visibleEnemyAttacksKing(test, color, k[0], k[1]);
     });
   }
-  return moves.filter(m=>!inCheck(apply(board,m,color),color));
+
+  return moves.filter(m => !inCheck(apply(board, m, color), color));
 }
 
-/* ===== FOG ===== */
-function isSquareVisibleBy(b,tr,tc,color){
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const p=b[r][c];
-    if(!p||p.c!==color)continue;
-    if(r===tr&&c===tc)return true;
-    if(pieceAttacksSquare(b,p,r,c,tr,tc))return true;
-    if(p.t===N){
-      const dr=Math.abs(tr-r), dc=Math.abs(tc-c);
-      if((dr===2&&dc===1)||(dr===1&&dc===2))return true;
-    }
-    if(p.t===P){
-      const dir=p.c===W?-1:1;
-      if(tr===r+dir&&tc===c)return true;
+/* ==========================================
+   BROUILLARD DE GUERRE & VISION
+========================================== */
+function isSquareVisibleBy(boardState, targetR, targetC, color) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const piece = boardState[r][c];
+      if (!piece || piece.c !== color) continue;
+      if (r === targetR && c === targetC) return true;
+      if (pieceAttacksSquare(boardState, piece, r, c, targetR, targetC)) return true;
+      if (piece.t === N) {
+        const dr = Math.abs(targetR - r), dc = Math.abs(targetC - c);
+        if ((dr === 2 && dc === 1) || (dr === 1 && dc === 2)) return true;
+      }
     }
   }
   return false;
 }
-function visibleEnemyAttacksKing(b,color,kr,kc){
-  const enemy=1-color;
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const e=b[r][c];
-    if(!e||e.c!==enemy)continue;
-    if(!isSquareVisibleBy(b,r,c,color))continue;
-    if(pieceAttacksSquare(b,e,r,c,kr,kc))return true;
+
+function visibleEnemyAttacksKing(boardState, kingColor, kingR, kingC) {
+  const enemy = 1 - kingColor;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const enemyPiece = boardState[r][c];
+      if (!enemyPiece || enemyPiece.c !== enemy) continue;
+      if (!isSquareVisibleBy(boardState, r, c, kingColor)) continue;
+      if (pieceAttacksSquare(boardState, enemyPiece, r, c, kingR, kingC)) return true;
+    }
   }
   return false;
 }
-function visible(r,c){
-  const vc=opponentType==="pvp"?turn:W;
-  return isSquareVisibleBy(board,r,c,vc);
+
+function visible(r, c) {
+  const visionColor = opponentType === "pvp" ? turn : W;
+  return isSquareVisibleBy(board, r, c, visionColor);
 }
 
-/* ===== APPLIQUER UN COUP ===== */
-function apply(b,m,color=turn){
-  const nb=clone(b);
-  if(m.drop){nb[m.tr][m.tc]={t:m.t,c:color};return nb}
-  if(m.duck){nb[m.fr][m.fc]=null;nb[m.tr][m.tc]={t:DUCK,c:-1};return nb}
-  const p=nb[m.fr][m.fc];
-  if(!p)return nb;
-  if(m.ep)nb[m.fr][m.tc]=null;
-  nb[m.tr][m.tc]=p;nb[m.fr][m.fc]=null;
-  if(m.promo)p.t=m.promo;
-  if(m.castle==="K"){nb[m.fr][5]=nb[m.fr][7];nb[m.fr][7]=null}
-  if(m.castle==="Q"){nb[m.fr][3]=nb[m.fr][0];nb[m.fr][0]=null}
-  return nb;
+/* ==========================================
+   TRANSFORMATIONS DE COUPS ET SIMULATIONS
+========================================== */
+function apply(boardState, move, color = turn) {
+  const nextBoard = clone(boardState);
+  if (move.drop) {
+    nextBoard[move.tr][move.tc] = { t: move.t, c: color };
+    return nextBoard;
+  }
+  if (move.duck) {
+    nextBoard[move.fr][move.fc] = null;
+    nextBoard[move.tr][move.tc] = { t: DUCK, c: -1 };
+    return nextBoard;
+  }
+  const piece = nextBoard[move.fr][move.fc];
+  if (!piece) return nextBoard;
+
+  if (move.ep) nextBoard[move.fr][move.tc] = null;
+  nextBoard[move.tr][move.tc] = piece;
+  nextBoard[move.fr][move.fc] = null;
+
+  if (move.promo) piece.t = move.promo;
+  if (move.castle === "K") {
+    nextBoard[move.fr][5] = nextBoard[move.fr][7];
+    nextBoard[move.fr][7] = null;
+  }
+  if (move.castle === "Q") {
+    nextBoard[move.fr][3] = nextBoard[move.fr][0];
+    nextBoard[move.fr][0] = null;
+  }
+  return nextBoard;
 }
 
-/* ===== ANIMATION BATTLE ===== */
-function playBattleCaptureAnimation(fr,fc,tr,tc){
-  if(!view3d)return;
-  const boardEl=document.getElementById("board");
-  const squares=boardEl.querySelectorAll(".square");
-  const attacker=squares[fr*8+fc]?.querySelector(".piece");
-  const victimSq=squares[tr*8+tc];
-  const victim=victimSq?.querySelector(".piece");
-  if(attacker)attacker.classList.add("battle-attacker");
-  if(victim)victim.classList.add("battle-victim");
-  if(victimSq){
-    const rect=victimSq.getBoundingClientRect();
-    const cloud=document.createElement("div");
-    cloud.className="battle-cloud";
-    cloud.textContent="💥";
-    cloud.style.left=`${rect.left+rect.width/2}px`;
-    cloud.style.top=`${rect.top+rect.height/2}px`;
-    document.body.appendChild(cloud);
-    setTimeout(()=>cloud.remove(),700);
-  }
-  setTimeout(()=>{
-    if(attacker)attacker.classList.remove("battle-attacker");
-    if(victim)victim.classList.remove("battle-victim");
-  },700);
-}
+/* ==========================================
+   EXÉCUTION DU MOUVEMENT (PLAY)
+========================================== */
+function play(m) {
+  if (!gameActive) return;
 
-/* ===== JOUER UN COUP ===== */
-function play(m){
-  if(!gameActive)return;
-
-  if(m.drop){
-    reserves[turn].splice(reserves[turn].indexOf(m.t),1);
-    board=apply(board,m);finishTurn(m);return;
+  if (m.drop) {
+    reserves[turn].splice(reserves[turn].indexOf(m.t), 1);
+    board = apply(board, m);
+    finishTurn(m); return;
   }
-  if(m.duck){
-    board=apply(board,m);duckPos=[m.tr,m.tc];duckPhase=false;
-    document.getElementById("duckNotice").style.display="none";
-    finishTurn(m);return;
+  if (m.duck) {
+    board = apply(board, m);
+    duckPos = [m.tr, m.tc];
+    duckPhase = false;
+    document.getElementById("duckNotice").style.display = "none";
+    finishTurn(m); return;
   }
 
-  const piece=board[m.fr][m.fc];
-  let captured=m.ep?board[m.fr][m.tc]:board[m.tr][m.tc];
+  const piece = board[m.fr][m.fc];
+  let captured = m.ep ? board[m.fr][m.tc] : board[m.tr][m.tc];
 
-  if(captured&&captured.t!==DUCK&&!m.ep){
-    playBattleCaptureAnimation(m.fr,m.fc,m.tr,m.tc);
-  }
-  if(captured&&captured.t!==DUCK){
-    if(mode==="crazyhouse"&&captured.t!==K)reserves[turn].push(captured.t);
+  if (captured && captured.t !== DUCK && !m.ep && !m.drop && !m.duck) {
+    playBattleCaptureAnimation(m.fr, m.fc, m.tr, m.tc);
   }
 
-  board=apply(board,m);
-
-  if(mode==="atomic"&&captured&&captured.t!==DUCK){
-    const cr=m.tr,cc=m.tc;
-    board[cr][cc]=null;
-    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-      if(dr===0&&dc===0)continue;
-      const r=cr+dr,c=cc+dc;if(!inside(r,c))continue;
-      const v=board[r][c];
-      if(v&&v.t!==P&&v.t!==DUCK)board[r][c]=null;
+  if (captured && captured.t !== DUCK) {
+    if (mode === "crazyhouse" && captured.t !== K) {
+      reserves[turn].push(captured.t);
     }
-    if(!kingPos(board,W)){end("💥 Le Roi blanc a explosé ! Marron gagne !");return}
-    if(!kingPos(board,B)){end("💥 Le Roi marron a explosé ! Blanc gagne !");return}
   }
 
-  ep=null;
-  if(piece.t===P&&Math.abs(m.tr-m.fr)===2)ep=[(m.tr+m.fr)/2,m.fc];
+  board = apply(board, m);
 
-  if(piece.t===K){
-    if(turn===W){castle.K=false;castle.Q=false}else{castle.k=false;castle.q=false}
-  }
-  if(piece.t===R){
-    if(m.fr===7&&m.fc===0)castle.Q=false;
-    if(m.fr===7&&m.fc===7)castle.K=false;
-    if(m.fr===0&&m.fc===0)castle.q=false;
-    if(m.fr===0&&m.fc===7)castle.k=false;
+  /* CAS UNIQUE : VARIANTE ATOMIQUE */
+  if (mode === "atomic" && captured && captured.t !== DUCK) {
+    const cr = m.tr, cc = m.tc;
+    board[cr][cc] = null; // Pièce attaquante volatilisée
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const r = cr + dr, c = cc + dc;
+        if (!inside(r, c)) continue;
+        const victim = board[r][c];
+        if (victim && victim.t !== P) board[r][c] = null; // Les pions résistent à l'explosion
+      }
+    }
+    if (!kingPos(board, W)) { end("💥 Le Roi blanc a explosé ! Les Noirs triomphent."); return; }
+    if (!kingPos(board, B)) { end("💥 Le Roi noir a explosé ! Tu as gagné !"); return; }
   }
 
-  if(mode==="duck"){
-    duckPhase=true;lastFrom=[m.fr,m.fc];lastTo=[m.tr,m.tc];
-    document.getElementById("duckNotice").style.display="block";
-    render();status("🦆 Déplace maintenant le canard !");
+  ep = null;
+  if (piece.t === P && Math.abs(m.tr - m.fr) === 2) {
+    ep = [(m.tr + m.fr) / 2, m.fc];
+  }
+
+  if (piece.t === K) {
+    if (turn === W) { castle.K = false; castle.Q = false; }
+    else { castle.k = false; castle.q = false; }
+  }
+  if (piece.t === R) {
+    if (m.fr === 7 && m.fc === 0) castle.Q = false;
+    if (m.fr === 7 && m.fc === 7) castle.K = false;
+    if (m.fr === 0 && m.fc === 0) castle.q = false;
+    if (m.fr === 0 && m.fc === 7) castle.k = false;
+  }
+
+  if (mode === "duck") {
+    duckPhase = true;
+    lastFrom = [m.fr, m.fc]; lastTo = [m.tr, m.tc];
+    document.getElementById("duckNotice").style.display = "block";
+    render();
+    status("🦆 Déplace maintenant le canard sur une case vide.");
     return;
   }
+
   finishTurn(m);
 }
-function finishTurn(m){
-  lastFrom=m.drop?null:[m.fr,m.fc];lastTo=[m.tr,m.tc];
-  moveHistory.push(m);turn=1-turn;
-  render();updateClocks();
-  if(variantWin()||gameEnd())return;
-  if(opponentType==="ai"&&turn===B){
+
+function finishTurn(m) {
+  lastFrom = m.drop ? null : [m.fr, m.fc];
+  lastTo = [m.tr, m.tc];
+  moveHistory.push(m);
+  turn = 1 - turn;
+
+  render();
+  updateClocks();
+
+  if (variantWin() || gameEnd()) return;
+
+  if (opponentType === "ai" && turn === B) {
     status("🤖 Le Bot Marron réfléchit...");
-    setTimeout(aiMove,450);
+    setTimeout(aiMove, 450);
     return;
   }
-  if(opponentType==="pvp"){
-    if(turn===W)status("⬜ Tour du Joueur Blanc.");
-    else status("🟤 Tour du Joueur Marron.");
-    if(checkRules(turn)&&inCheck(board,turn)){
-      status(turn===W?"⚠️ Joueur Blanc : Roi en échec !":"⚠️ Joueur Marron : Roi en échec !");
+
+  if (opponentType === "pvp") {
+    status(turn === W ? "⬜ Tour du Joueur Blanc." : "🟤 Tour du Joueur Marron.");
+    if (checkRules(turn) && inCheck(board, turn)) {
+      status(turn === W ? "⚠️ Joueur Blanc : votre Roi est en échec !" : "⚠️ Joueur Marron : votre Roi est en échec !");
     }
     return;
   }
-  if(checkRules(W)&&inCheck(board,W))status("⚠️ Ton Roi est en échec !");
-  else status("⬜ À toi de jouer.");
-}
-function checkRules(color){return modeUsesCheckRules(color)}
 
-function variantWin(){
-  if(mode==="koth"){
-    for(const [r,c] of [[3,3],[3,4],[4,3],[4,4]]){
-      if(board[r][c]&&board[r][c].t===K){
-        end(board[r][c].c===W?"🏔️ Roi de la Colline ! Blanc gagne !":"🏔️ Marron atteint la colline !");
+  if (checkRules(W) && inCheck(board, W)) {
+    status("⚠️ Ton Roi est en échec !");
+  } else {
+    status("⬜ À toi de jouer.");
+  }
+}
+
+function variantWin() {
+  if (mode === "koth") {
+    for (const [r, c] of [[3, 3], [3, 4], [4, 3], [4, 4]]) {
+      if (board[r][c]?.t === K) {
+        end(board[r][c].c === W ? "🏔️ Roi de la Colline ! Les Blancs ont conquis le centre." : "🏔️ Le Roi noir est sur le sommet !");
         return true;
       }
     }
   }
-  if(mode==="pawnrace"){
-    for(let c=0;c<8;c++){
-      if(board[0][c]&&board[0][c].c===W){end("🏃 Pion blanc promu ! Victoire !");return true}
-      if(board[7][c]&&board[7][c].c===B){end("🏃 Pion marron promu ! Victoire marron !");return true}
+  if (mode === "pawnrace") {
+    for (let c = 0; c < 8; c++) {
+      if (board[0][c]?.c === W) {
+        end("🏃 Ton pion atteint la ligne d'arrivée ! Victoire !"); return true;
+      }
+      if (board[7][c]?.c === B) {
+        end("🏃 Le pion noir gagne la Course des Pions !"); return true;
+      }
     }
   }
-  if(mode==="horde"){
-    let w=0;for(const row of board)for(const p of row)if(p&&p.c===W)w++;
-    if(!w){end("La Horde est détruite ! Marron gagne.");return true}
+  if (mode === "horde") {
+    let white = 0;
+    for (const row of board) {
+      for (const p of row) if (p?.c === W) white++;
+    }
+    if (!white) {
+      end("👹 La Horde a été anéantie ! Les Marrons gagnent."); return true;
+    }
   }
-  if(mode==="duck"){
-    if(!kingPos(board,W)){end("Roi blanc capturé ! Marron gagne.");return true}
-    if(!kingPos(board,B)){end("Roi marron capturé ! Blanc gagne !");return true}
+  if (mode === "duck") {
+    if (!kingPos(board, W)) { end("Le Roi blanc est capturé ! Le Bot Marron l'emporte."); return true; }
+    if (!kingPos(board, B)) { end("Le Roi noir est capturé ! Victoire impériale !"); return true; }
   }
   return false;
 }
-function gameEnd(){
-  const lm=legalMoves(turn);
-  if(lm.length)return false;
-  if(mode==="pawnrace"){end(turn===W?"Blanc bloqué : Marron gagne.":"Marron bloqué : Blanc gagne.");return true}
-  if(mode==="duck"){end("Le canard bloque tout : match nul.");return true}
-  if(checkRules(turn)&&inCheck(board,turn)){
-    end(turn===W?"Échec et mat ! Marron gagne.":"Échec et mat ! Blanc gagne !");
-  }else end("Pat ! Match nul.");
+
+function gameEnd() {
+  const lm = legalMoves(turn);
+  if (lm.length) return false;
+  if (mode === "pawnrace") {
+    end(turn === W ? "Tu es bloqué ! Défaite tactique." : "Les Marrons sont bloqués ! Victoire !"); return true;
+  }
+  if (mode === "duck") {
+    end("Le Canard bloque absolument tout ! Match nul."); return true;
+  }
+  if (checkRules(turn) && inCheck(board, turn)) {
+    end(turn === W ? "Échec et mat ! Les Marrons l'emportent." : "Échec et mat ! Victoire majestueuse !");
+  } else {
+    end("Pat ! Match nul sur l'échiquier.");
+  }
   return true;
 }
 
-/* ===== IA ===== */
-function aiMove(){
-  if(!gameActive||turn!==B)return;
-  const ms=legalMoves(B);
-  if(!ms.length){gameEnd();return}
-  let best=ms[0],bestScore=-9999;
-  for(const m of ms){
-    let score=Math.random()*(difficulty===0?25:3);
-    if(m.drop)score+=(VALUE[m.t]||0)*2;
-    else{
-      const t=board[m.tr][m.tc];
-      if(t&&t.t!==DUCK)score+=(VALUE[t.t]||0)*10;
-      if(m.promo)score+=VALUE[m.promo]*8;
-      if(m.castle)score+=4;
-      if(m.tr>=2&&m.tr<=5&&m.tc>=2&&m.tc<=5)score+=1;
+/* ==========================================
+   BOT D'INTELLIGENCE ARTIFICIELLE
+========================================== */
+function aiMove() {
+  if (!gameActive || turn !== B) return;
+  const ms = legalMoves(B);
+  if (!ms.length) { gameEnd(); return; }
+
+  let best = ms[0];
+  let bestScore = -999999;
+
+  for (const m of ms) {
+    let score = Math.random() * (difficulty === 0 ? 120 : 5);
+    if (m.drop) {
+      score += (VALUE[m.t] || 0) * 0.22;
+    } else {
+      const target = board[m.tr][m.tc];
+      if (target) score += (VALUE[target.t] || 0) * 8;
+      if (m.promo) score += 120;
+      if (m.castle) score += 15;
+      if (m.tr >= 2 && m.tr <= 5 && m.tc >= 2 && m.tc <= 5) score += 3;
     }
-    if(difficulty>=2){
-      const test=apply(board,m,B);
-      if(!inCheck(test,B)&&inCheck(test,W))score+=6;
+    if (score > bestScore) {
+      bestScore = score; best = m;
     }
-    if(score>bestScore){bestScore=score;best=m}
   }
   play(best);
 }
 
-/* ===== AFFICHAGE ===== */
-function render(){
-  const el=document.getElementById("board");
-  el.innerHTML="";
-  el.classList.toggle("battle-mode",view3d);
-  const moves=legalMoves(turn);
-  const targets=selected&&selected[0]!=="drop"
-    ? moves.filter(m=>!m.drop&&m.fr===selected[0]&&m.fc===selected[1])
-    : (selected&&selected[0]==="drop"?moves.filter(m=>m.drop&&m.t===selected[1]):[]);
+/* ==========================================
+   RENDU VISUEL ET ACTIONS UTILISATEURS
+========================================== */
+function render() {
+  const el = document.getElementById("board");
+  el.innerHTML = "";
+  el.classList.toggle("battle-mode", view3d);
 
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const s=document.createElement("div");
-    s.className="square "+((r+c)%2?"dark":"light");
-    if(lastFrom&&lastFrom[0]===r&&lastFrom[1]===c)s.classList.add("last");
-    if(lastTo&&lastTo[0]===r&&lastTo[1]===c)s.classList.add("last");
-    if(selected&&selected[0]!=="drop"&&selected[0]===r&&selected[1]===c)s.classList.add("selected");
-    const hit=targets.find(m=>m.tr===r&&m.tc===c);
-    if(hit)s.classList.add(board[r][c]?"capture":"dot");
-    const kp=kingPos(board,turn);
-    if(kp&&kp[0]===r&&kp[1]===c&&checkRules(turn)&&inCheck(board,turn))s.classList.add("check");
-    if(mode==="fog"&&!visible(r,c))s.classList.add("fog");
-    if(c===0)s.innerHTML+=`<span class="coord rank">${8-r}</span>`;
-    if(r===7)s.innerHTML+=`<span class="coord file">${F[c]}</span>`;
-    const p=board[r][c];
-    if(p){
-      let cls="piece";
-      if(p.c===W)cls+=" white-piece";
-      if(p.c===B)cls+=" brown-piece";
-      s.innerHTML+=`<span class="${cls}">${ICON[p.c]?.[p.t]||"🦆"}</span>`;
+  const lm = legalMoves(turn);
+  const targets = selected ? lm.filter(m => !m.drop && m.fr === selected[0] && m.fc === selected[1]) : [];
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const s = document.createElement("div");
+      s.className = "square " + ((r + c) % 2 ? "dark" : "light");
+
+      if (lastFrom && lastFrom[0] === r && lastFrom[1] === c) s.classList.add("last");
+      if (lastTo && lastTo[0] === r && lastTo[1] === c) s.classList.add("last");
+      if (selected && selected[0] === r && selected[1] === c) s.classList.add("selected");
+
+      const possible = targets.find(m => m.tr === r && m.tc === c);
+      if (possible) s.classList.add(board[r][c] ? "capture" : "dot");
+
+      const kp = kingPos(board, turn);
+      if (kp && kp[0] === r && kp[1] === c && checkRules(turn) && inCheck(board, turn)) {
+        s.classList.add("check");
+      }
+
+      if (mode === "fog" && !visible(r, c)) s.classList.add("fog");
+
+      if (c === 0) s.innerHTML += `<span class="coord rank">${8 - r}</span>`;
+      if (r === 7) s.innerHTML += `<span class="coord file">${F[c]}</span>`;
+
+      const p = board[r][c];
+      if (p) {
+        let pieceClass = "piece";
+        if (p.c === W) pieceClass += " white-piece";
+        if (p.c === B) pieceClass += " brown-piece";
+
+        s.innerHTML += `<span class="${pieceClass}">${ICON[p.c]?.[p.t] || "🦆"}</span>`;
+      }
+
+      s.onclick = () => clickSquare(r, c);
+      el.appendChild(s);
     }
-    s.onclick=()=>clickSquare(r,c);
-    el.appendChild(s);
   }
   renderReserve();
 }
-function renderReserve(){
-  const wr=document.getElementById("whiteReserve");
-  const br=document.getElementById("blackReserve");
-  if(mode!=="crazyhouse"){wr.style.display="none";br.style.display="none";return}
-  wr.style.display="block";br.style.display="block";
-  wr.innerHTML="⬜ Réserve blanche : ";
-  br.innerHTML="🟤 Réserve marron : ";
-  reserves[W].forEach(t=>{
-    const b=document.createElement("button");
-    b.textContent=ICON[W][t];
-    b.onclick=()=>selectDrop(t,W);
+
+function renderReserve() {
+  const wr = document.getElementById("whiteReserve");
+  const br = document.getElementById("blackReserve");
+  if (mode !== "crazyhouse") {
+    wr.style.display = "none"; br.style.display = "none"; return;
+  }
+  wr.style.display = "flex"; br.style.display = "flex";
+  wr.innerHTML = "⬜ Réserve blanche : ";
+  br.innerHTML = "🟤 Réserve marron : ";
+
+  reserves[W].forEach(t => {
+    const b = document.createElement("button");
+    b.textContent = ICON[W][t];
+    b.onclick = () => selectDrop(t, W);
     wr.appendChild(b);
   });
-  reserves[B].forEach(t=>{
-    const b=document.createElement("button");
-    b.textContent=ICON[B][t];
-    b.onclick=()=>selectDrop(t,B);
+  reserves[B].forEach(t => {
+    const b = document.createElement("button");
+    b.textContent = ICON[B][t];
+    b.onclick = () => selectDrop(t, B);
     br.appendChild(b);
   });
 }
-function selectDrop(t,color){
-  if(opponentType==="ai"&&color!==W)return;
-  if(color!==turn)return;
-  selected=["drop",t];
-  status(color===W?"⬜ Choisis une case vide.":"🟤 Choisis une case vide.");
+
+function selectDrop(t, color) {
+  if (opponentType === "ai" && color !== W) return;
+  if (color !== turn) return;
+  selected = ["drop", t];
+  status(color === W ? "⬜ Blanc : choisis une case vide pour poser ta pièce." : "🟤 Marron : choisis une case vide.");
   render();
 }
-function clickSquare(r,c){
-  if(!gameActive)return;
-  if(opponentType==="ai"&&turn!==W)return;
-  if(duckPhase){
-    const m=legalMoves().find(x=>x.duck&&x.tr===r&&x.tc===c);
-    if(m)play(m);return;
+
+function clickSquare(r, c) {
+  if (!gameActive) return;
+  if (opponentType === "ai" && turn !== W) return;
+
+  if (duckPhase) {
+    const m = legalMoves().find(x => x.duck && x.tr === r && x.tc === c);
+    if (m) play(m); return;
   }
-  if(selected&&selected[0]==="drop"){
-    const m=legalMoves().find(x=>x.drop&&x.t===selected[1]&&x.tr===r&&x.tc===c);
-    if(m){selected=null;play(m)}return;
+  if (selected?.[0] === "drop") {
+    const m = legalMoves().find(x => x.drop && x.t === selected[1] && x.tr === r && x.tc === c);
+    if (m) { selected = null; play(m); } return;
   }
-  const moves=legalMoves();
-  if(selected){
-    const choices=moves.filter(m=>!m.drop&&m.fr===selected[0]&&m.fc===selected[1]&&m.tr===r&&m.tc===c);
-    if(choices.length>0){
-      if(choices.length>1&&choices[0].promo){askPromotion(choices);return}
-      selected=null;play(choices[0]);return;
+
+  const moves = legalMoves();
+  if (selected) {
+    const opts = moves.filter(m => !m.drop && m.fr === selected[0] && m.fc === selected[1] && m.tr === r && m.tc === c);
+    if (opts.length) {
+      if (opts.length > 1 && opts[0].promo) {
+        askPromotion(opts); return;
+      }
+      selected = null; play(opts[0]); return;
     }
   }
-  const p=board[r][c];
-  if(p&&p.c===turn&&p.t!==DUCK)selected=[r,c];
-  else selected=null;
+  const p = board[r][c];
+  if (p && p.c === turn && p.t !== DUCK) selected = [r, c];
+  else selected = null;
   render();
 }
 
-/* ===== PROMOTION ===== */
-function askPromotion(moves){
-  pendingPromotionMoves=moves;
-  document.getElementById("promotionBox").classList.remove("hidden");
-}
-function choosePromotion(pt){
-  const m=pendingPromotionMoves.find(x=>x.promo===pt);
-  if(m){
-    document.getElementById("promotionBox").classList.add("hidden");
-    selected=null;play(m);
-  }
-  pendingPromotionMoves=[];
+function askPromotion(moves) {
+  pendingPromotionMoves = moves;
+  document.getElementById("promotionBox").classList.add("show");
 }
 
-/* ===== TIMER & FIN ===== */
-function startTimer(){
+function choosePromotion(pieceType) {
+  const m = pendingPromotionMoves.find(x => x.promo === pieceType);
+  if (m) {
+    document.getElementById("promotionBox").classList.remove("show");
+    selected = null;
+    play(m);
+  }
+  pendingPromotionMoves = [];
+}
+
+/* ==========================================
+   VISUELS DE COMBAT BATTLE CHESS 1988
+========================================== */
+function playBattleCaptureAnimation(fromR, fromC, toR, toC) {
+  if (!view3d) return;
+
+  const boardEl = document.getElementById("board");
+  if (!boardEl) return;
+
+  const squares = boardEl.querySelectorAll(".square");
+  const attackerSq = squares[fromR * 8 + fromC];
+  const victimSq = squares[toR * 8 + toC];
+
+  if (!attackerSq || !victimSq) return;
+
+  const attacker = attackerSq.querySelector(".piece");
+  const victim = victimSq.querySelector(".piece");
+
+  if (attacker) attacker.classList.add("battle-attacker");
+  if (victim) victim.classList.add("battle-victim");
+
+  const rect = victimSq.getBoundingClientRect();
+  const cloud = document.createElement("div");
+  cloud.className = "battle-cloud";
+  cloud.textContent = "💥";
+  cloud.style.left = `${rect.left + rect.width / 2}px`;
+  cloud.style.top = `${rect.top + rect.height / 2}px`;
+
+  document.body.appendChild(cloud);
+
+  setTimeout(() => {
+    if (attacker) attacker.classList.remove("battle-attacker");
+    if (victim) victim.classList.remove("battle-victim");
+    cloud.remove();
+  }, 700);
+}
+
+/* ==========================================
+   CHRONOMÈTRES & SYSTÈME GLOBAL
+========================================== */
+function startTimer() {
   clearInterval(timer);
-  timer=setInterval(()=>{
-    if(!gameActive)return;
-    if(turn===W)wt--;else bt--;
+  timer = setInterval(() => {
+    if (!gameActive) return;
+    if (turn === W) wt--; else bt--;
     updateClocks();
-    if(wt<=0)end("Temps écoulé ! Marron gagne.");
-    if(bt<=0)end("Temps écoulé ! Blanc gagne !");
-  },1000);
+    if (wt <= 0) end("Temps écoulé ! Les Marrons s'imposent !");
+    if (bt <= 0) end("Temps écoulé ! Victoire impériale des Blancs.");
+  }, 1000);
 }
-function fmt(t){return `${Math.floor(Math.max(0,t)/60)}:${String(Math.max(0,t)%60).padStart(2,"0")}`}
-function updateClocks(){
-  const a=document.getElementById("whiteClock"),b=document.getElementById("blackClock");
-  a.textContent=fmt(wt);b.textContent=fmt(bt);
-  a.classList.toggle("active",turn===W);
-  b.classList.toggle("active",turn===B);
+
+function fmt(t) {
+  return `${Math.floor(Math.max(0,t)/60)}:${String(Math.max(0,t)%60).padStart(2,"0")}`;
 }
-function status(t){document.getElementById("status").textContent=t}
-function end(text){
-  gameActive=false;clearInterval(timer);
-  document.getElementById("endText").textContent=text;
+
+function updateClocks() {
+  const a = document.getElementById("whiteClock"), b = document.getElementById("blackClock");
+  a.textContent = fmt(wt); b.textContent = fmt(bt);
+  a.classList.toggle("active", turn === W);
+  b.classList.toggle("active", turn === B);
+}
+
+function status(t) {
+  document.getElementById("status").textContent = t;
+}
+
+function end(text) {
+  gameActive = false;
+  clearInterval(timer);
+  document.getElementById("endText").textContent = text;
   document.getElementById("overlay").classList.add("show");
 }
-function toggleView(){
-  view3d=!view3d;
-  const btn=document.getElementById("viewBtn");
-  if(view3d){btn.textContent="⚔️ BATTLE";status("⚔️ Mode Battle Chess activé !")}
-  else{btn.textContent="♟ 2D";status("♟ Vue classique 2D.")}
+
+function toggleView() {
+  view3d = !view3d;
+  const btn = document.getElementById("viewBtn");
+  if (view3d) {
+    btn.textContent = "⚔️ BATTLE";
+    status("⚔️ Mode Battle Chess activé !");
+  } else {
+    btn.textContent = "♟ 2D";
+    status("♟ Vue classique 2D activée.");
+  }
   render();
 }
+
+status("Prêt.");
 </script>
 </body>
 </html>
